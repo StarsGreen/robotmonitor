@@ -19,8 +19,8 @@ extern struct udp_flag u_flag;
 extern sem_t v_get,v_send;
 
 extern int read_file_to_buff(char* filename,unsigned char* buff);
-extern int yuyv_to_jpeg(unsigned char* yuv422,int quality,
-int width, int height);
+extern int yuyv_to_jpeg(unsigned char* yuv422,unsigned char** jpeg_buff,
+unsigned long* jpeg_size,int quality,int width, int height);
 ////////////////////////////////////////////
 int get_len(unsigned char* buff,int len)
 {
@@ -45,14 +45,9 @@ void* video_broadcast_thread(void)
 {
 	struct sockaddr_in client_addr;
 //	char msg[BUFFER_SIZE];
-	int ss,ret,send_len,opt=1;
-	int j,file_len;
-//	unsigned char video_buff[50*1024];
-//	memset(video_buff,0,sizeof(video_buff));  
-
-	char end[3]={"end"};
-	char start[5]={"start"};
-    /* create the socket commanted by greenstar*/  
+	int ss,ret,opt=1;
+	int j;
+   /* create the socket commanted by greenstar*/  
 	if ((ss = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {  
 	perror("Create UDPclient failed");  
 	exit(0);  
@@ -79,7 +74,7 @@ while(1)
 {		
 	pthread_testcancel();	
 unsigned char* jpeg_buff=(unsigned char*)malloc(VIDEO_WIDTH*VIDEO_HEIGHT);
-	long jpeg_size=VIDEO_WIDTH*VIDEO_HEIGHT;
+	unsigned long jpeg_size=VIDEO_WIDTH*VIDEO_HEIGHT;
 	
 	yuyv_to_jpeg(v_data.start_data,&jpeg_buff,&jpeg_size,
 	QUALITY,VIDEO_WIDTH,VIDEO_HEIGHT);	
@@ -91,7 +86,7 @@ unsigned char* jpeg_buff=(unsigned char*)malloc(VIDEO_WIDTH*VIDEO_HEIGHT);
 	sem_wait(&v_send);
 
 
-sendto(ss,jpeg_buff,jpeg_size,5,0,(struct sockaddr*)&client_addr,addr_len);
+sendto(ss,jpeg_buff,jpeg_size,0,(struct sockaddr*)&client_addr,addr_len);
 
 
 	sem_post(&v_get);

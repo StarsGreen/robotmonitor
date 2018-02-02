@@ -52,8 +52,8 @@ int width, int height)
     free(yuv444);
 }
 //////////////////////////////////////////////////////
-static void rgb24_to_jpeg(unsigned char *rgb24,unsifned char** jpeg_buff,
-unsigned long *jpegsize,int width, int height,int quality )
+static void rgb24_to_jpeg(unsigned char *rgb24,unsigned char** jpeg_buff,
+unsigned long *jpeg_size,int width, int height,int quality )
 {
   struct jpeg_compress_struct cinfo;
   struct jpeg_error_mgr jerr;
@@ -99,7 +99,7 @@ unsigned long *jpegsize,int width, int height,int quality )
 
   jpeg_finish_compress(&cinfo);
   /* After finish_compress, we can close the output file. */
-  fclose(outfile);
+//  fclose(outfile);
 
   /* This is an important step since it will release a good deal of memory. */
   jpeg_destroy_compress(&cinfo);
@@ -107,8 +107,8 @@ unsigned long *jpegsize,int width, int height,int quality )
 }
 
 ////////////////////////////////////////////////////////
-int yuyv_to_jpeg(unsigned char* yuv422,unsifned char** jpeg_buff,
-unsigned long *jpegsize,int quality,int width, int height)
+int yuyv_to_jpeg(unsigned char* yuv422,unsigned char** jpeg_buff,
+unsigned long *jpeg_size,int quality,int width, int height)
 {	
 	unsigned char* rgb24=(unsigned char *)malloc(width*height*3);
  	yuv422_to_rgb24(yuv422,rgb24,width,height);
