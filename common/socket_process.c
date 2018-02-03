@@ -27,7 +27,6 @@ int err;
 ///////////////////////////////////////////
 void cancel_socket_pro_thread()
 {
-
 	if(pthread_cancel(info_thread)<0)
 		printf("cancel info thread failed");
 	else{
@@ -101,6 +100,8 @@ return status;
 ////////////////////////////////////////////
 void socket_process(void)
 {
+       printf("this is socket pro :%d",getpid());
+
 	if(signal(SIGINT,signal_socket_proceed)==SIG_ERR)
 		perror(" socket signal error");
 	sock_info.data_trans_status=0;

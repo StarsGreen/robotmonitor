@@ -1,7 +1,7 @@
 TOPDIR=$(shell pwd)
 INCDIR=$(TOPDIR)/include
 COMPILE=gcc
-OBJ=Robot
+OBJ=robot
 DEP= $(TOPDIR)/common/socket_process.c $(TOPDIR)/common/video_get_thread.c\
 	$(TOPDIR)/common/info_conm_thread.c $(TOPDIR)/common/monitor_process.c\
 	$(TOPDIR)/common/video_broadcast_thread.c\
@@ -11,6 +11,6 @@ DEP= $(TOPDIR)/common/socket_process.c $(TOPDIR)/common/video_get_thread.c\
 	$(TOPDIR)/drivers/file_wr.c main.c
 
 all :
-	$(COMPILE) -Wall $(DEP) -o $(OBJ) -lpthread -ljpeg -I $(INCDIR)
+	$(COMPILE) -Wall $(DEP) -o $(OBJ) -lpthread -ljpeg -g -I $(INCDIR)
 clean:
 	rm -rf *.o Robot

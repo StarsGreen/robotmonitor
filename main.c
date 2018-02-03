@@ -26,7 +26,6 @@ pid_t monitor_pro_pid,socket_pro_pid,cmd_pro_pid,err;
 //////////////////////////////////////////////
 int  main(int argc, char **argv)
 {
-//	sig_init();
 	create_all_process();
 	if(signal(SIGINT,sig_proceed)==SIG_ERR)
 		perror("signal error");
@@ -34,17 +33,6 @@ int  main(int argc, char **argv)
 	return 0;
 }
 ///////////////////////////////////////////
-/*int sig_init()
-{
-	if(sem_init(&v_get,0,1)>0)
-	printf("v_get init error");
-	if(sem_init(&v_send,0,0)>0)
-	printf("v_send init error");
-	if(sem_init(&server_sock,0,0)>0)
-	printf("server_sock init error");
-	return 0;
-
-}*/
 ///////////////////////////////////////////
 void sig_proceed(int signo)
 {
@@ -90,13 +78,6 @@ int cancel_all_process()
 /////////////////////////////////////////////
 int create_all_process()
 {
-	cmd_pro_pid=fork();
-	switch(cmd_pro_pid)
-	{
-	case -1:printf("cmd process create error!\n");break;
-	case 0:cmd_process();break;
-	default:printf("cmd process pid is: %d \n",cmd_pro_pid);break;
-	}
 	monitor_pro_pid=fork();
 	switch(monitor_pro_pid)
 	{
@@ -110,6 +91,13 @@ int create_all_process()
 	case -1:printf("socket process create error!\n");break;
 	case 0:socket_process();break;
 	default:printf("socket process pid is:%d \n",socket_pro_pid);break;
+	}
+	cmd_pro_pid=fork();
+	switch(cmd_pro_pid)
+	{
+	case -1:printf("cmd process create error!\n");break;
+	case 0:cmd_process();break;
+	default:printf("cmd process pid is: %d \n",cmd_pro_pid);break;
 	}
 	return 0;
 }

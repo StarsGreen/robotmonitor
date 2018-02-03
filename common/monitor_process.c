@@ -22,7 +22,7 @@ int err;
 sem_t v_get,v_send;
 
 pthread_t m_thread,vget_thread,vsend_thread;
-///////////////////////////////////////////
+
 ///////////////////////////////////////////
 int sig_init()
 {
@@ -59,7 +59,7 @@ int cancel_monitor_thread()
 		}
 	return 0;
 }
-////////////////////////////////
+//////////////////////////////////////////////////
 int create_monitor_thread()
 {
 	err = pthread_create(&vget_thread, NULL, (void*)video_get_thread, 
@@ -94,7 +94,7 @@ exit(1);
 //////////////////////////////////////
 void monitor_process()
 {
-	
+        printf("this is monitor pro :%d",getpid());	
 	sig_init();
 	create_monitor_thread();
 	if(signal(SIGINT,signal_monitor_proceed)==SIG_ERR)

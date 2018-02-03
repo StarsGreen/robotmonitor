@@ -108,7 +108,7 @@ unsigned long *jpeg_size,int width, int height,int quality )
 
 ////////////////////////////////////////////////////////
 int yuyv_to_jpeg(unsigned char* yuv422,unsigned char** jpeg_buff,
-unsigned long *jpeg_size,int quality,int width, int height)
+unsigned long *jpeg_size,int width, int height,int quality)
 {	
 	unsigned char* rgb24=(unsigned char *)malloc(width*height*3);
  	yuv422_to_rgb24(yuv422,rgb24,width,height);

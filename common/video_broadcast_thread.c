@@ -20,7 +20,7 @@ extern sem_t v_get,v_send;
 
 extern int read_file_to_buff(char* filename,unsigned char* buff);
 extern int yuyv_to_jpeg(unsigned char* yuv422,unsigned char** jpeg_buff,
-unsigned long* jpeg_size,int quality,int width, int height);
+unsigned long* jpeg_size,int width, int height,int quality);
 ////////////////////////////////////////////
 int get_len(unsigned char* buff,int len)
 {
@@ -46,7 +46,7 @@ void* video_broadcast_thread(void)
 	struct sockaddr_in client_addr;
 //	char msg[BUFFER_SIZE];
 	int ss,ret,opt=1;
-	int j;
+//	int j;
    /* create the socket commanted by greenstar*/  
 	if ((ss = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {  
 	perror("Create UDPclient failed");  
@@ -73,11 +73,12 @@ void* video_broadcast_thread(void)
 while(1)
 {		
 	pthread_testcancel();	
-unsigned char* jpeg_buff=(unsigned char*)malloc(VIDEO_WIDTH*VIDEO_HEIGHT);
-	unsigned long jpeg_size=VIDEO_WIDTH*VIDEO_HEIGHT;
-	
+unsigned char* jpeg_buff=(unsigned char*)malloc(VIDEO_WIDTH*VIDEO_HEIGHT/2);
+	unsigned long jpeg_size=VIDEO_WIDTH*VIDEO_HEIGHT/2;
+//	unsigned char jpeg_buff[20*1024];
+//	unsigned long jpeg_size=20*1024;
 	yuyv_to_jpeg(v_data.start_data,&jpeg_buff,&jpeg_size,
-	QUALITY,VIDEO_WIDTH,VIDEO_HEIGHT);	
+	VIDEO_WIDTH,VIDEO_HEIGHT,QUALITY);	
 
 //	file_len=read_file_to_buff(FILENAME,video_buff);
 		
@@ -85,12 +86,11 @@ unsigned char* jpeg_buff=(unsigned char*)malloc(VIDEO_WIDTH*VIDEO_HEIGHT);
 
 	sem_wait(&v_send);
 
-
 sendto(ss,jpeg_buff,jpeg_size,0,(struct sockaddr*)&client_addr,addr_len);
 
-
 	sem_post(&v_get);
-//	printf("send over\n");
+	printf("send over\n");
+//	free(jpeg_buff);
 }
 	close(ss);
 	printf("Send finish\n");  
