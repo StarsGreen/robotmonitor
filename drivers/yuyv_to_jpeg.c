@@ -14,7 +14,7 @@ int width, int height)
     unsigned char *yuv444;  
     yuv444=(unsigned char *)malloc(sizeof(unsigned char)*width*height*3);  
     for(x = 0;x < width*height*2;x+=4)  
-    {  
+    {
         yuv444[y] = yuv422[x];  
         yuv444[y+1] = yuv422[x+1];  
         yuv444[y+2] = yuv422[x+3];  
@@ -52,8 +52,8 @@ int width, int height)
     free(yuv444);
 }
 //////////////////////////////////////////////////////
-static void rgb24_to_jpeg(unsigned char *rgb24,unsigned char** jpeg_buff,
-unsigned long *jpeg_size,int width, int height,int quality )
+static void rgb24_to_jpeg(unsigned char *rgb24,unsigned char** j_buff,
+unsigned long *j_size,int width, int height,int quality )
 {
   struct jpeg_compress_struct cinfo;
   struct jpeg_error_mgr jerr;
@@ -66,7 +66,14 @@ unsigned long *jpeg_size,int width, int height,int quality )
   /* Now we can initialize the JPEG compression object. */
    jpeg_create_compress(&cinfo);
 
-   jpeg_mem_dest(&cinfo,jpeg_buff,jpeg_size);	
+
+
+   unsigned char* image_buff=NULL;
+   unsigned long image_size=0;
+   jpeg_mem_dest(&cinfo,&image_buff,&image_size);	
+
+
+
 
 //  if ((outfile = fopen(FILENAME, "wb")) == NULL) {
 //    fprintf(stderr, "can't open %s\n", FILENAME);
@@ -101,13 +108,24 @@ unsigned long *jpeg_size,int width, int height,int quality )
   /* After finish_compress, we can close the output file. */
 //  fclose(outfile);
 
+    if(NULL!=*j_buff)
+        free(*j_buff);
+    *j_buff=(unsigned char*)malloc(image_size);
+ 
+    memset(*j_buff,0,image_size);
+    memcpy(*j_buff,image_buff,image_size);
+
+//printf("image size is %ld",image_size);
+    free(image_buff);
+
+    *j_size=image_size;
   /* This is an important step since it will release a good deal of memory. */
   jpeg_destroy_compress(&cinfo);
 
 }
 
 ////////////////////////////////////////////////////////
-int yuyv_to_jpeg(unsigned char* yuv422,unsigned char** jpeg_buff,
+int yuyv_to_jpeg(unsigned char* yuv422,unsigned char**jpeg_buff,
 unsigned long *jpeg_size,int width, int height,int quality)
 {	
 	unsigned char* rgb24=(unsigned char *)malloc(width*height*3);

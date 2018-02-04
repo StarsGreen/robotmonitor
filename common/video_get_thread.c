@@ -152,7 +152,7 @@ while(1)
 	pthread_testcancel();
 	sem_wait(&v_get);
 
-	printf("video get start\n");
+//	printf("video get start\n");
 
 	v4l2buf.index=i%BUFFER_COUNT;
 	ret = ioctl(fd, VIDIOC_DQBUF, &v4l2buf);
@@ -170,7 +170,7 @@ while(1)
 	if(i==BUFFER_COUNT)
 	i=0;
 
-	printf("video get successfully\n");
+//	printf("video get successfully\n");
 	sem_post(&v_send);
    }
 	if(close(fd)==0)

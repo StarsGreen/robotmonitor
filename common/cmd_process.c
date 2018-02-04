@@ -42,8 +42,6 @@ exit(1);
 //////////////////////////////////////////
 void* cmd_process()
 {
-       printf("this is cmd pro :%d",getpid());
-
 	if(signal(SIGINT,signal_cmd_proceed)==SIG_ERR)
 		perror("cmd signal error");
 while(1)

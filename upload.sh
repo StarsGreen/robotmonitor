@@ -11,6 +11,10 @@ case $1 in
 	echo "Connecting GreenStar"
 	;;
 	"3")
+	nmcli dev wifi connect "ChinaNet-1a2b" password "wxl15972152591"
+	echo "Connecting china-net"
+	;;
+	"4")
 	git init
 	git add -A
 	cur_date=$(date)

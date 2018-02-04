@@ -94,7 +94,6 @@ exit(1);
 //////////////////////////////////////
 void monitor_process()
 {
-        printf("this is monitor pro :%d",getpid());	
 	sig_init();
 	create_monitor_thread();
 	if(signal(SIGINT,signal_monitor_proceed)==SIG_ERR)

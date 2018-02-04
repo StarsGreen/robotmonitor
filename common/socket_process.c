@@ -100,7 +100,6 @@ return status;
 ////////////////////////////////////////////
 void socket_process(void)
 {
-       printf("this is socket pro :%d",getpid());
 
 	if(signal(SIGINT,signal_socket_proceed)==SIG_ERR)
 		perror(" socket signal error");
