@@ -22,6 +22,7 @@ extern void* info_conm_thread(void);
 
 pthread_t vsend_thread,vget_thread,info_thread;
 pid_t socket_fork[QUEUE];
+
 int err;
 
 ///////////////////////////////////////////
@@ -41,12 +42,12 @@ void cancel_socket_pro_thread()
 		}*/
 }
 ///////////////////////////////////////////
-void signal_sockchild_proceed(int signo)
+/*void signal_sockchild_proceed(int signo)
 {
 if(signo==SIGINT)
 	cancel_socket_pro_thread();
 exit(1);
-}
+}*/
 
 ///////////////////////////////////////////
 void signal_socket_proceed(int signo)
@@ -61,21 +62,42 @@ exit(1);
 ////////////////////////////////////////////
 void handle_request(int conn)
 {
-	if(signal(SIGINT,signal_sockchild_proceed)==SIG_ERR)
-		perror("socket child signal error");
+//	if(signal(SIGINT,signal_sockchild_proceed)==SIG_ERR)
+//		perror("socket child signal error");
 /* err = pthread_create(&vsend_thread, NULL, (void*)video_send_thread, &conn);
         if (err != 0) {
                 fprintf(stderr, "can't create video send thread: %s\n",
                 strerror(err));
 		exit(1);
-		}*/ 
-err = pthread_create(&info_thread, NULL, (void*)info_conm_thread, &conn);
-        if (err != 0) {
-                fprintf(stderr, "can't create info conmunication thread: %s\n",
-                strerror(err));
-		exit(1);
-		}
-	while(1);
+		}*/
+	char buffer[ARRAY_SIZE];
+//	int optval;
+//	socklen_t optlen = sizeof(int);
+	while(1)
+	{
+		memset(buffer,0,sizeof(buffer));
+		int len = recv(conn, buffer, sizeof(buffer),0);
+		if(len>0)
+			{
+			if(strcmp(buffer,"exit")==0)
+				{
+				close(conn);
+				raise(SIGINT);
+		printf("client %d IP is:%s,port is:%d is closed ",
+		sock_info.cli_num,ip,port);
+				break;
+				}
+			else
+				{
+				read_cmd(buffer);
+				}
+			}
+		else 
+			{
+			close(conn);
+			break;
+			}
+	}
 }
 ////////////////////////////////////////////
 int check_ip(char* ip)
@@ -158,7 +180,7 @@ while(1)
 				{
 			   if(sock_info.cli_num<QUEUE)sock_info.cli_num++;
 			   else  sock_info.cli_num=0;
-		printf("client %d IP is:%s,port is:%d ",
+		printf("client %d IP is:%s,port is:%d  is connected",
 		sock_info.cli_num,ip,port);
 				close(conn);
 				}

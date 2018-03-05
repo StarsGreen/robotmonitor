@@ -31,6 +31,9 @@ void info_conm_thread(int conn)
 			{
 			if(strcmp(buffer,"exit")==0)
 				{
+				close(conn);
+				kill()
+				pthread_exit();
 				break;
 				}
 			else
