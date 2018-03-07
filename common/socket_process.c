@@ -17,10 +17,12 @@ extern struct socket_info sock_info;
 extern void read_cmd(char* cmd);
 extern sem_t v_get,v_send;
 extern void* video_send_thread(void);
+extern void* send_info_thread(char* info);
+extern void* recv_info_thread(void);
 extern void* video_broadcast_thread(void);
-extern void* info_conm_thread(void);
+//extern void* info_conm_thread(void);
 
-pthread_t vsend_thread,vget_thread,info_thread;
+pthread_t vsend_thread,vget_thread,send_info,recv_info;
 pid_t socket_fork[QUEUE];
 
 int err;
@@ -42,12 +44,12 @@ void cancel_socket_pro_thread()
 		}*/
 }
 ///////////////////////////////////////////
-/*void signal_sockchild_proceed(int signo)
+void signal_sockchild_proceed(int signo)
 {
 if(signo==SIGINT)
 	cancel_socket_pro_thread();
 exit(1);
-}*/
+}
 
 ///////////////////////////////////////////
 void signal_socket_proceed(int signo)
@@ -62,42 +64,25 @@ exit(1);
 ////////////////////////////////////////////
 void handle_request(int conn)
 {
-//	if(signal(SIGINT,signal_sockchild_proceed)==SIG_ERR)
-//		perror("socket child signal error");
-/* err = pthread_create(&vsend_thread, NULL, (void*)video_send_thread, &conn);
+	if(signal(SIGINT,signal_sockchild_proceed)==SIG_ERR)
+		perror("socket child signal error");
+ err = pthread_create(&send_info, NULL, (void*)send_info_thread, &conn);
         if (err != 0) {
-                fprintf(stderr, "can't create video send thread: %s\n",
+                fprintf(stderr, "can't create info send thread: %s\n",
+         
+
+       strerror(err));
+		exit(1);
+		}
+
+ err = pthread_create(&recv_info, NULL, (void*)recv_info_thread, &conn);
+        if (err != 0) {
+                fprintf(stderr, "can't create info recv thread: %s\n",
                 strerror(err));
 		exit(1);
-		}*/
-	char buffer[ARRAY_SIZE];
-//	int optval;
-//	socklen_t optlen = sizeof(int);
-	while(1)
-	{
-		memset(buffer,0,sizeof(buffer));
-		int len = recv(conn, buffer, sizeof(buffer),0);
-		if(len>0)
-			{
-			if(strcmp(buffer,"exit")==0)
-				{
-				close(conn);
-				raise(SIGINT);
-		printf("client %d IP is:%s,port is:%d is closed ",
-		sock_info.cli_num,ip,port);
-				break;
-				}
-			else
-				{
-				read_cmd(buffer);
-				}
-			}
-		else 
-			{
-			close(conn);
-			break;
-			}
-	}
+		}
+while(1);
+
 }
 ////////////////////////////////////////////
 int check_ip(char* ip)
@@ -113,11 +98,17 @@ if(num>0)
 		status=1;break;
 		}
 	}
-else 
-	{
-	memcpy(sock_info.cli_info[num].ip,ip,strlen(ip));
-	}
 return status;
+}
+///////////////////////////////////////////
+void sock_add(char* ip,int port)
+{
+if(!check_ip(ip))
+	{
+	memcpy(sock_info.cli_info[sock_info.cli_num].ip,ip,strlen(ip));
+	sock_info.cli_info[sock_info.cli_num].port=port;
+	sock_info.cli_num++;
+	}
 }
 ////////////////////////////////////////////
 void socket_process(void)
@@ -175,11 +166,10 @@ while(1)
 			sock_info.sock_con_status=1;
 			ip=inet_ntoa(client_addr.sin_addr);
 			port=ntohs(client_addr.sin_port);
-			check_ip(ip);
 			if((socket_fork[sock_info.cli_num]=fork())>0)
 				{
-			   if(sock_info.cli_num<QUEUE)sock_info.cli_num++;
-			   else  sock_info.cli_num=0;
+			   if(sock_info.cli_num<QUEUE)sock_add(ip,port);
+			   else  printf("the conn is full");
 		printf("client %d IP is:%s,port is:%d  is connected",
 		sock_info.cli_num,ip,port);
 				close(conn);

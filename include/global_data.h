@@ -28,16 +28,18 @@ struct move_cmd
 	int vel;
 };
 struct move_info
-{	
-	int vel_info;
-	int temperature;
+{
+	int accel;
+	int vel;
+	int journey;
+	int temper;
 	int dist;
 };
 struct client_info
 {
 	char ip[15];
 	int port;
-}cli_info;
+};
 
 struct socket_info
 {
