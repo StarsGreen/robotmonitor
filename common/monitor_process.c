@@ -13,7 +13,7 @@
 #include "global_data.h"
 #include <signal.h>
 
-extern void *move_thread(void);
+extern void *move_ctl_thread(void);
 extern void *video_get_thread(void);
 extern void *video_broadcast_thread(void);
 
@@ -76,7 +76,7 @@ int create_monitor_thread()
                 strerror(err));
                 exit(1);
                 }
-        err = pthread_create(&m_thread, NULL, (void*)move_thread, NULL);
+        err = pthread_create(&m_thread, NULL, (void*)move_ctl_thread, NULL);
         if (err != 0) {
                 fprintf(stderr, "can't create move thread: %s\n",
                 strerror(err));
