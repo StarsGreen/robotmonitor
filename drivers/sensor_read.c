@@ -6,7 +6,8 @@
 #include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
-
+#include <wiringPi.h>
+#include <sys/time.h>
 
 
 #define  BUFSIZE  128
@@ -47,7 +48,7 @@ int read_temper()
     }
     temp = (int)atoi(tempBuf) / 100;  //将字符串转换为浮点型温度数据
 //    printf("%.3f C\n",temp);
-    close(fd);
+	close(fd);
 	return temp;
 }
 ////////////////////////////////////////////
@@ -62,11 +63,43 @@ int accel_read()
 ////////////////////////////////////////////
 int dist_read()
 {
-
+// 低高低是发射声波的信号，通过15号一脚发出
+digitalWrite(15, LOW);
+digitalWrite(15, HIGH);
+delayMicroseconds(10);
+digitalWrite(15, LOW);// 通过16号引脚接收信号，判断超声波是否发出
+while(1){
+if (digitalRead(16) == 1){ // 如果是1，即高电平，表示超声波已发出
+	break;  // 跳出循环
+}
+struct timeval t1;  // 结构体，可以记录秒和微秒两部分值
+gettimeofday(&t1, NULL);  // 记录电平变高的时刻，即超声波发出时的时刻
+//依然监听16引脚的信号，判断是否收到超声波信号
+while(1){
+	if(digitalRead(16) == 0){  // 如果是0，即低电平，表示超声波已收到
+	break;  // 跳出循环
+	}
+	}
+struct timeval t2;
+gettimeofday(&t2, NULL);  // 记录电平变低的时刻，即收到反射信号时刻计算时间差
+long start, stop;//换算为微秒
+start = t1.tv_sec * 1000000 + t1.tv_usec; // 开始时刻
+stop = t2.tv_sec * 1000000 + t2.tv_usec;  // 结束时刻计算距离
+float dis;
+dis = (float)(stop - start) / 1000000 * 340 / 2 * 100; //单位换算成cm
+// 一直循环，每隔2s进行一次测距
+	return dis;
+}
+//////////////////////////////////////////
+void init_sensor()
+{
+	wiringPiSetup();  // 初始化库
+	pinMode(15, OUTPUT);  // 设置15号引脚功能为输出
+	pinMode(16, INPUT);  // 设置16号引脚功能为输入
+	// 大循环不断测距
 
 
 
 
 
 }
-
