@@ -27,14 +27,58 @@ struct move_cmd
 	int angle;
 	int vel;
 };
+///////////////////////////////////
+struct accel
+{
+	int xa_accel;
+	int ya_accel;
+	int za_accel;
+	int xl_accel;
+	int yl_accel;
+	int zl_accel;
+}accel_info;
+struct volecity
+{
+	int xa_vel;
+	int ya_vel;
+	int za_vel;
+
+	int xl_vel;
+	int yl_vel;
+	int zl_vel;
+}vel_info;
+
+struct journey
+{
+	int xa;
+	int ya;
+	int za;
+
+	int xl;
+	int yl;
+	int zl;
+}jour_info;
+typedef struct M_Node
+{
+	struct accel accel_info;
+	struct velocity vel_info;
+	struct journey jou_info;
+	int count;
+	M_Node* next;
+	M_Node* prev;
+}M_Node;
+typedef struct M_Node* M_Pointer;
+M_pointer Head_Pointer,Tail_Pointer;
+/////////////////////////////////////////
 struct move_info
 {
-	int accel;
-	int vel;
-	int journey;
+	struct accel accel_info;
+	struct velocity vel_info;
+	struct journey jour_info;
 	int temper;
 	int dist;
 };
+//////////////////////////////////////////////
 struct client_info
 {
 	char ip[15];
