@@ -61,7 +61,8 @@ int create_sensor_thread()
                 strerror(sensor_err));
                 exit(1);
                 }
-        sensor_err = pthread_create(&temper_thread, NULL, (void*)dist_get_thread, NULL);
+        sensor_err = pthread_create(&temper_thread, NULL, (void*)dist_get_thread, 
+	NULL);
         if (sensor_err != 0) {
                 fprintf(stderr, "can't create move thread: %s\n",
                 strerror(err));
@@ -79,7 +80,7 @@ exit(1);
 //////////////////////////////////////
 void sensor_process()
 {
-	sig_init();
+//	sig_init();
 	create_sensor_thread();
 	if(signal(SIGINT,signal_sensor_proceed)==SIG_ERR)
 		perror("signal error");

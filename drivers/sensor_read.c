@@ -12,7 +12,7 @@
 
 #define  BUFSIZE  128
 ///////////////////////////////////////////
-int read_temper()
+float temper_read()
 {
     float temp;
     int i, j;
@@ -46,7 +46,7 @@ int read_temper()
             }
         }
     }
-    temp = (int)atoi(tempBuf) / 100;  //将字符串转换为浮点型温度数据
+    temp = (float)atoi(tempBuf) / 1000;  //将字符串转换为浮点型温度数据
 //    printf("%.3f C\n",temp);
 	close(fd);
 	return temp;
