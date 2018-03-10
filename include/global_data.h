@@ -30,33 +30,33 @@ struct move_cmd
 ///////////////////////////////////
 struct accel
 {
-	int xa_accel;
-	int ya_accel;
-	int za_accel;
-	int xl_accel;
-	int yl_accel;
-	int zl_accel;
+	float xa_accel;
+	float ya_accel;
+	float za_accel;
+	float xl_accel;
+	float yl_accel;
+	float zl_accel;
 }accel_info;
 struct volecity
 {
-	int xa_vel;
-	int ya_vel;
-	int za_vel;
+	float xa_vel;
+	float ya_vel;
+	float za_vel;
 
-	int xl_vel;
-	int yl_vel;
-	int zl_vel;
+	float xl_vel;
+	float yl_vel;
+	float zl_vel;
 }vel_info;
 
 struct journey
 {
-	int xa;
-	int ya;
-	int za;
+	float xa;
+	float ya;
+	float za;
 
-	int xl;
-	int yl;
-	int zl;
+	float xl;
+	float yl;
+	float zl;
 }jour_info;
 typedef struct M_Node
 {
@@ -75,8 +75,8 @@ struct move_info
 	struct accel accel_info;
 	struct velocity vel_info;
 	struct journey jour_info;
-	int temper;
-	int dist;
+	float temper;
+	float dist;
 };
 //////////////////////////////////////////////
 struct client_info

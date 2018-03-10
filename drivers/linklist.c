@@ -23,7 +23,7 @@ M_Pointer init_list(M_Pointer pointer)
 	return pointer;
 }
 //////////////////////////////////////
-void list_add(M_Node node)
+void mlist_add(M_Node node)
 {
 	M_Pointer pointer = (M_Pointer)malloc(sizeof(M_Node));
 	memset(pointer,0,NODE_SIZE);
@@ -51,12 +51,31 @@ void list_add(M_Node node)
 	Tail_Pointer=pointer;
 }
 /////////////////////////////////////////////////
-void list_clear(M_Pointer head)
+void mlist_clear(M_Pointer head)
 {
-
-
-
-
-
-
+if(head->next==NULL&&head->pre==NULL)
+	memset(head,0,NODE_SIZE);
+while(head->next==NULL)
+{
+	memset(head,0,NODE_SIZE);
+	head=head->next;
 }
+}
+////////////////////////////////////////////////
+void* mlist_search(void* pointer ,int num)
+{
+void* p=Head_Pointer;
+while(p->next!=NULL)
+	{
+	if(p->count==num)
+	break;
+	p=p->next;
+	}
+return p;
+}
+////////////////////////////////////////////////
+void mlist_delete(void* p,int num)
+{
+	memset((M_Pointer)mlist_search(p,num),0,NODE_SIZE);
+}
+////////////////////////////////////////////////
