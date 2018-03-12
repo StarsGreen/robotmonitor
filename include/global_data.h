@@ -1,4 +1,5 @@
 //defined some datastructure to store global data
+#include<netdb.h>
 
 #ifndef __GLOBAL_DATA_H__
 #define __GLOBAL_DATA_H_
@@ -89,12 +90,17 @@ typedef struct M_Node
 	struct accel accel_info;
 	struct velocity vel_info;
 	struct journey jou_info;
-	int count;
+	int num;
 	struct M_Node* next;
 	struct M_Node* prev;
 }M_Node;
 typedef struct M_Node* M_Pointer;
-M_Pointer M_Head_Pointer,M_Tail_Pointer;
+struct M_LinkList
+{
+M_Pointer M_Head_pointer;
+M_Pointer M_Tail_pointer;
+int count;
+}move_ll;
 M_Node M_info;
 /////////////////////////////////////////
 struct move_info
@@ -119,8 +125,13 @@ typedef struct Sock_Node
 	struct socket_info* prev;
 }Sock_Node;
 typedef struct Sock_Node* Sock_Pointer;
-Sock_Node sock_node;
-Sock_Pointer S_Head_pointer,S_Tail_pointer;
+Sock_Node s_info;
+struct S_LinkList
+{
+Sock_Pointer S_Head_pointer;
+Sock_Pointer S_Tail_pointer;
+int count;
+}sock_ll;
 ///////////////////////////////////////////////
 typedef struct socket_info
 {

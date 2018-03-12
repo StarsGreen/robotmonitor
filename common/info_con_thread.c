@@ -42,6 +42,7 @@ void recv_info_thread(int conn)
 		else 
 			{
 			close(conn);
+			raise(SIGINT);
 			break;
 			}
 	}

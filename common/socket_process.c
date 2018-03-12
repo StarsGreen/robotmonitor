@@ -13,8 +13,10 @@
 #include <signal.h>
 #include "global_data.h"
 
-extern struct socket_info sock_info; 
+//extern struct socket_info sock_info; 
 extern void read_cmd(char* cmd);
+extern void slist_add(Sock_Node sock_node);
+extern void* slist_search_ip(void* ip);
 //extern sem_t v_get,v_send;
 //extern void* video_send_thread(void);
 extern void* send_info_thread(char* info);
@@ -56,13 +58,13 @@ void signal_socket_proceed(int signo)
 {
 int i;
 if(signo==SIGINT)
-	for(i=0;i<sock_info.cli_num;i++)
+	for(i=0;i<sock_ll.count;i++)
 	kill(socket_fork[i],SIGINT);
 exit(1);
 }
 
 ////////////////////////////////////////////
-void handle_request(int conn)
+void handle_request(int conn,char* ip)
 {
 	if(signal(SIGINT,signal_sockchild_proceed)==SIG_ERR)
 		perror("socket child signal error");
@@ -89,16 +91,7 @@ while(1);
 int check_ip(char* ip)
 {
 int status=0;
-int i;
-int num=sock_info.cli_num;
-if(num>0)
-	{
-	for(i=0;i<num-1;i++)
-		if(memcmp(sock_info.cli_info[i].ip,ip,strlen(ip))==0)
-		{
-		status=1;break;
-		}
-	}
+if(slist_search_ip(ip)!=NULL)status=1;
 return status;
 }
 ////////////////////////////////////////////
@@ -107,21 +100,24 @@ return status;
 void sock_add(char* ip,int port)
 {
 if(!check_ip(ip))
-	{
-	memcpy(sock_info.cli_info[sock_info.cli_num].ip,ip,strlen(ip));
-	sock_info.cli_info[sock_info.cli_num].port=port;
-	sock_info.cli_num++;
-	}
+{
+memcpy(sock_node.cli_info.ip,ip,15);
+sock_node.cli_info.port=port;
+sock_node.cli_num++;
+slist_add(sock_node);
+sock_ll.count++;
+}
+else printf("the ip exist");
 }
 ////////////////////////////////////////////
 void socket_process(void)
 {
-
 	if(signal(SIGINT,signal_socket_proceed)==SIG_ERR)
 		perror(" socket signal error");
+
 	sock_info.data_trans_status=0;
 	sock_info.sock_con_status=0;
-	sock_info.cli_num=0;
+
 	///定义sockfd
 	int server_sockfd = socket(AF_INET,SOCK_STREAM, 0);
 	///定义sockaddr_in
@@ -149,11 +145,7 @@ void socket_process(void)
 	socklen_t length = sizeof(client_addr);
 	int i,port;
 	char *ip;
-	for(i=0;i<QUEUE;i++)
-	memset(sock_info.cli_info[i].ip,0,
-	sizeof(sock_info.cli_info[i].ip));
-
-
+	int cli_num=0;
 	sock_info.data_trans_status=1;
 	int conn;
 while(1)
@@ -169,16 +161,19 @@ while(1)
 			sock_info.sock_con_status=1;
 			ip=inet_ntoa(client_addr.sin_addr);
 			port=ntohs(client_addr.sin_port);
-			if((socket_fork[sock_info.cli_num]=fork())>0)
+			if((socket_fork[cli_num++]=fork())>0)
 				{
-			   if(sock_info.cli_num<QUEUE)sock_add(ip,port);
-			   else  printf("the conn is full");
+			   if(sock_ll.count<=QUEUE)sock_add(ip,port);
+			   else
+				{
+				 printf("the conn is full");
+				}
 		printf("client %d IP is:%s,port is:%d  is connected",
-		sock_info.cli_num,ip,port);
+		cli_num,ip,port);
 				close(conn);
 				}
 			else
-			handle_request(conn);
+			handle_request(conn,ip);
                 printf("connection successful \n");
 			}
 
