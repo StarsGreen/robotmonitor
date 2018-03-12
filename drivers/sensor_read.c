@@ -7,10 +7,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <wiringPi.h>
+#include <wiringPiI2C.h>
 #include <sys/time.h>
 
-
+///////////////////////////////////////////
 #define  BUFSIZE  128
+
 ///////////////////////////////////////////
 float temper_read()
 {
@@ -51,8 +53,53 @@ float temper_read()
 	close(fd);
 	return temp;
 }
+///////////////////////////////////////////
+int read_i2c(int fd ,int data)
+{
+	int result;
+	result=wiringPiI2CReadReg8(fd,date);
+	return result;
+}
+//////////////////////////////////////////
+void write_i2c(int fd ,int,reg,int data)
+{
+	wiringPiI2CWriteReg8(fd,reg,data);
+}
+///////////////////////////////////////////
+int init_MPU6050()
+{
+	int fd = wiringPiI2CSetup(DEVIIC_ID);
+        if (fd < 0) {
+                printf("Error setup I2C device %b\n", devId);
+                exit(1);
+        }
+	write_i2c(fd,PWR_MGMT_1, 0x00);	//解除休眠状态
+	write_i2c(fd,SMPLRT_DIV, 0x07);
+	write_i2c(fd,CONFIG, 0x06);
+	write_i2c(fd,GYRO_CONFIG, 0x18);
+	write_i2c(fd,ACCEL_CONFIG, 0x01);
+
+	return fd;
+}
 ////////////////////////////////////////////
-int accel_read()
+int get_data(int fd,unsigned char REG_Address)
+{
+	unsigned char H,L;
+	H=read_i2c(fd,REG_Address);
+	L=read_i2c(fd,REG_Address+1);
+	return ((H<<8)+L);   //合成数据
+}
+////////////////////////////////////////////
+float xa_read(int fd,int reg)
+{
+
+
+
+}
+////////////////////////////////////////////
+
+////////////////////////////////////////////
+float xa_read()
 {
 
 
@@ -61,7 +108,30 @@ int accel_read()
 
 }
 ////////////////////////////////////////////
-int dist_read()
+float ya_read()
+{
+}
+////////////////////////////////////////////
+float za_read()
+{
+}
+
+////////////////////////////////////////////
+float xl_read()
+{
+}
+
+////////////////////////////////////////////
+float yl_read()
+{
+}
+
+////////////////////////////////////////////
+float zl_read()
+{
+}
+////////////////////////////////////////////
+float dist_read()
 {
 // 低高低是发射声波的信号，通过15号一脚发出
 digitalWrite(15, LOW);

@@ -8,7 +8,8 @@ $(TOPDIR)/common/video_broadcast_thread.c $(TOPDIR)/common/info_get_thread.c\
 	$(TOPDIR)/common/move_ctl_thread.c $(TOPDIR)/common/cmd_process.c\
 	$(TOPDIR)/common/cmd.c $(TOPDIR)/common/env.c\
 	$(TOPDIR)/drivers/move.c  $(TOPDIR)/drivers/yuyv_to_jpeg.c\
-	$(TOPDIR)/drivers/file_wr.c main.c
+	$(TOPDIR)/drivers/file_wr.c $(TOPDIR)/drivers/caculate.c\
+	$(TOPDIR)/drivers/linklist.c $(TOPDIR)/drivers/sensor_read.c main.c
 
 all :
 	$(COMPILE) -Wall $(DEP) -o $(OBJ) -lpthread -ljpeg -g -I $(INCDIR)
