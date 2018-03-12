@@ -94,8 +94,8 @@ typedef struct M_Node
 	struct M_Node* prev;
 }M_Node;
 typedef struct M_Node* M_Pointer;
-M_Pointer Head_Pointer,Tail_Pointer;
-M_Node M_node;
+M_Pointer M_Head_Pointer,M_Tail_Pointer;
+M_Node M_info;
 /////////////////////////////////////////
 struct move_info
 {
@@ -111,15 +111,23 @@ struct client_info
 	char ip[15];
 	int port;
 };
-
-struct socket_info
+typedef struct Sock_Node
 {
-	struct client_info cli_info[QUEUE];
+	struct client_info cli_info;
 	int cli_num;
+	struct socket_info* next;
+	struct socket_info* prev;
+}Sock_Node;
+typedef struct Sock_Node* Sock_Pointer;
+Sock_Node sock_node;
+Sock_Pointer S_Head_pointer,S_Tail_pointer;
+///////////////////////////////////////////////
+typedef struct socket_info
+{
         int sock_con_status;
 	int data_trans_status;
 }sock_info;
-
+///////////////////////////////////////////////
 struct udp_flag
 {
 	unsigned char *aimed_ip;

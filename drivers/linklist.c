@@ -11,7 +11,10 @@
 #include <signal.h>
 
 #define sizeof(M_Node) M_NODE_SIZE//motion structure size
-M_Pointer init_list(M_Pointer pointer)
+
+#define sizeof(Sock_Node) S_NODE_SIZE//motion structure size
+
+M_Pointer init_mlist(M_Pointer pointer)
 {
 	pointer = (M_Pointer)malloc(M_NODE_SIZE);
 	memset(pointer,0,M_NODE_SIZE);
@@ -29,6 +32,7 @@ void mlist_add(M_node node)
 	memset(pointer,0,M_NODE_SIZE);
 	pointer->next=NULL;
 	pointer->prev=Tail_Pointer->next;
+	pointer->count=Tail_Pointer->count+1;
 	pointer->accel_info->xa_accel=node.accel_info.xa_accel;
 	pointer->accel_info->ya_accel=node.accel_info.ya_accel;
 	pointer->accel_info->za_accel=node.accel_info.za_accel;
@@ -55,11 +59,12 @@ void mlist_clear(M_Pointer head)
 {
 if(head->next==NULL&&head->prev==NULL)
 	memset(head,0,M_NODE_SIZE);
-while(head->next==NULL)
+while(head->next!=NULL)
 {
 	memset(head,0,M_NODE_SIZE);
 	head=head->next;
 }
+	memset(head,0,M_NODE_SIZE);
 }
 ////////////////////////////////////////////////
 void* mlist_search(void* pointer ,int num)
@@ -79,3 +84,59 @@ void mlist_delete(void* p,int num)
 	memset((M_Pointer)mlist_search(p,num),0,M_NODE_SIZE);
 }
 ////////////////////////////////////////////////
+Sock_Pointer init_slist(Sock_Pointer pointer)
+{
+	pointer = (Sock_Pointer)malloc(S_NODE_SIZE);
+	memset(pointer,0,S_NODE_SIZE);
+	pointer->next=NULL;
+	pointer->prev=NULL;
+	pointer->cli_num=1;
+	Head_Pointer=pointer;
+	Tail_Pinter=pointer;
+	return pointer;
+}
+//////////////////////////////////////////////////////
+void mlist_add(Sock_Node node)
+{
+	Sock_Pointer pointer = (Sock_Pointer)malloc(S_NODE_SIZE);
+	memset(pointer,0,S_NODE_SIZE);
+	pointer->next=NULL;
+	pointer->prev=Tail_Pointer->next;
+
+	pointer->cli_num=Tail->cli_num+1;
+	pointer->cli_info->ip=node->cli_info->ip;
+	pointer->cli_info->port=node->cli_info->port;
+
+	Tail_Pointer=pointer;
+}
+
+/////////////////////////////////////////////////
+void slist_clear(Sock_Pointer head)
+{
+if(head->next==NULL&&head->prev==NULL)
+	memset(head,0,S_NODE_SIZE);
+while(head->next!=NULL)
+{
+	memset(head,0,S_NODE_SIZE);
+	head=head->next;
+}
+	memset(head,0,S_NODE_SIZE);
+}
+
+////////////////////////////////////////////////
+void* slist_search(void* pointer ,int num)
+{
+void* p=Head_Pointer;
+while(p->next!=NULL)
+	{
+	if(p->count==num)
+	break;
+	p=p->next;
+	}
+return p;
+}
+////////////////////////////////////////////////
+void slist_delete(void* p,int num)
+{
+	memset((M_Pointer)mlist_search(p,num),0,M_NODE_SIZE);
+}

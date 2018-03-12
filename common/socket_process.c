@@ -30,18 +30,18 @@ int err;
 ///////////////////////////////////////////
 void cancel_socket_pro_thread()
 {
-	if(pthread_cancel(info_thread)<0)
+	if(pthread_cancel(send_info)<0)
 		printf("cancel info thread failed");
 	else{
-		pthread_join(info_thread,NULL);
+		pthread_join(send_info,NULL);
 		printf("cancel info thread successfully\n");
 		}
-/*	if(pthread_cancel(vsend_thread)<0)
+	if(pthread_cancel(recv_info)<0)
 		printf("cancel video send thread failed");
 	else{
-		pthread_join(vsend_thread,NULL);
+		pthread_join(recv_info,NULL);
 		printf("cancel video send thread successfully\n");
-		}*/
+		}
 }
 ///////////////////////////////////////////
 void signal_sockchild_proceed(int signo)
@@ -69,14 +69,14 @@ void handle_request(int conn)
  err = pthread_create(&send_info, NULL, (void*)send_info_thread, &conn);
         if (err != 0) {
                 fprintf(stderr, "can't create info send thread: %s\n",
-
+       strerror(err));
+			}
  err = pthread_create(&recv_info, NULL, (void*)recv_info_thread, &conn);
         if (err != 0) {
                 fprintf(stderr, "can't create info send thread: %s\n",
        strerror(err));
 		exit(1);
 		}
-
  err = pthread_create(&recv_info, NULL, (void*)recv_info_thread, &conn);
         if (err != 0) {
                 fprintf(stderr, "can't create info recv thread: %s\n",
@@ -84,7 +84,6 @@ void handle_request(int conn)
 		exit(1);
 		}
 while(1);
-
 }
 ////////////////////////////////////////////
 int check_ip(char* ip)
@@ -102,6 +101,8 @@ if(num>0)
 	}
 return status;
 }
+////////////////////////////////////////////
+
 ///////////////////////////////////////////
 void sock_add(char* ip,int port)
 {
