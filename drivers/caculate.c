@@ -22,20 +22,20 @@ switch(flag)
 	{
 	float v_est=last_result+last_value*time;
 	static float p_pos_est=P_conv+Q_offset;
-	float kg=p_est/(p_est+Q_offset);
+	float kg=p_pos_est/(p_pos_est+Q_offset);
 	float v_mes=last_result+cur_value*time;
 	float v_best=last_result+kg(v_mes-v_est);
-	float p_best=(1-kg)p_est;
+	float p_best=(1-kg)p_pos_est;
 	result=v_best;
 	}break;
 	case 1:
 	{
 	float pos_est=last_result+last_value*time;
 	static float p_vel_est=P_conv+Q_offset;
-	float kg=p_est/(p_est+Q_offset);
+	float kg=p_vel_est/(p_vel_est+Q_offset);
 	float pos_mes=last_result+cur_value*time;
 	float pos_best=last_result+kg(v_mes-v_est);
-	float p_best=(1-kg)p_est;
+	float p_best=(1-kg)p_vel_est;
 	result=pos_best;
 	}break;
 	default:break;

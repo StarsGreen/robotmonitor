@@ -20,14 +20,18 @@
 #define	CONFIG			0x1A	//低通滤波频率，典型值：0x06(5Hz)
 #define	GYRO_CONFIG		0x1B	//陀螺仪自检及测量范围，典型值：0x18(不自检，2000deg/s)
 #define	ACCEL_CONFIG	0x1C	//加速计自检、测量范围及高通滤波频率，典型值：0x01(不自检，2G，5Hz)
+#define ACCEL_RANGE	2*9.8
 #define	ACCEL_XOUT_H	0x3B
 #define	ACCEL_XOUT_L	0x3C
 #define	ACCEL_YOUT_H	0x3D
 #define	ACCEL_YOUT_L	0x3E
 #define	ACCEL_ZOUT_H	0x3F
 #define	ACCEL_ZOUT_L	0x40
+
 #define	TEMP_OUT_H		0x41
 #define	TEMP_OUT_L		0x42
+
+#define GYRO_RANGE	250
 #define	GYRO_XOUT_H		0x43
 #define	GYRO_XOUT_L		0x44
 #define	GYRO_YOUT_H		0x45
@@ -48,7 +52,7 @@ struct move_cmd
 	int cmd_type;
 	int angle;
 	int vel;
-};
+}m_cmd;
 ///////////////////////////////////
 struct accel
 {
@@ -59,7 +63,7 @@ struct accel
 	float yl_accel;
 	float zl_accel;
 }accel_info;
-struct volecity
+struct velocity
 {
 	float xa_vel;
 	float ya_vel;
@@ -86,11 +90,12 @@ typedef struct M_Node
 	struct velocity vel_info;
 	struct journey jou_info;
 	int count;
-	M_Node* next;
-	M_Node* prev;
+	struct M_Node* next;
+	struct M_Node* prev;
 }M_Node;
 typedef struct M_Node* M_Pointer;
-M_pointer Head_Pointer,Tail_Pointer;
+M_Pointer Head_Pointer,Tail_Pointer;
+M_Node M_node;
 /////////////////////////////////////////
 struct move_info
 {
@@ -99,7 +104,7 @@ struct move_info
 	struct journey jour_info;
 	float temper;
 	float dist;
-};
+}m_info;
 //////////////////////////////////////////////
 struct client_info
 {
@@ -113,17 +118,17 @@ struct socket_info
 	int cli_num;
         int sock_con_status;
 	int data_trans_status;
-};
+}sock_info;
 
 struct udp_flag
 {
 	unsigned char *aimed_ip;
 	int port;
         int video_send_status;
-};
+}u_flag;
 struct video_data
 {
         unsigned char *start_data;
         int length;
 	int send_status;
-};
+}v_data;

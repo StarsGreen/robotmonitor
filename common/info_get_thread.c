@@ -16,12 +16,13 @@
 
 extern float temper_read();
 extern float dist_read();
-extern float xa_read();
-extern float ya_read();
-extern float za_read();
-extern float xl_read();
-extern float yl_read();
-extern float zl_read();
+extern float xa_read(int fd);
+extern float ya_read(int fd);
+extern float za_read(int fd);
+extern float xl_read(int fd);
+extern float yl_read(int fd);
+extern float zl_read(int fd);
+extern int init_mpu6050();
 
 ////////////////////////////////////////////////
 void* temper_get_thread()
@@ -41,16 +42,17 @@ void* accel_get_thread()
 {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
+	int fd=init_mpu6050();
 while(1)
 	{
 		pthread_testcancel();
 		msleep(100);
-		m_info.accel_info.xa_accel=xa_read();
-		m_info.accel_info.ya_accel=ya_read();
-		m_info.accel_info.za_accel=za_read();
-		m_info.accel_info.xl_accel=xl_read();
-		m_info.accel_info.yl_accel=yl_read();
-		m_info.accel_info.zl_accel=zl_read();
+		m_info.accel_info.xa_accel=xa_read(fd);
+		m_info.accel_info.ya_accel=ya_read(fd);
+		m_info.accel_info.za_accel=za_read(fd);
+		m_info.accel_info.xl_accel=xl_read(fd);
+		m_info.accel_info.yl_accel=yl_read(fd);
+		m_info.accel_info.zl_accel=zl_read(fd);
 	}
 
 }

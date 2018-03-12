@@ -22,7 +22,7 @@ float temper_read()
     int ret;
     char buf[BUFSIZE];
     char tempBuf[5];
-    fd = open("/sys/bus/w1/devices/28-00000495db35/w1_slave", O_RDONLY);
+    fd = open("/sys/bus/w1/devices/28-00000495dbACCEL_XOUT_H35/w1_slave", O_RDONLY);
     if(-1 == fd){
         perror("open device file error");
         return 1;
@@ -66,7 +66,7 @@ void write_i2c(int fd ,int,reg,int data)
 	wiringPiI2CWriteReg8(fd,reg,data);
 }
 ///////////////////////////////////////////
-int init_MPU6050()
+int init_mpu6050()
 {
 	int fd = wiringPiI2CSetup(DEVIIC_ID);
         if (fd < 0) {
@@ -78,7 +78,6 @@ int init_MPU6050()
 	write_i2c(fd,CONFIG, 0x06);
 	write_i2c(fd,GYRO_CONFIG, 0x18);
 	write_i2c(fd,ACCEL_CONFIG, 0x01);
-
 	return fd;
 }
 ////////////////////////////////////////////
@@ -90,45 +89,37 @@ int get_data(int fd,unsigned char REG_Address)
 	return ((H<<8)+L);   //合成数据
 }
 ////////////////////////////////////////////
-float xa_read(int fd,int reg)
+float xa_read(int fd)
 {
-
-
-
+return GYRO_RANGE*get_data(fd,GYRO_XOUT_H)/32768;
 }
 ////////////////////////////////////////////
-
-////////////////////////////////////////////
-float xa_read()
+float ya_read(int fd)
 {
-
-
-
-
-
+return GYRO_RANGE*get_data(fd,GYRO_YOUT_H)/32768;
 }
 ////////////////////////////////////////////
-float ya_read()
+float za_read(int fd)
 {
-}
-////////////////////////////////////////////
-float za_read()
-{
+return GYRO_RANGE*get_data(fd,GYRO_ZOUT_H)/32768;
 }
 
 ////////////////////////////////////////////
-float xl_read()
+float xl_read(int fd)
 {
+return ACCEL_RANGE*get_data(fd,ACCEL_XOUT_H)/32768;
 }
 
 ////////////////////////////////////////////
-float yl_read()
+float yl_read(int fd)
 {
+return ACCEL_RANGE*get_data(fd,ACCEL_YOUT_H)/32768;
 }
 
 ////////////////////////////////////////////
-float zl_read()
+float zl_read(int fd)
 {
+return ACCEL_RANGE*get_data(fd,ACCEL_ZOUT_H)/32768;
 }
 ////////////////////////////////////////////
 float dist_read()

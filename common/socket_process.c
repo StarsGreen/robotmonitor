@@ -15,14 +15,14 @@
 
 extern struct socket_info sock_info; 
 extern void read_cmd(char* cmd);
-extern sem_t v_get,v_send;
-extern void* video_send_thread(void);
+//extern sem_t v_get,v_send;
+//extern void* video_send_thread(void);
 extern void* send_info_thread(char* info);
 extern void* recv_info_thread(void);
-extern void* video_broadcast_thread(void);
+//extern void* video_broadcast_thread(void);
 //extern void* info_conm_thread(void);
 
-pthread_t vsend_thread,vget_thread,send_info,recv_info;
+pthread_t send_info,recv_info;
 pid_t socket_fork[QUEUE];
 
 int err;
@@ -69,8 +69,10 @@ void handle_request(int conn)
  err = pthread_create(&send_info, NULL, (void*)send_info_thread, &conn);
         if (err != 0) {
                 fprintf(stderr, "can't create info send thread: %s\n",
-         
 
+ err = pthread_create(&recv_info, NULL, (void*)recv_info_thread, &conn);
+        if (err != 0) {
+                fprintf(stderr, "can't create info send thread: %s\n",
        strerror(err));
 		exit(1);
 		}

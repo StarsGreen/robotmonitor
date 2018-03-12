@@ -10,25 +10,25 @@
 #include "include.h"
 #include <signal.h>
 
-#define sizeof(M_Node) NODE_SIZE
+#define sizeof(M_Node) M_NODE_SIZE//motion structure size
 M_Pointer init_list(M_Pointer pointer)
 {
-	pointer = (M_Pointer)malloc(sizeof(M_Node));
-	memset(pointer,0,NODE_SIZE);
+	pointer = (M_Pointer)malloc(M_NODE_SIZE);
+	memset(pointer,0,M_NODE_SIZE);
 	pointer->next=NULL;
-	pointer->pre=NULL;
+	pointer->prev=NULL;
 	pointer->count=1;
 	Head_Pointer=pointer;
 	Tail_Pinter=pointer;
 	return pointer;
 }
 //////////////////////////////////////
-void mlist_add(M_Node node)
+void mlist_add(M_node node)
 {
-	M_Pointer pointer = (M_Pointer)malloc(sizeof(M_Node));
-	memset(pointer,0,NODE_SIZE);
+	M_Pointer pointer = (M_Pointer)malloc(M_NODE_SIZE);
+	memset(pointer,0,M_NODE_SIZE);
 	pointer->next=NULL;
-	pointer->pre=Tail_Pointer->next;
+	pointer->prev=Tail_Pointer->next;
 	pointer->accel_info->xa_accel=node.accel_info.xa_accel;
 	pointer->accel_info->ya_accel=node.accel_info.ya_accel;
 	pointer->accel_info->za_accel=node.accel_info.za_accel;
@@ -47,17 +47,17 @@ void mlist_add(M_Node node)
 	pointer->jour_info->xl=node.jour_info.xl;
 	pointer->jour_info->yl=node.jour_info.yl;
 	pointer->jour_info->zl=node.jour_info.zl;
-	pointer->count=pointer->pre->count+1;
+	pointer->count=pointer->prev->count+1;
 	Tail_Pointer=pointer;
 }
 /////////////////////////////////////////////////
 void mlist_clear(M_Pointer head)
 {
-if(head->next==NULL&&head->pre==NULL)
-	memset(head,0,NODE_SIZE);
+if(head->next==NULL&&head->prev==NULL)
+	memset(head,0,M_NODE_SIZE);
 while(head->next==NULL)
 {
-	memset(head,0,NODE_SIZE);
+	memset(head,0,M_NODE_SIZE);
 	head=head->next;
 }
 }
@@ -76,6 +76,6 @@ return p;
 ////////////////////////////////////////////////
 void mlist_delete(void* p,int num)
 {
-	memset((M_Pointer)mlist_search(p,num),0,NODE_SIZE);
+	memset((M_Pointer)mlist_search(p,num),0,M_NODE_SIZE);
 }
 ////////////////////////////////////////////////

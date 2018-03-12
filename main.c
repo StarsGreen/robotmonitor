@@ -16,12 +16,6 @@ int create_all_process();
 int cancel_all_process();
 void sig_proceed(int signo);
 
-struct socket_info sock_info;
-struct move_cmd m_cmd;
-struct move_info m_info;
-struct video_data v_data;
-struct udp_flag u_flag;
-
 pid_t monitor_pro_pid,socket_pro_pid,cmd_pro_pid,err;
 //////////////////////////////////////////////
 int  main(int argc, char **argv)
