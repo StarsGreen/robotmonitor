@@ -121,11 +121,11 @@ typedef struct Sock_Node
 {
 	struct client_info cli_info;
 	int cli_num;
-	struct socket_info* next;
-	struct socket_info* prev;
+	struct Sock_Node* next;
+	struct Sock_Node* prev;
 }Sock_Node;
 typedef struct Sock_Node* Sock_Pointer;
-Sock_Node s_info;
+Sock_Node S_info;
 struct S_LinkList
 {
 Sock_Pointer S_Head_pointer;
@@ -133,7 +133,7 @@ Sock_Pointer S_Tail_pointer;
 int count;
 }sock_ll;
 ///////////////////////////////////////////////
-typedef struct socket_info
+struct socket_info
 {
         int sock_con_status;
 	int data_trans_status;

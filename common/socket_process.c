@@ -66,6 +66,7 @@ exit(1);
 ////////////////////////////////////////////
 void handle_request(int conn,char* ip)
 {
+	int err;
 	if(signal(SIGINT,signal_sockchild_proceed)==SIG_ERR)
 		perror("socket child signal error");
  err = pthread_create(&send_info, NULL, (void*)send_info_thread, &conn);
@@ -101,10 +102,10 @@ void sock_add(char* ip,int port)
 {
 if(!check_ip(ip))
 {
-memcpy(sock_node.cli_info.ip,ip,15);
-sock_node.cli_info.port=port;
-sock_node.cli_num++;
-slist_add(sock_node);
+memcpy(S_info.cli_info.ip,ip,15);
+S_info.cli_info.port=port;
+S_info.cli_num++;
+slist_add(S_info);
 sock_ll.count++;
 }
 else printf("the ip exist");
@@ -165,9 +166,7 @@ while(1)
 				{
 			   if(sock_ll.count<=QUEUE)sock_add(ip,port);
 			   else
-				{
 				 printf("the conn is full");
-				}
 		printf("client %d IP is:%s,port is:%d  is connected",
 		cli_num,ip,port);
 				close(conn);
