@@ -107,6 +107,8 @@ typedef struct M_Node
 	struct accel accel_info;
 	struct velocity vel_info;
 	struct journey jour_info;
+	float temper;
+	float dist;
 	int num;
 	struct M_Node* next;
 	struct M_Node* prev;
@@ -118,7 +120,8 @@ M_Pointer M_Head_pointer;
 M_Pointer M_Tail_pointer;
 int count;
 }move_ll;
-M_Node M_info,M_info_pointer;
+M_Node M_info;
+M_Pointer M_info_pointer;
 /////////////////////////////////////////
 struct move_info
 {
@@ -142,7 +145,8 @@ typedef struct Sock_Node
 	struct Sock_Node* prev;
 }Sock_Node;
 typedef struct Sock_Node* Sock_Pointer;
-Sock_Node S_info,S_info_pointer;
+Sock_Node S_info;
+Sock_Pointer S_info_pointer;
 struct S_LinkList
 {
 Sock_Pointer S_Head_pointer;
