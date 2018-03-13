@@ -42,11 +42,28 @@
 #define	PWR_MGMT_1		0x6B	//电源管理，典型值：0x00(正常启用)
 #define	WHO_AM_I		0x75	//IIC地址寄存器(默认数值0x68，只读)
 //IIC写入时的地址字节数据，+1为读取
-#define   IICDEV_ID	0b1010000
+#define   DEVIIC_ID	0b1010000
 
 #define VIDEO_WIDTH 320
 #define VIDEO_HEIGHT 240
 #define QUALITY	80
+
+
+#define M_NODE_SIZE sizeof(M_Node)//motion structure size
+#define S_NODE_SIZE sizeof(Sock_Node)//motion structure size
+#define MAX_NODE_NUM 200
+
+/////////////////////////////
+ float pxl_conv=0.5;
+ float pyl_conv=0.5;
+ float pzl_conv=0.5;
+ float pxa_conv=0.5;
+ float pya_conv=0.5;
+ float pza_conv=0.5;
+const float Q_offset=0.5;
+const float R_offset=0.25;
+const float dt=0.1;
+
 
 struct move_cmd
 {
@@ -89,7 +106,7 @@ typedef struct M_Node
 {
 	struct accel accel_info;
 	struct velocity vel_info;
-	struct journey jou_info;
+	struct journey jour_info;
 	int num;
 	struct M_Node* next;
 	struct M_Node* prev;
@@ -101,7 +118,7 @@ M_Pointer M_Head_pointer;
 M_Pointer M_Tail_pointer;
 int count;
 }move_ll;
-M_Node M_info;
+M_Node M_info,M_info_pointer;
 /////////////////////////////////////////
 struct move_info
 {
@@ -125,7 +142,7 @@ typedef struct Sock_Node
 	struct Sock_Node* prev;
 }Sock_Node;
 typedef struct Sock_Node* Sock_Pointer;
-Sock_Node S_info;
+Sock_Node S_info,S_info_pointer;
 struct S_LinkList
 {
 Sock_Pointer S_Head_pointer;

@@ -52,7 +52,6 @@ if(signo==SIGINT)
 	cancel_socket_pro_thread();
 exit(1);
 }
-
 ///////////////////////////////////////////
 void signal_socket_proceed(int signo)
 {
@@ -62,11 +61,9 @@ if(signo==SIGINT)
 	kill(socket_fork[i],SIGINT);
 exit(1);
 }
-
 ////////////////////////////////////////////
 void handle_request(int conn,char* ip)
 {
-	int err;
 	if(signal(SIGINT,signal_sockchild_proceed)==SIG_ERR)
 		perror("socket child signal error");
  err = pthread_create(&send_info, NULL, (void*)send_info_thread, &conn);

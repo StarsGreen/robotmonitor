@@ -13,7 +13,6 @@
 #include "global_data.h"
 
 
-
 extern float temper_read();
 extern float dist_read();
 extern float xa_read(int fd);
@@ -23,51 +22,108 @@ extern float xl_read(int fd);
 extern float yl_read(int fd);
 extern float zl_read(int fd);
 extern int init_mpu6050();
+extern void init_dist_sensor();
 
+extern sem_t sensor_start,sensor_mid,sensor_stop;
+//extern int cond;
+//extern pthread_mutex_t thread_mutex;
+//extern pthread_cond_t thread_cond;
 ////////////////////////////////////////////////
-void* temper_get_thread()
+void* temper_get_thread(void)
 {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 while(1)
 	{
+		sem_wait(&sensor_start);
 		pthread_testcancel();
-		msleep(500);
+		usleep(100000);
 		m_info.temper=temper_read();
+		sem_post(&sensor_mid);
+	}
+
+}
+////////////////////////////////////////////////
+void* dist_get_thread(void)
+{
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
+	init_dist_sensor();
+while(1)
+	{
+		sen_wait(&sensor_mid);
+		pthread_testcancel();
+		usleep(100000);
+		m_info.dist=dist_read();
+		sem_post(&sem_stop);
 	}
 
 }
 //////////////////////////////////////////////
-void* accel_get_thread()
+void* accel_get_thread(void)
 {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 	int fd=init_mpu6050();
 while(1)
 	{
+		sem_wait(&sensor_stop);
+
 		pthread_testcancel();
-		msleep(100);
+		usleep(100000);
+	memcpy(M_info_pointer,move_ll.M_Tail_pointer,M_NODE_SIZE);
 		m_info.accel_info.xa_accel=xa_read(fd);
 		m_info.accel_info.ya_accel=ya_read(fd);
 		m_info.accel_info.za_accel=za_read(fd);
 		m_info.accel_info.xl_accel=xl_read(fd);
 		m_info.accel_info.yl_accel=yl_read(fd);
 		m_info.accel_info.zl_accel=zl_read(fd);
+
+	if(M_info_pointer->prev!=NULL){
+m_info.vel_info.xl_vel=M_info_pointer->prev->vel_info.xl_vel+
+m_info.accel_info.xl_accel*dt;
+
+m_info.vel_info.yl_vel=M_info_pointer->prev->vel_info.yl_vel+
+m_info.accel_info.yl_accel*dt;
+
+m_info.vel_info.zl_vel=M_info_pointer->prev->vel_info.zl_vel+
+m_info.accel_info.zl_accel*dt;
+
+m_info.vel_info.xa_vel=M_info_pointer->prev->vel_info.xa_vel+
+m_info.accel_info.xa_accel*dt;
+
+m_info.vel_info.ya_vel=M_info_pointer->prev->vel_info.ya_vel+
+m_info.accel_info.ya_accel*dt;
+
+m_info.vel_info.za_vel=M_info_pointer->prev->vel_info.za_vel+
+m_info.accel_info.za_accel*dt;
+
+m_info.jour_info.xl=kalman_filter(M_info_pointer->prev->jour_info.xl,
+M_info_pointer->prev->accel_info.xl_accel,
+M_info_pointer->accel_info.accel_info.xl_accel,
+dt,&px_conv,Q_offset,R_offset);
+
+m_info.jour_info.yl=kalman_filter(M_info_pointer->prev->jour_info.yl,
+M_info_pointer->prev->accel_info.yl_accel,
+M_info_pointer->accel_info.accel_info.yl_accel,
+dt,&py_conv,Q_offset,R_offset);
+
+m_info.jour_info.zl=kalman_filter(M_info_pointer->prev->jour_info.zl,
+M_info_pointer->prev->accel_info.zl_accel,
+M_info_pointer->accel_info.accel_info.zl_accel,
+dt,&pz_conv,Q_offset,R_offset);
+		}
+mlist_add(m_info);
+if(move_ll.count==NODE_MAX_NUM)
+    {
+memcp(move_ll.M_Head_pointer->next,move_ll.M_Tail_pointer,M_NODE_SIZE);
+mlist_clear(move_ll.M_Head_pointer->next->next);
+    }
+
+sem_post(&sensor_start);
 	}
 
 }
 ///////////////////////////////////////////////
 
-void* dist_get_thread()
-{
-	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
-while(1)
-	{
-		pthread_testcancel();
-		msleep(250);
-		m_info.dist=dist_read();
-	}
-
-}
 ////////////////////////////////////////////////

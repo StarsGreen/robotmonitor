@@ -21,6 +21,7 @@ extern void *accel_get_thread(void);
 
 int sensor_err;
 pthread_t temper_thread,accel_thread,dist_thread;
+sem_t sensor_start,sensor_mid,sensor_stop;
 ////////////////////////////////////////////
 int cancel_sensor_thread()
 {
@@ -65,10 +66,21 @@ int create_sensor_thread()
 	NULL);
         if (sensor_err != 0) {
                 fprintf(stderr, "can't create move thread: %s\n",
-                strerror(err));
+                strerror(sensor_err));
 		exit(1);
 			}
 	return 0;
+}
+///////////////////////////////////////////
+int spro_sem_init()
+{
+        if(sem_init(&sensor_start,0,1)>0)
+        printf("sensor_start init error");
+        if(sem_init(&sensor_mid,0,0)>0)
+        printf("sensor_mid init error");
+        if(sem_init(&sensor_stop,0,0)>0)
+        printf("server_sock init error");
+        return 0;
 }
 ///////////////////////////////////////////
 void signal_sensor_proceed(int signo)
@@ -80,7 +92,7 @@ exit(1);
 //////////////////////////////////////
 void sensor_process()
 {
-//	sig_init();
+	spro_sem_init();
 	create_sensor_thread();
 	if(signal(SIGINT,signal_sensor_proceed)==SIG_ERR)
 		perror("signal error");
