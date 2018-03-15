@@ -54,17 +54,6 @@
 #define MAX_NODE_NUM 200
 
 /////////////////////////////
- float pxl_conv=0.5;
- float pyl_conv=0.5;
- float pzl_conv=0.5;
- float pxa_conv=0.5;
- float pya_conv=0.5;
- float pza_conv=0.5;
-const float Q_offset=0.5;
-const float R_offset=0.25;
-const float dt=0.1;
-
-
 struct move_cmd
 {
 	int cmd_type;
@@ -153,6 +142,13 @@ Sock_Pointer S_Head_pointer;
 Sock_Pointer S_Tail_pointer;
 int count;
 }sock_ll;
+//////////////////////////////////////////////
+typedef struct sock_params
+{
+        char* ip;
+        int conn;
+}S_Params;
+S_Params s_params;
 ///////////////////////////////////////////////
 struct socket_info
 {

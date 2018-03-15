@@ -106,7 +106,11 @@ return pointer;
 ////////////////////////////////////////////////
 void mlist_delete(int num)
 {
-	memset((M_Pointer)mlist_search_num(num),0,M_NODE_SIZE);
+	M_Pointer mp=mlist_search_num(num);
+	mp->next->prev=mp->prev;
+        mp->prev->next=mp->next;
+	if(mp!=NULL)free(mp);
+	move_ll.count--;
 }
 ////////////////////////////////////////////////
 Sock_Pointer init_slist()
@@ -189,8 +193,9 @@ return pointer;
 ////////////////////////////////////////////////
 void slist_delete(char* ip)
 {
-	Sock_Pointer p=slist_search_ip(ip);
-	if(p!=NULL)memset(p,0,M_NODE_SIZE);
-	else printf("the ip is not exist");
+	Sock_Pointer sp=slist_search_ip(ip);
+	sp->next->prev=sp->prev;
+        sp->prev->next=sp->next;
+	if(sp!=NULL)free(sp);
+	sock_ll.count--;
 }
-

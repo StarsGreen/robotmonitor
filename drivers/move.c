@@ -7,61 +7,60 @@
 #include "cmd.h"
 struct move_interface
 {
-        void(*move_direct_right)(short angle,short vel);
-        void(*move_up_right)(short angle,short vel);
-        void(*move_direct_up)(short angle,short vel);
-        void(*move_up_left)(short angle,short vel);
-        void(*move_direct_left)(short angle,short vel);
-        void(*move_down_left)(short angle,short vel);
-        void(*move_direct_down)(short angle,short vel);
-        void(*move_down_right)(short angle,short vel);
-	void(*move_direct_stop)();
+        void(*move_direct_right)(int angle,int vel);
+        void(*move_up_right)(int angle,int vel);
+        void(*move_direct_up)(int angle,int vel);
+        void(*move_up_left)(int angle,int vel);
+        void(*move_direct_left)(int angle,int vel);
+        void(*move_down_left)(int angle,int vel);
+        void(*move_direct_down)(int angle,int vel);
+        void(*move_down_right)(int angle,int vel);
+	void(*move_direct_stop)(void);
 }move_action;
 ////////////////////////////////////////////////
-void move_direct_up(short angle,short vel)
+void move_direct_up(int angle,int vel)
 {
 printf("move direct up ,angle %d ,vel %d\n",angle,vel);
 }
 
-void move_up_right(short angle,short vel)
+void move_up_right(int angle,int vel)
 {
 printf("move up right ,angle %d ,vel %d\n",angle,vel);
 }
 
-void move_direct_right(short angle,short vel)
+void move_direct_right(int angle,int vel)
 {
 printf("move direct right ,angle %d ,vel %d\n",angle,vel);
 }
 
-void move_down_right(short angle,short vel)
+void move_down_right(int angle,int vel)
 {
 printf("move down right ,angle %d ,vel %d\n",angle,vel);
 }
 
-void move_direct_down(short angle,short vel)
+void move_direct_down(int angle,int vel)
 {
 printf("move direct down ,angle %d ,vel %d\n",angle,vel);
 }
 
-void move_down_left(short angle,short vel)
+void move_down_left(int angle,int vel)
 {
 printf("move down left ,angle %d ,vel %d\n",angle,vel);
 }
 
-void move_direct_left(short angle,short vel)
+void move_direct_left(int angle,int vel)
 {
 printf("move direct left ,angle %d ,vel %d\n",angle,vel);
 }
 
-void move_up_left(short angle,short vel)
+void move_up_left(int angle,int vel)
 {
 printf("move up left ,angle %d ,vel %d\n",angle,vel);
 }
 
-
-void move_direct_stop()
+void move_direct_stop(void)
 {
-//printf("move direct stop\n");
+printf("move direct stop\n");
 }
 /////////////////////////////////////////////
 void move_init(void)
@@ -77,7 +76,7 @@ void move_init(void)
 	move_action.move_direct_stop=move_direct_stop;
 }
 // used by outer function
-void move(short move_type,short angle,short vel)
+void move(int move_type,int angle,int vel)
 {
 switch(move_type)
 	{
@@ -93,4 +92,3 @@ switch(move_type)
 	default:break;
 	}
 }
-

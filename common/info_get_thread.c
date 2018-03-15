@@ -30,6 +30,17 @@ extern void mlist_add(M_Node node);
 extern void mlist_clear(M_Pointer head);
 
 extern sem_t sensor_start,sensor_mid,sensor_stop;
+
+float pxl_conv=0.5;
+float pyl_conv=0.5;
+float pzl_conv=0.5;
+float pxa_conv=0.5;
+float pya_conv=0.5;
+float pza_conv=0.5;
+const float Q_offset=0.5;
+const float R_offset=0.25;
+const float dt=0.1;
+
 //extern int cond;
 //extern pthread_mutex_t thread_mutex;
 //extern pthread_cond_t thread_cond;
@@ -56,7 +67,7 @@ void* dist_get_thread(void)
 	init_dist_sensor();
 while(1)
 	{
-		sen_wait(&sensor_mid);
+		sem_wait(&sensor_mid);
 		pthread_testcancel();
 		usleep(100000);
 		M_info.dist=dist_read();
@@ -106,25 +117,25 @@ M_info.accel_info.za_accel*dt;
 M_info.jour_info.xl=kalman_filter(M_info_pointer->prev->jour_info.xl,
 M_info_pointer->prev->accel_info.xl_accel,
 M_info.accel_info.xl_accel,
-dt,&px_conv,Q_offset,R_offset);
+dt,&pxl_conv,Q_offset,R_offset);
 
 M_info.jour_info.yl=kalman_filter(M_info_pointer->prev->jour_info.yl,
 M_info_pointer->prev->accel_info.yl_accel,
 M_info.accel_info.yl_accel,
-dt,&py_conv,Q_offset,R_offset);
+dt,&pyl_conv,Q_offset,R_offset);
 
 M_info.jour_info.zl=kalman_filter(M_info_pointer->prev->jour_info.zl,
 M_info_pointer->prev->accel_info.zl_accel,
 M_info.accel_info.zl_accel,
-dt,&pz_conv,Q_offset,R_offset);
+dt,&pzl_conv,Q_offset,R_offset);
 		}
 mlist_add(M_info);
-if(move_ll.count==NODE_MAX_NUM)
+
+if(move_ll.count==MAX_NODE_NUM)
     {
-memcp(move_ll.M_Head_pointer->next,move_ll.M_Tail_pointer,M_NODE_SIZE);
+memcpy(move_ll.M_Head_pointer->next,move_ll.M_Tail_pointer,M_NODE_SIZE);
 mlist_clear(move_ll.M_Head_pointer->next->next);
     }
-
 sem_post(&sensor_start);
 	}
 

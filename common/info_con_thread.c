@@ -11,27 +11,32 @@
 #include <fcntl.h>
 #include <sys/shm.h>
 #include "global_data.h"
-
+#include <signal.h>
+#include <math.h>
 extern void read_cmd(char* cmd);
-extern struct move_info m_info;
+//extern struct move_info M_info;
+extern void slist_delete(char* ip);
 /////////////////////////////////////////
-void recv_info_thread(int conn)
+void* recv_info_thread(void* s)
 {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 	char buffer[ARRAY_SIZE];
+	S_Params* sp=(S_Params*)s;
 //	int optval;
 //	socklen_t optlen = sizeof(int);
 	while(1)
 	{
 		pthread_testcancel();
 		memset(buffer,0,sizeof(buffer));
-		int len = recv(conn, buffer, sizeof(buffer),0);
+		int len = recv(sp->conn, buffer, sizeof(buffer),0);
 		if(len>0)
 			{
 			if(strcmp(buffer,"exit")==0)
 				{
-				close(conn);
+				close(sp->conn);
+				slist_delete(sp->ip);
+				raise(SIGINT);
 				break;
 				}
 			else
@@ -39,94 +44,175 @@ void recv_info_thread(int conn)
 				read_cmd(buffer);
 				}
 			}
-		else 
+		else
 			{
-			close(conn);
+			close(sp->conn);
+			slist_delete(sp->ip);
 			raise(SIGINT);
 			break;
 			}
 	}
-		printf("this thread is closed");
+		printf("recv info thread is closed");
 }
 //////////////////////////////////////////////
-int recong_info(int value)
+int recong_info(int a)
 {
-int status=0;
-switch(value)
-	{
-	case 0...9:status=1;break;
-	case 10...99:status=2;break;
-	case 100...999:status=3;break;
-	default:break;
-	}
-return status;
+int flag=0;
+if(a>-20000&&a<=-10000)flag=10;
+if(a>-10000&&a<=-1000)flag=9;
+if(a>-1000&&a<=-100)flag=8;
+if(a>-100&&a<=-10)flag=7;
+if(a>-10&&a<0)flag=6;
+if(a>=0&&a<10)flag=1;
+if(a>=10&&a<100)flag=2;
+if(a>=100&&a<1000)flag=3;
+if(a>=1000&&a<10000)flag=4;
+if(a>=10000&&a<20000)flag=5;
+return flag;
 }
-///////////////////////////////////////////////
-char* compile_info()
+//////////////////////////////////////////////
+char* code_info(int value)
 {
-char info[20];
+static char code_msg[6];
+switch(recong_info(value))
+{
+	case 1:
+	code_msg[0]='+';
+	code_msg[1]='0';
+	code_msg[2]='0';
+	code_msg[3]='0';
+	code_msg[4]='0';
+	code_msg[5]=value+'0';break;
+	case 2:
+	code_msg[0]='+';
+	code_msg[1]='0';
+	code_msg[2]='0';
+	code_msg[3]='0';
+	code_msg[4]=value/10+'0';
+	code_msg[5]=value%10+'0';break;
+
+	case 3:
+	code_msg[0]='+';
+	code_msg[1]='0';
+	code_msg[2]='0';
+	code_msg[3]=value/100+'0';
+	code_msg[4]=value%100/10+'0';
+	code_msg[5]=value%10+'0';break;
+	case 4:
+	code_msg[0]='+';
+	code_msg[1]='0';
+	code_msg[2]=value/1000+'0';
+	code_msg[3]=value%1000/100+'0';
+	code_msg[4]=value%100/10+'0';
+	code_msg[5]=value%10+'0';break;
+	case 5:
+	code_msg[0]='+';
+	code_msg[1]=value/10000+'0';
+	code_msg[2]=value%10000/1000+'0';
+	code_msg[3]=value%1000/100+'0';
+	code_msg[4]=value%100/10+'0';
+	code_msg[5]=value%10+'0';break;
+
+	case 6:
+	value=value*(-1);
+	code_msg[0]='-';
+	code_msg[1]='0';
+	code_msg[2]='0';
+	code_msg[3]='0';
+	code_msg[4]='0';
+	code_msg[5]=value+'0';break;
+	case 7:
+	value=value*(-1);
+	code_msg[0]='-';
+	code_msg[1]='0';
+	code_msg[2]='0';
+	code_msg[3]='0';
+	code_msg[4]=value/10+'0';
+	code_msg[5]=value%10+'0';break;
+
+	case 8:
+	value=value*(-1);
+	code_msg[0]='-';
+	code_msg[1]='0';
+	code_msg[2]='0';
+	code_msg[3]=value/100+'0';
+	code_msg[4]=value%100/10+'0';
+	code_msg[5]=value%10+'0';break;
+	case 9:
+	value=value*(-1);
+	code_msg[0]='-';
+	code_msg[1]='0';
+	code_msg[2]=value/1000+'0';
+	code_msg[3]=value%1000/100+'0';
+	code_msg[4]=value%100/10+'0';
+	code_msg[5]=value%10+'0';break;
+
+	case 10:
+	value=value*(-1);
+	code_msg[0]='-';
+	code_msg[1]=value/10000+'0';
+	code_msg[2]=value%10000/1000+'0';
+	code_msg[3]=value%1000/100+'0';
+	code_msg[4]=value%100/10+'0';
+	code_msg[5]=value%10+'0';break;
+	default:break;
+}
+return code_msg;
+}
+//////////////////////////////////////////////
+char* assemble_info()
+{
+static char info[42];
+M_Pointer p=NULL;
+memcpy(p,move_ll.M_Tail_pointer,M_NODE_SIZE);
+int value=(int)(sqrt((p->accel_info.xl_accel)*(p->accel_info.xl_accel)+
+(p->accel_info.yl_accel)*(p->accel_info.yl_accel)+
+(p->accel_info.zl_accel)*(p->accel_info.zl_accel))*1000);
 info[0]='a';
-switch(recong_info(m_info.accel))
-{
-	case 1:info[1]='0';info[2]='0';info[3]=m_info.accel+'0';break;
-	case 2:info[1]='0';info[2]='0'+m_info.accel/10;
-		info[3]=m_info.accel%10+'0';break;
-	case 3:info[1]='0'+m_info/100;info[2]='0'+(m_info.accel%100)/10;
-		info[3]=m_info.accel%10+'0';break;
-	default:break;
-}
-info[4]='v';
-switch(recong_info(m_info.vel))
-{
-	case 1:info[5]='0';info[6]='0';info[7]=m_info.vel+'0';break;
-	case 2:info[5]='0';info[6]='0'+m_info.vel/10;
-		info[7]=m_info.vel%10+'0';break;
-	case 3:info[5]='0'+m_info/100;info[6]='0'+(m_info.vel%100)/10;
-		info[7]=m_info.vel%10+'0';break;
-	default:break;
-}
-info[8]='s';
-switch(recong_info(m_info.journey))
-{
-	case 1:info[9]='0';info[10]='0';info[11]=m_info.journey+'0';break;
-	case 2:info[9]='0';info[10]='0'+m_info.journey/10;
-		info[11]=m_info.journey%10+'0';break;
-	case 3:info[9]='0'+m_info/100;info[10]='0'+(m_info.journey%100)/10;
-		info[11]=m_info.journey%10+'0';break;
-	default:break;
-}
-info[12]='t';
-switch(recong_info(m_info.temper))
-{
-	case 1:info[13]='0';info[14]='0';info[15]=m_info.temper+'0';break;
-	case 2:info[13]='0';info[14]='0'+m_info.temper/10;
-		info[15]=m_info.temper%10+'0';break;
-	case 3:info[13]='0'+m_info/100;info[14]='0'+(m_info.temper%100)/10;
-		info[15]=m_info.temper%10+'0';break;
-	default:break;
-}
-info[16]='d';
-switch(recong_info(m_info.dist))
-{
-	case 1:info[17]='0';info[18]='0';info[19]=m_info.dist+'0';break;
-	case 2:info[17]='0';info[18]='0'+m_info.dist/10;
-		info[19]=m_info.dist%10+'0';break;
-	case 3:info[17]='0'+m_info/100;info[18]='0'+(m_info.dist%100)/10;
-		info[19]=m_info.dist%10+'0';break;
-	default:break;
-}
+memcpy(&info[1],code_info(value),6);
+////////////////////////////////////////////
+value=(int)(sqrt((p->vel_info.xl_vel)*(p->vel_info.xl_vel)+
+(p->vel_info.yl_vel)*(p->vel_info.yl_vel)+
+(p->vel_info.zl_vel)*(p->vel_info.zl_vel))*1000);
+info[7]='v';
+memcpy(&info[8],code_info(value),6);
+
+///////////////////////////////////////////////
+value=(int)(p->jour_info.xl*1000);
+info[14]='x';
+memcpy(&info[15],code_info(value),6);
+///////////////////////////////////////////////
+value=(int)(p->jour_info.yl*1000);
+info[21]='y';
+memcpy(&info[22],code_info(value),6);
+//////////////////////////////////////////
+value=(int)(p->temper*1000);
+info[28]='t';
+memcpy(&info[29],code_info(value),6);
+//////////////////////////////////////////
+value=(int)(p->dist*1000);
+info[35]='d';
+memcpy(&info[36],code_info(value),6);
+///////////////////////////////////////////
 return info;
 }
 //////////////////////////////////////////////
-void send_info_thread(int conn)
+void* send_info_thread(void* s)
 {
-	char* buf;
+	char* buf=NULL;
+	S_Params* sp=(S_Params*)s;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 	while(1)
 	{
 		pthread_testcancel();
-		buf=compile_info();
-		send(conn, buf, strlen(buf), 0); 
+		buf=assmeble_info();
+
+		if(send(sp->conn,buf,strlen(buf), 0)==-1)
+		{
+                        close(sp->conn);
+                        slist_delete(sp->ip);
+                        raise(SIGINT);
+		} 
 	}
 }

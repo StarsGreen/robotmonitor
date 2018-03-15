@@ -19,14 +19,13 @@ extern void slist_add(Sock_Node sock_node);
 extern void* slist_search_ip(void* ip);
 //extern sem_t v_get,v_send;
 //extern void* video_send_thread(void);
-extern void* send_info_thread(char* info);
-extern void* recv_info_thread(void);
+extern void* send_info_thread(void*);
+extern void* recv_info_thread(void*);
 //extern void* video_broadcast_thread(void);
 //extern void* info_conm_thread(void);
 
 pthread_t send_info,recv_info;
 pid_t socket_fork[QUEUE];
-
 int err;
 
 ///////////////////////////////////////////
@@ -66,23 +65,26 @@ void handle_request(int conn,char* ip)
 {
 	if(signal(SIGINT,signal_sockchild_proceed)==SIG_ERR)
 		perror("socket child signal error");
- err = pthread_create(&send_info, NULL, (void*)send_info_thread, &conn);
+	memcpy(s_params.ip,ip,15);
+	s_params.conn=conn;
+ err = pthread_create(&send_info, NULL,send_info_thread, &s_params);
         if (err != 0) {
                 fprintf(stderr, "can't create info send thread: %s\n",
        strerror(err));
 			}
- err = pthread_create(&recv_info, NULL, (void*)recv_info_thread, &conn);
+ err = pthread_create(&recv_info, NULL,recv_info_thread, &s_params);
         if (err != 0) {
                 fprintf(stderr, "can't create info send thread: %s\n",
        strerror(err));
 		exit(1);
 		}
- err = pthread_create(&recv_info, NULL, (void*)recv_info_thread, &conn);
+/* err = pthread_create(&recv_info, NULL, (void*)recv_info_thread, &conn);
         if (err != 0) {
                 fprintf(stderr, "can't create info recv thread: %s\n",
                 strerror(err));
 		exit(1);
 		}
+*/
 while(1);
 }
 ////////////////////////////////////////////
