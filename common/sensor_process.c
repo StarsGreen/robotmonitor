@@ -31,12 +31,14 @@ int cancel_sensor_thread()
 		pthread_join(temper_thread,NULL);
 		printf("cancel temper thread successfully\n");
 		}
+
 	if(pthread_cancel(accel_thread)<0)
 		printf("cancel accel get thread failed");
 	else{
 		pthread_join(accel_thread,NULL);
 		printf("cancel accel get thread successfully\n");
 		}
+
 	if(pthread_cancel(dist_thread)<0)
 		printf("cancel dist get thread failed");
 	else{
@@ -55,6 +57,7 @@ int create_sensor_thread()
                 strerror(sensor_err));
                 exit(1);
                 }
+
 	sensor_err = pthread_create(&dist_thread, NULL, (void*)temper_get_thread,
 	 NULL);
         if (sensor_err != 0) {
@@ -62,6 +65,7 @@ int create_sensor_thread()
                 strerror(sensor_err));
                 exit(1);
                 }
+
         sensor_err = pthread_create(&temper_thread, NULL, (void*)dist_get_thread, 
 	NULL);
         if (sensor_err != 0) {

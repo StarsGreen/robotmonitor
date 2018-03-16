@@ -26,7 +26,7 @@ float temper_read()
     fd = open("/sys/bus/w1/devices/28-00000495dbACCEL_XOUT_H35/w1_slave", O_RDONLY);
     if(-1 == fd){
         perror("open device file error");
-        return 1;
+        return -1;
     }
     while(1){
         ret = read(fd, buf, BUFSIZE);  //将设备文件中的内容读入buf中
@@ -72,7 +72,7 @@ int init_mpu6050()
 	int fd = wiringPiI2CSetup(DEVIIC_ID);
         if (fd < 0) {
                 printf("Error setup I2C device %x\n", DEVIIC_ID);
-                exit(1);
+                return -1;
         }
 	write_i2c(fd,PWR_MGMT_1, 0x00);	//解除休眠状态
 	write_i2c(fd,SMPLRT_DIV, 0x07);

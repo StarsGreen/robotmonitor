@@ -47,53 +47,76 @@ const float dt=0.1;
 ////////////////////////////////////////////////
 void* temper_get_thread(void)
 {
+	float value=0;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
+//	pthread_setcanceltype(PTHREAD_CANCEL_DEFFERED,NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
 while(1)
 	{
-		sem_wait(&sensor_start);
 		pthread_testcancel();
-		usleep(100000);
-		M_info.temper=temper_read();
-		sem_post(&sensor_mid);
-	}
+		sem_wait(&sensor_start);
 
+
+//		usleep(100000);
+		value=temper_read();
+	if(value!=-1)
+		M_info.temper=value;
+	else goto nothing;
+
+		sem_post(&sensor_mid);
+		pthread_testcancel();
+	}
+nothing:
+	while(1)pthread_testcancel();
 }
 ////////////////////////////////////////////////
 void* dist_get_thread(void)
 {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
+//	pthread_setcanceltype(PTHREAD_CANCEL_DEFFERED,NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
 	init_dist_sensor();
 while(1)
 	{
-		sem_wait(&sensor_mid);
 		pthread_testcancel();
-		usleep(100000);
+
+		sem_wait(&sensor_mid);
+//		usleep(100000);
 		M_info.dist=dist_read();
 		sem_post(&sensor_stop);
-	}
 
+		pthread_testcancel();
+	}
 }
 //////////////////////////////////////////////
 void* accel_get_thread(void)
 {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
+
+//	pthread_setcanceltype(PTHREAD_CANCEL_DEFFERED,NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
 	int fd=init_mpu6050();
 while(1)
 	{
-		sem_wait(&sensor_stop);
-
 		pthread_testcancel();
-		usleep(100000);
+
+		sem_wait(&sensor_stop);
+//		usleep(100000);
 	memcpy(M_info_pointer,move_ll.M_Tail_pointer,M_NODE_SIZE);
+	if(fd!=-1)
+	{
 		M_info.accel_info.xa_accel=xa_read(fd);
 		M_info.accel_info.ya_accel=ya_read(fd);
 		M_info.accel_info.za_accel=za_read(fd);
 		M_info.accel_info.xl_accel=xl_read(fd);
 		M_info.accel_info.yl_accel=yl_read(fd);
 		M_info.accel_info.zl_accel=zl_read(fd);
+	}
+	else
+	{
+	printf("the dev is not found");
+	goto nothing;
+	}
 
 	if(M_info_pointer->prev!=NULL){
 M_info.vel_info.xl_vel=M_info_pointer->prev->vel_info.xl_vel+
@@ -137,8 +160,11 @@ memcpy(move_ll.M_Head_pointer->next,move_ll.M_Tail_pointer,M_NODE_SIZE);
 mlist_clear(move_ll.M_Head_pointer->next->next);
     }
 sem_post(&sensor_start);
-	}
 
+		pthread_testcancel();
+	}
+nothing:
+	while(1)pthread_testcancel();
 }
 ///////////////////////////////////////////////
 
