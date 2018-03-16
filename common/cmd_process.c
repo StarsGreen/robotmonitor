@@ -36,7 +36,7 @@ void input(char* cmd)
 /////////////////////////////////////////
 void signal_cmd_proceed(int signo)
 {
-if(signo==SIGINT)	
+if(signo==SIGINT)
 exit(1);
 }
 //////////////////////////////////////////

@@ -16,7 +16,8 @@ int create_all_process();
 int cancel_all_process();
 void sig_proceed(int signo);
 
-pid_t monitor_pro_pid,socket_pro_pid,cmd_pro_pid,err;
+pid_t monitor_pro_pid,socket_pro_pid,cmd_pro_pid,sensor_pro_pid;
+int main_err;
 //////////////////////////////////////////////
 int  main(int argc, char **argv)
 {
@@ -41,9 +42,9 @@ int cancel_all_process()
 	if(kill(monitor_pro_pid,SIGINT)<0)
 		printf("cancel monitor process failed");
 	else{
-		err=waitpid(monitor_pro_pid,&status,WUNTRACED|WCONTINUED);
-		if(err>0)
-		printf("cancel monitor process:%d successfully\n",err);
+		main_err=waitpid(monitor_pro_pid,&status,WUNTRACED|WCONTINUED);
+		if(main_err>0)
+		printf("cancel monitor process:%d successfully\n",main_err);
 		else
 		printf("cancel monitor process failed\n");
 		}
@@ -51,9 +52,9 @@ int cancel_all_process()
 	if(kill(cmd_pro_pid,SIGINT)<0)
 		printf("cancel cmd process failed");
 	else{
-		err=waitpid(cmd_pro_pid,&status,WUNTRACED|WCONTINUED);
-		if(err>0)
-		printf("cancel cmd process:%d successfully\n",err);
+		main_err=waitpid(cmd_pro_pid,&status,WUNTRACED|WCONTINUED);
+		if(main_err>0)
+		printf("cancel cmd process:%d successfully\n",main_err);
 		else
 		printf("cancel cmd process failed\n");
 		}
@@ -61,11 +62,21 @@ int cancel_all_process()
 	if(kill(socket_pro_pid,SIGINT)<0)
 		printf("cancel socket process failed");
 	else{
-		err=waitpid(socket_pro_pid,&status,WUNTRACED|WCONTINUED);
-		if(err>0)
-		printf("cancel socket process:%d successfully\n",err);
+		main_err=waitpid(socket_pro_pid,&status,WUNTRACED|WCONTINUED);
+		if(main_err>0)
+		printf("cancel socket process:%d successfully\n",main_err);
 		else
 		printf("cancel socket process failed\n");
+		}
+
+	if(kill(sensor_pro_pid,SIGINT)<0)
+		printf("cancel sensor process failed");
+	else{
+		main_err=waitpid(sensor_pro_pid,&status,WUNTRACED|WCONTINUED);
+		if(main_err>0)
+		printf("cancel sensor process:%d successfully\n",main_err);
+		else
+		printf("cancel sensor process failed\n");
 		}
 	return 0;
 }
@@ -79,19 +90,29 @@ int create_all_process()
 	case 0:monitor_process();break;
 	default:printf("monitor process pid is:%d \n",monitor_pro_pid);break;
 	}
-	socket_pro_pid=fork();
-	switch(socket_pro_pid)
-	{
-	case -1:printf("socket process create error!\n");break;
-	case 0:socket_process();break;
-	default:printf("socket process pid is:%d \n",socket_pro_pid);break;
-	}
+
 	cmd_pro_pid=fork();
 	switch(cmd_pro_pid)
 	{
 	case -1:printf("cmd process create error!\n");break;
 	case 0:cmd_process();break;
 	default:printf("cmd process pid is: %d \n",cmd_pro_pid);break;
+	}
+
+	socket_pro_pid=fork();
+	switch(socket_pro_pid)
+	{
+	case -1:printf("socket process create error!\n");break;
+	case 0:socket_process();break;
+	default:printf("socket process pid is: %d \n",socket_pro_pid);break;
+	}
+
+	sensor_pro_pid=fork();
+	switch(sensor_pro_pid)
+	{
+	case -1:printf("sensor process create error!\n");break;
+	case 0:sensor_process();break;
+	default:printf("sensor process pid is:%d \n",sensor_pro_pid);break;
 	}
 	return 0;
 }

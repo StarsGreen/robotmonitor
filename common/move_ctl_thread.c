@@ -20,7 +20,7 @@ void* move_ctl_thread(void)
 while(1)
 	{
 	pthread_testcancel();
-	move(m_cmd.cmd_type,m_cmd.angle,m_cmd.vel);
+//	move(m_cmd.cmd_type,m_cmd.angle,m_cmd.vel);
 	}
 }
 

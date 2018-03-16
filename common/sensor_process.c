@@ -26,22 +26,22 @@ sem_t sensor_start,sensor_mid,sensor_stop;
 int cancel_sensor_thread()
 {
 	if(pthread_cancel(temper_thread)<0)
-		printf("cancel move thread failed");
+		printf("cancel temper thread failed");
 	else{
 		pthread_join(temper_thread,NULL);
-		printf("cancel move thread successfully\n");
+		printf("cancel temper thread successfully\n");
 		}
 	if(pthread_cancel(accel_thread)<0)
-		printf("cancel video get thread failed");
+		printf("cancel accel get thread failed");
 	else{
 		pthread_join(accel_thread,NULL);
-		printf("cancel video get thread successfully\n");
+		printf("cancel accel get thread successfully\n");
 		}
 	if(pthread_cancel(dist_thread)<0)
-		printf("cancel video send thread failed");
+		printf("cancel dist get thread failed");
 	else{
 		pthread_join(dist_thread,NULL);
-		printf("cancel video send thread successfully\n");
+		printf("cancel dist get thread successfully\n");
 		}
 	return 0;
 }
@@ -51,21 +51,21 @@ int create_sensor_thread()
 	sensor_err = pthread_create(&accel_thread, NULL, (void*)accel_get_thread, 
 	NULL);
         if (sensor_err != 0) {
-                fprintf(stderr, "can't create video get thread: %s\n",
+                fprintf(stderr, "can't create accel get thread: %s\n",
                 strerror(sensor_err));
                 exit(1);
                 }
 	sensor_err = pthread_create(&dist_thread, NULL, (void*)temper_get_thread,
 	 NULL);
         if (sensor_err != 0) {
-                fprintf(stderr, "can't create video send thread: %s\n",
+                fprintf(stderr, "can't create temper get thread: %s\n",
                 strerror(sensor_err));
                 exit(1);
                 }
         sensor_err = pthread_create(&temper_thread, NULL, (void*)dist_get_thread, 
 	NULL);
         if (sensor_err != 0) {
-                fprintf(stderr, "can't create move thread: %s\n",
+                fprintf(stderr, "can't create dist get thread: %s\n",
                 strerror(sensor_err));
 		exit(1);
 			}

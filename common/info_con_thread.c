@@ -160,59 +160,65 @@ switch(recong_info(value))
 return code_msg;
 }
 //////////////////////////////////////////////
-char* assemble_info()
+char* assemble_info(void)
 {
-static char info[42];
-M_Pointer p=NULL;
-memcpy(p,move_ll.M_Tail_pointer,M_NODE_SIZE);
-int value=(int)(sqrt((p->accel_info.xl_accel)*(p->accel_info.xl_accel)+
-(p->accel_info.yl_accel)*(p->accel_info.yl_accel)+
-(p->accel_info.zl_accel)*(p->accel_info.zl_accel))*1000);
-info[0]='a';
-memcpy(&info[1],code_info(value),6);
+	static char info[42];
+	char* pointer=(char*)malloc(42);
+	M_Pointer p=NULL;
+	memcpy(p,move_ll.M_Tail_pointer,M_NODE_SIZE);
+	int value=(int)(sqrt((p->accel_info.xl_accel)*(p->accel_info.xl_accel)+
+	(p->accel_info.yl_accel)*(p->accel_info.yl_accel)+
+	(p->accel_info.zl_accel)*(p->accel_info.zl_accel))*1000);
+	info[0]='a';
+	memcpy(&info[1],code_info(value),6);
 ////////////////////////////////////////////
-value=(int)(sqrt((p->vel_info.xl_vel)*(p->vel_info.xl_vel)+
-(p->vel_info.yl_vel)*(p->vel_info.yl_vel)+
-(p->vel_info.zl_vel)*(p->vel_info.zl_vel))*1000);
-info[7]='v';
-memcpy(&info[8],code_info(value),6);
+	value=(int)(sqrt((p->vel_info.xl_vel)*(p->vel_info.xl_vel)+
+	(p->vel_info.yl_vel)*(p->vel_info.yl_vel)+
+	(p->vel_info.zl_vel)*(p->vel_info.zl_vel))*1000);
+	info[7]='v';
+	memcpy(&info[8],code_info(value),6);
 
 ///////////////////////////////////////////////
-value=(int)(p->jour_info.xl*1000);
-info[14]='x';
-memcpy(&info[15],code_info(value),6);
+	value=(int)(p->jour_info.xl*1000);
+	info[14]='x';
+	memcpy(&info[15],code_info(value),6);
 ///////////////////////////////////////////////
-value=(int)(p->jour_info.yl*1000);
-info[21]='y';
-memcpy(&info[22],code_info(value),6);
+	value=(int)(p->jour_info.yl*1000);
+	info[21]='y';
+	memcpy(&info[22],code_info(value),6);
 //////////////////////////////////////////
-value=(int)(p->temper*1000);
-info[28]='t';
-memcpy(&info[29],code_info(value),6);
+	value=(int)(p->temper*1000);
+	info[28]='t';
+	memcpy(&info[29],code_info(value),6);
 //////////////////////////////////////////
-value=(int)(p->dist*1000);
-info[35]='d';
-memcpy(&info[36],code_info(value),6);
+	value=(int)(p->dist*1000);
+	info[35]='d';
+	memcpy(&info[36],code_info(value),6);
 ///////////////////////////////////////////
-return info;
+	memcpy(pointer,info,42);
+//	return info;
+	return pointer;
 }
+
+
 //////////////////////////////////////////////
 void* send_info_thread(void* s)
 {
-	char* buf=NULL;
+	char* msg_buf=NULL;
 	S_Params* sp=(S_Params*)s;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 	while(1)
 	{
 		pthread_testcancel();
-		buf=assmeble_info();
+		msg_buf=assemble_info();
 
-		if(send(sp->conn,buf,strlen(buf), 0)==-1)
+		if(send(sp->conn,msg_buf,strlen(msg_buf), 0)==-1)
 		{
                         close(sp->conn);
                         slist_delete(sp->ip);
                         raise(SIGINT);
-		} 
+		}
+		free(msg_buf);
 	}
 }

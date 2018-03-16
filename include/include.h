@@ -7,12 +7,14 @@
 #define CMD_LENGTH 10
 
 //extern void move(short cmd_type,short angle,short vel);
+/*
 extern void* socket_thread(void);
 extern void* move_thread(void);
 extern void* video_send_thread(void);
 extern void* video_get_thread(void);
-
+*/
 
 extern void *monitor_process(void);
 extern void *cmd_process(void);
 extern void *socket_process(void);
+extern void *sensor_process(void);

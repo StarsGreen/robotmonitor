@@ -10,7 +10,7 @@
 #include "include.h"
 #include <signal.h>
 
-M_Pointer init_mlist()
+void init_mlist()
 {
 	M_Pointer pointer = (M_Pointer)malloc(M_NODE_SIZE);
 	memset(pointer,0,M_NODE_SIZE);
@@ -20,7 +20,7 @@ M_Pointer init_mlist()
 	move_ll.M_Head_pointer=pointer;
 	move_ll.M_Tail_pointer=pointer;
 	move_ll.count=0;
-	return pointer;
+//	return pointer;
 }
 //////////////////////////////////////
 void mlist_add(M_Node node)
@@ -113,19 +113,19 @@ void mlist_delete(int num)
 	move_ll.count--;
 }
 ////////////////////////////////////////////////
-Sock_Pointer init_slist()
+void init_slist()
 {
 	Sock_Pointer pointer = (Sock_Pointer)malloc(S_NODE_SIZE);
 	memset(pointer,0,S_NODE_SIZE);
 	pointer->next=NULL;
 	pointer->prev=NULL;
-	pointer->cli_num=1;
+	pointer->cli_num=0;
 
 	sock_ll.S_Head_pointer=pointer;
 	sock_ll.S_Tail_pointer=pointer;
 	sock_ll.count=0;
 
-	return pointer;
+//	return pointer;
 }
 //////////////////////////////////////////////////////
 void slist_add(Sock_Node node)

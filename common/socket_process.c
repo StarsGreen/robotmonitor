@@ -16,6 +16,7 @@
 //extern struct socket_info sock_info; 
 extern void read_cmd(char* cmd);
 extern void slist_add(Sock_Node sock_node);
+extern void init_slist(void);
 extern void* slist_search_ip(void* ip);
 //extern sem_t v_get,v_send;
 //extern void* video_send_thread(void);
@@ -32,16 +33,16 @@ int err;
 void cancel_socket_pro_thread()
 {
 	if(pthread_cancel(send_info)<0)
-		printf("cancel info thread failed");
+		printf("cancel msg send thread failed");
 	else{
 		pthread_join(send_info,NULL);
-		printf("cancel info thread successfully\n");
+		printf("cancel msg send thread successfully\n");
 		}
 	if(pthread_cancel(recv_info)<0)
-		printf("cancel video send thread failed");
+		printf("cancel msg recv thread failed");
 	else{
 		pthread_join(recv_info,NULL);
-		printf("cancel video send thread successfully\n");
+		printf("cancel msg recv thread successfully\n");
 		}
 }
 ///////////////////////////////////////////
@@ -148,6 +149,8 @@ void socket_process(void)
 	int cli_num=0;
 	sock_info.data_trans_status=1;
 	int conn;
+
+	init_slist();//initisl the linklist
 while(1)
 	{
 	conn=accept(server_sockfd, (struct sockaddr*)&client_addr,&length);
@@ -161,7 +164,7 @@ while(1)
 			sock_info.sock_con_status=1;
 			ip=inet_ntoa(client_addr.sin_addr);
 			port=ntohs(client_addr.sin_port);
-			if((socket_fork[cli_num++]=fork())>0)
+			if((socket_fork[sock_ll.count++]=fork())>0)
 				{
 			   if(sock_ll.count<=QUEUE)sock_add(ip,port);
 			   else

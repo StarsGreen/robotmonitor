@@ -17,7 +17,7 @@ extern void *move_ctl_thread(void);
 extern void *video_get_thread(void);
 extern void *video_broadcast_thread(void);
 
-int err;
+int monitor_err;
 
 sem_t v_get,v_send;
 
@@ -62,24 +62,24 @@ int cancel_monitor_thread()
 //////////////////////////////////////////////////
 int create_monitor_thread()
 {
-	err = pthread_create(&vget_thread, NULL, (void*)video_get_thread, 
+	monitor_err = pthread_create(&vget_thread, NULL, (void*)video_get_thread, 
 	NULL);
-        if (err != 0) {
+        if (monitor_err != 0) {
                 fprintf(stderr, "can't create video get thread: %s\n",
-                strerror(err));
+                strerror(monitor_err));
                 exit(1);
                 }
-	err = pthread_create(&vsend_thread, NULL, (void*)video_broadcast_thread,
+	monitor_err = pthread_create(&vsend_thread, NULL, (void*)video_broadcast_thread,
 	 NULL);
-        if (err != 0) {
+        if (monitor_err != 0) {
                 fprintf(stderr, "can't create video send thread: %s\n",
-                strerror(err));
+                strerror(monitor_err));
                 exit(1);
                 }
-        err = pthread_create(&m_thread, NULL, (void*)move_ctl_thread, NULL);
-        if (err != 0) {
+        monitor_err = pthread_create(&m_thread, NULL, (void*)move_ctl_thread, NULL);
+        if (monitor_err != 0) {
                 fprintf(stderr, "can't create move thread: %s\n",
-                strerror(err));
+                strerror(monitor_err));
 		exit(1);
 			}
 	return 0;

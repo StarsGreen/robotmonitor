@@ -18,6 +18,6 @@ $(TOPDIR)/drivers/file_wr.c $(TOPDIR)/drivers/caculate.c\
 $(TOPDIR)/drivers/linklist.c $(TOPDIR)/drivers/sensor_read.c\
 $(TOPDIR)/drivers/move.c main.c
 all :
-	$(COMPILE) -Wall $(DEP) -o $(OBJ) -lpthread -ljpeg -g -I $(INCDIR)
+	$(COMPILE) -Wall $(DEP) -o $(OBJ) -lpthread -lm -ljpeg -lwiringPi -g -I $(INCDIR)
 clean:
 	rm -rf *.o Robot
