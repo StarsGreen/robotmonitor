@@ -44,6 +44,7 @@ void* cmd_process()
 {
 	if(signal(SIGINT,signal_cmd_proceed)==SIG_ERR)
 		perror("cmd signal error");
+/*
 while(1)
 	{
 	char input_cmd[CMD_LENGTH];
@@ -56,5 +57,6 @@ while(1)
 	break;
 	}
     }
+*/
 	while(1);
 }

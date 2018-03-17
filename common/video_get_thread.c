@@ -2,8 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include <getopt.h>           
-#include <fcntl.h>            
+#include <getopt.h>
+#include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
 #include <malloc.h>
@@ -13,7 +13,7 @@
 #include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <semaphore.h>
-#include <asm/types.h>        
+#include <asm/types.h>
 #include <linux/videodev2.h>
 #include <time.h>
 #include <pthread.h>
@@ -28,7 +28,17 @@
 
 extern struct video_data v_data;
 extern sem_t v_get,v_send;
-
+/////////////////////////////////////////////
+static void vget_cleanup_handler(void *arg)
+{
+      //  printf("Called clean-up handler\n");
+       // cnt = 0;
+	if(close(*(int*)arg)==0)
+	printf("Camera is closed.\n");
+	else
+	printf("can not close the camera");
+}
+//////////////////////////////////////////////
 void *video_get_thread()
 {
 	int i, ret;
@@ -49,13 +59,14 @@ void *video_get_thread()
 		printf("VIDIOC_QUERYCAP failed (%d)\n", ret);
 	}
     // Print capability infomations
-	printf("Capability Informations:\n");
+/*	printf("Capability Informations:\n");
 	printf(" driver: %s\n", cap.driver);
 	printf(" card: %s\n", cap.card);
 	printf(" bus_info: %s\n", cap.bus_info);
 	printf(" version: %08X\n", cap.version);
 	printf(" capabilities: %08X\n", cap.capabilities);
-    // 设置视频格式
+*/ 
+   // 设置视频格式
 	struct v4l2_format fmt;
 	memset(&fmt, 0, sizeof(fmt));
 	fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -74,21 +85,23 @@ void *video_get_thread()
 		printf("VIDIOC_G_FMT failed (%d)\n", ret);
 	}
     // Print Stream Format
-	printf("Stream Format Informations:\n");
+/*	printf("Stream Format Informations:\n");
 	printf(" type: %d\n", fmt.type);
 	printf(" width: %d\n", fmt.fmt.pix.width);
 	printf(" height: %d\n", fmt.fmt.pix.height);
+*/
 	char fmtstr[8];
 	memset(fmtstr, 0, 8);
 	memcpy(fmtstr, &fmt.fmt.pix.pixelformat, 4);
-	printf(" pixelformat: %s\n", fmtstr);
+
+/*	printf(" pixelformat: %s\n", fmtstr);
 	printf(" field: %d\n", fmt.fmt.pix.field);
 	printf(" bytesperline: %d\n", fmt.fmt.pix.bytesperline);
 	printf(" sizeimage: %d\n", fmt.fmt.pix.sizeimage);
 	printf(" colorspace: %d\n", fmt.fmt.pix.colorspace);
 	printf(" priv: %d\n", fmt.fmt.pix.priv);
 	printf(" raw_date: %s\n", fmt.fmt.raw_data);
-
+*/
     // 请求分配内存
 	struct v4l2_requestbuffers reqbuf;
 	bzero(&reqbuf,sizeof(reqbuf));
@@ -128,10 +141,9 @@ void *video_get_thread()
             printf("VIDIOC_QBUF (%d) failed (%d)\n", i, ret);
         }
 
-        printf("Frame buffer %d: address=0x%x, length=%d\n", i,
-	(unsigned int)start[i], buf[i].length);
+/*       printf("Frame buffer %d: address=0x%x, length=%d\n", i,
+	(unsigned int)start[i], buf[i].length);*/
 	}
-
 	//开始录制
 	enum v4l2_buf_type vtype = V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	ret = ioctl(fd, VIDIOC_STREAMON, &vtype);
@@ -142,10 +154,10 @@ void *video_get_thread()
 	bzero(&v4l2buf,sizeof(v4l2buf));
 	v4l2buf.type= V4L2_BUF_TYPE_VIDEO_CAPTURE;
 	v4l2buf.memory= V4L2_MEMORY_MMAP;
-	
+
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
-
+	pthread_cleanup_push(vget_cleanup_handler, &fd);
 	i=0;
 while(1)
     {
@@ -170,12 +182,10 @@ while(1)
 	if(i==BUFFER_COUNT)
 	i=0;
 
+
 //	printf("video get successfully\n");
 	sem_post(&v_send);
    }
-	if(close(fd)==0)
-	printf("Camera is closed.\n");
-	else
-	printf("can not close the camera");
+	pthread_cleanup_pop(0);
 	return 0;
 }

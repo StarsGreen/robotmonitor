@@ -17,41 +17,55 @@ extern void read_cmd(char* cmd);
 //extern struct move_info M_info;
 extern void slist_delete(char* ip);
 /////////////////////////////////////////
+static void sock_cleanup_handler(void *arg)
+{
+      //  printf("Called clean-up handler\n");
+       // cnt = 0;
+        if(close(*(int*)arg)==0)
+        printf("socket is closed.\n");
+        else
+        printf("can not close the socket");
+}
+
+/////////////////////////////////////////
 void* recv_info_thread(void* s)
 {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 	char buffer[ARRAY_SIZE];
-	S_Params* sp=(S_Params*)s;
+	int conn=*(int*)s;
+        pthread_cleanup_push(sock_cleanup_handler, &conn);
 //	int optval;
 //	socklen_t optlen = sizeof(int);
 	while(1)
 	{
 		pthread_testcancel();
 		memset(buffer,0,sizeof(buffer));
-		int len = recv(sp->conn, buffer, sizeof(buffer),0);
+		int len = recv(conn, buffer, sizeof(buffer),0);
 		if(len>0)
 			{
 			if(strcmp(buffer,"exit")==0)
 				{
-				close(sp->conn);
-				slist_delete(sp->ip);
+				close(conn);
+				//slist_delete(sp->ip);
 				raise(SIGINT);
 				break;
 				}
 			else
 				{
+				printf("the recv msg is:%s",buffer);
 				read_cmd(buffer);
 				}
 			}
 		else
 			{
-			close(sp->conn);
-			slist_delete(sp->ip);
+			close(conn);
+			//slist_delete(sp->ip);
 			raise(SIGINT);
 			break;
 			}
 	}
+	        pthread_cleanup_pop(0);
 		printf("recv info thread is closed");
 }
 //////////////////////////////////////////////
@@ -200,25 +214,31 @@ char* assemble_info(void)
 	return pointer;
 }
 
+//////////////////////////////////////////////
 
 //////////////////////////////////////////////
 void* send_info_thread(void* s)
 {
 	char* msg_buf=NULL;
-	S_Params* sp=(S_Params*)s;
+//	S_Params* sp=s;
+	int conn=*(int*)s;
+	int send_flag=0;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
+        pthread_cleanup_push(sock_cleanup_handler, &conn);
 	while(1)
 	{
 		pthread_testcancel();
 		msg_buf=assemble_info();
-
-		if(send(sp->conn,msg_buf,strlen(msg_buf), 0)==-1)
+		if((msg_buf!=NULL)
+			send_flag=send(conn,msg_buf,strlen(msg_buf), 0)
+		if(send_flag==-1)
 		{
-                        close(sp->conn);
-                        slist_delete(sp->ip);
+                        close(conn);
+                        //slist_delete(sp->ip);
                         raise(SIGINT);
 		}
 		free(msg_buf);
 	}
+        pthread_cleanup_pop(0);
 }

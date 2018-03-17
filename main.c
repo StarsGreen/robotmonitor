@@ -86,33 +86,45 @@ int create_all_process()
 	monitor_pro_pid=fork();
 	switch(monitor_pro_pid)
 	{
-	case -1:printf("monitor process create error!\n");break;
-	case 0:monitor_process();break;
-	default:printf("monitor process pid is:%d \n",monitor_pro_pid);break;
+	case -1:
+	printf("monitor process create error!\n");break;
+	case 0:
+	monitor_process();break;
+	default:
+	printf("monitor process pid is:%d \n",monitor_pro_pid);break;
 	}
 
 	cmd_pro_pid=fork();
 	switch(cmd_pro_pid)
 	{
-	case -1:printf("cmd process create error!\n");break;
-	case 0:cmd_process();break;
-	default:printf("cmd process pid is: %d \n",cmd_pro_pid);break;
+	case -1:
+	printf("cmd process create error!\n");break;
+	case 0:
+	cmd_process();break;
+	default:
+	printf("cmd process pid is: %d \n",cmd_pro_pid);break;
 	}
 
 	socket_pro_pid=fork();
 	switch(socket_pro_pid)
 	{
-	case -1:printf("socket process create error!\n");break;
-	case 0:socket_process();break;
-	default:printf("socket process pid is: %d \n",socket_pro_pid);break;
+	case -1:
+	printf("socket process create error!\n");break;
+	case 0:
+	socket_process();break;
+	default:
+	printf("socket process pid is: %d \n",socket_pro_pid);break;
 	}
 
 	sensor_pro_pid=fork();
 	switch(sensor_pro_pid)
 	{
-	case -1:printf("sensor process create error!\n");break;
-	case 0:sensor_process();break;
-	default:printf("sensor process pid is:%d \n",sensor_pro_pid);break;
+	case -1:
+	printf("sensor process create error!\n");break;
+	case 0:
+	sensor_process();break;
+	default:
+	printf("sensor process pid is:%d \n",sensor_pro_pid);break;
 	}
 	return 0;
 }

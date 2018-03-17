@@ -33,30 +33,31 @@ int sig_init()
        // if(sem_init(&server_sock,0,0)>0)
        // printf("server_sock init error");
         return 0;
-
 }
 ////////////////////////////////////////////
 int cancel_monitor_thread()
 {
-	if(pthread_cancel(m_thread)<0)
+	if(pthread_cancel(m_thread)!=0)
 		printf("cancel move thread failed");
 	else{
-		pthread_join(m_thread,NULL);
+		if(pthread_join(m_thread,NULL)==0)
 		printf("cancel move thread successfully\n");
 		}
-	if(pthread_cancel(vget_thread)<0)
+
+	if(pthread_cancel(vget_thread)!=0)
 		printf("cancel video get thread failed");
 	else{
-		pthread_join(vget_thread,NULL);
+		if(pthread_join(vget_thread,NULL)==0)
 		printf("cancel video get thread successfully\n");
 		}
 
-	if(pthread_cancel(vsend_thread)<0)
+	if(pthread_cancel(vsend_thread)!=0)
 		printf("cancel video send thread failed");
 	else{
-		pthread_join(vsend_thread,NULL);
+		if(pthread_join(vsend_thread,NULL)==0)
 		printf("cancel video send thread successfully\n");
 		}
+
 	return 0;
 }
 //////////////////////////////////////////////////
@@ -69,6 +70,7 @@ int create_monitor_thread()
                 strerror(monitor_err));
                 exit(1);
                 }
+
 	monitor_err = pthread_create(&vsend_thread, NULL, (void*)video_broadcast_thread,
 	 NULL);
         if (monitor_err != 0) {
@@ -76,6 +78,7 @@ int create_monitor_thread()
                 strerror(monitor_err));
                 exit(1);
                 }
+
         monitor_err = pthread_create(&m_thread, NULL, (void*)move_ctl_thread, NULL);
         if (monitor_err != 0) {
                 fprintf(stderr, "can't create move thread: %s\n",
