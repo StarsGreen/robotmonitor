@@ -44,13 +44,23 @@ const float dt=0.1;
 //extern int cond;
 //extern pthread_mutex_t thread_mutex;
 //extern pthread_cond_t thread_cond;
+///////////////////////////////////////////////
+static void sensor_cleanup_handler(void *arg)
+{
+	sem_destroy(&sensor_start);
+
+	sem_destroy(&sensor_mid);
+
+	sem_destroy(&sensor_stop);
+}
 ////////////////////////////////////////////////
 void* temper_get_thread(void)
 {
 	float value=0;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
-//	pthread_setcanceltype(PTHREAD_CANCEL_DEFFERED,NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
+//	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
+        pthread_cleanup_push(sensor_cleanup_handler, NULL);
 while(1)
 	{
 		pthread_testcancel();
@@ -64,17 +74,19 @@ while(1)
 	else goto nothing;
 
 		sem_post(&sensor_mid);
-		pthread_testcancel();
+//		pthread_testcancel();
 	}
 nothing:
 	while(1)pthread_testcancel();
+        pthread_cleanup_pop(0);
 }
 ////////////////////////////////////////////////
 void* dist_get_thread(void)
 {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
-//	pthread_setcanceltype(PTHREAD_CANCEL_DEFFERED,NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
+//	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
+        pthread_cleanup_push(sensor_cleanup_handler, NULL);
 	init_dist_sensor();
 while(1)
 	{
@@ -87,14 +99,15 @@ while(1)
 
 		pthread_testcancel();
 	}
+        pthread_cleanup_pop(0);
 }
 //////////////////////////////////////////////
 void* accel_get_thread(void)
 {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
-
-//	pthread_setcanceltype(PTHREAD_CANCEL_DEFFERED,NULL);
-	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
+//	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
+        pthread_cleanup_push(sensor_cleanup_handler,NULL);
 	int fd=init_mpu6050();
 while(1)
 	{
@@ -159,12 +172,14 @@ if(move_ll.count==MAX_NODE_NUM)
 memcpy(move_ll.M_Head_pointer->next,move_ll.M_Tail_pointer,M_NODE_SIZE);
 mlist_clear(move_ll.M_Head_pointer->next->next);
     }
-sem_post(&sensor_start);
+	sem_post(&sensor_start);
 
-		pthread_testcancel();
+//		pthread_testcancel();
 	}
 nothing:
 	while(1)pthread_testcancel();
+        pthread_cleanup_pop(0);
+
 }
 ///////////////////////////////////////////////
 

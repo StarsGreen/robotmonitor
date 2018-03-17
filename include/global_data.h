@@ -145,7 +145,7 @@ int count;
 //////////////////////////////////////////////
 typedef struct sock_params
 {
-        char* ip;
+        char ip[15];
         int conn;
 }S_Params;
 S_Params s_params;

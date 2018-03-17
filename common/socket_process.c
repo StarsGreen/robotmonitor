@@ -21,8 +21,8 @@ extern void* slist_search_ip(void* ip);
 extern int destroy_slist(Sock_Pointer head);
 //extern sem_t v_get,v_send;
 //extern void* video_send_thread(void);
-extern void* send_info_thread(void*);
-extern void* recv_info_thread(void*);
+extern void* send_info_thread(void* s);
+extern void* recv_info_thread(void* s);
 //extern void* video_broadcast_thread(void);
 //extern void* info_conm_thread(void);
 
@@ -72,15 +72,14 @@ void handle_request(int conn,char* ip)
 		perror("socket child signal error");
 	memcpy(s_params.ip,ip,15);
 	s_params.conn=conn;
- sock_err = pthread_create(&send_info, NULL,send_info_thread, &conn);
+sock_err = pthread_create(&send_info, NULL,send_info_thread, &s_params);
         if (sock_err != 0) {
-                fprintf(stderr, "can't create info send thread: %s\n",
-       strerror(sock_err));
+                printf("can't create info send thread\n");
+		exit(1);
 			}
- sock_err = pthread_create(&recv_info, NULL,recv_info_thread, &conn);
+sock_err = pthread_create(&recv_info, NULL,recv_info_thread,&s_params);
         if (sock_err != 0) {
-                fprintf(stderr, "can't create info recv thread: %s\n",
-       strerror(sock_err));
+                printf("can't create info recv thread\n");
 		exit(1);
 		}
 /* sock_err = pthread_create(&recv_info, NULL, (void*)recv_info_thread, &conn);
@@ -90,7 +89,7 @@ void handle_request(int conn,char* ip)
 		exit(1);
 		}
 */
-while(1);
+//while(1);
 }
 ////////////////////////////////////////////
 int check_ip(char* ip)

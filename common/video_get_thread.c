@@ -50,6 +50,7 @@ void *video_get_thread()
 	fd = open(CAMERA_DEVICE, O_RDWR, 0);
 	if (fd < 0) {
 		printf("Open %s failed\n", CAMERA_DEVICE);
+		goto vget_nothing;
 	}
 
     // 获取驱动信息
@@ -186,6 +187,8 @@ while(1)
 //	printf("video get successfully\n");
 	sem_post(&v_send);
    }
+vget_nothing:
+	while(1)pthread_testcancel();
 	pthread_cleanup_pop(0);
 	return 0;
 }
