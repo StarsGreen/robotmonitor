@@ -21,8 +21,8 @@ extern void* slist_search_ip(void* ip);
 extern int destroy_slist(Sock_Pointer head);
 //extern sem_t v_get,v_send;
 //extern void* video_send_thread(void);
-extern void* send_info_thread(void* s);
-extern void* recv_info_thread(void* s);
+extern void* info_send_thread(void* s);
+extern void* info_recv_thread(void* s);
 //extern void* video_broadcast_thread(void);
 //extern void* info_conm_thread(void);
 
@@ -66,22 +66,25 @@ exit(1);
 //////////////////////////////////////////
 void handle_request(int conn,char* ip)
 {
-        printf("connection successful \n");
 
-	if(signal(SIGINT,signal_sockchild_proceed)==SIG_ERR)
-		perror("socket child signal error");
-	memcpy(s_params.ip,ip,15);
-	s_params.conn=conn;
-sock_err = pthread_create(&send_info, NULL,send_info_thread, &s_params);
+//	if(signal(SIGINT,signal_sockchild_proceed)==SIG_ERR)
+//		perror("socket child signal error");
+//	memcpy(s_params.ip,ip,15);
+//	s_params.conn=conn;
+       printf("connection successful \n");
+sock_err = pthread_create(&send_info, NULL,info_send_thread, &conn);
         if (sock_err != 0) {
                 printf("can't create info send thread\n");
 		exit(1);
 			}
-sock_err = pthread_create(&recv_info, NULL,recv_info_thread,&s_params);
+	printf("create info send thread,%d",sock_err);
+
+sock_err = pthread_create(&recv_info, NULL,info_recv_thread,&conn);
         if (sock_err != 0) {
                 printf("can't create info recv thread\n");
 		exit(1);
 		}
+	 printf("create info recv thread,%d",sock_err);
 /* sock_err = pthread_create(&recv_info, NULL, (void*)recv_info_thread, &conn);
         if (sock_err != 0) {
                 fprintf(stderr, "can't create info recv thread: %s\n",
@@ -89,7 +92,50 @@ sock_err = pthread_create(&recv_info, NULL,recv_info_thread,&s_params);
 		exit(1);
 		}
 */
-//while(1);
+	while(1);
+}
+///////////////////////////////////////////
+static void handle_connect(int s_s)
+{
+	printf("handle connect\n");
+	struct sockaddr_in client_addr;
+	socklen_t length = sizeof(client_addr);
+	int i,port;
+	char *ip;
+	int cli_num=0;
+	sock_info.data_trans_status=1;
+	int conn;
+while(1)
+	{
+	printf("the server is open\n");
+	conn=accept(s_s, (struct sockaddr*)&client_addr,&length);
+	        if(conn<0)
+                	{
+                	perror("connect error");
+			exit(1);
+               		 }
+		else
+			{
+			sock_info.sock_con_status=1;
+			ip=inet_ntoa(client_addr.sin_addr);
+			port=ntohs(client_addr.sin_port);
+			if((socket_fork[sock_ll.count++]=fork())>0)
+				{
+				close(conn);
+//			   if(sock_ll.count<=QUEUE)sock_add(ip,port);
+//			   else printf("the conn is full");
+		printf("client %d IP is:%s,port is:%d  is connected\n",
+		cli_num,ip,port);
+				}
+			else
+				{
+			handle_request(conn,ip);
+				}
+//		printf("client one");
+			}
+
+
+	}
 }
 ////////////////////////////////////////////
 int check_ip(char* ip)
@@ -145,16 +191,19 @@ void socket_process(void)
     }
 
     //客户端套接字
-	struct sockaddr_in client_addr;
+/*	struct sockaddr_in client_addr;
 	socklen_t length = sizeof(client_addr);
 	int i,port;
 	char *ip;
 	int cli_num=0;
 	sock_info.data_trans_status=1;
 	int conn;
-
+*/
 	init_slist();//initisl the linklist
-while(1)
+	handle_connect(server_sockfd);
+	close(server_sockfd);
+	while(1);
+/*while(1)
 	{
 //	printf("the server is open");
 	conn=accept(server_sockfd, (struct sockaddr*)&client_addr,&length);
@@ -170,21 +219,20 @@ while(1)
 			port=ntohs(client_addr.sin_port);
 			if((socket_fork[sock_ll.count++]=fork())>0)
 				{
+				close(conn);
 //			   if(sock_ll.count<=QUEUE)sock_add(ip,port);
 //			   else printf("the conn is full");
 		printf("client %d IP is:%s,port is:%d  is connected",
 		cli_num,ip,port);
-				close(conn);
 				}
 			else
 				{
 			handle_request(conn,ip);
 				}
-
 //		printf("client one");
 			}
 
 
-	}
+	}*/
 }
 ////////////////////////////////////////////

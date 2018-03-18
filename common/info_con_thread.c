@@ -175,14 +175,15 @@ char* assemble_info(void)
 //////////////////////////////////////////////
 
 /////////////////////////////////////////
-void* recv_info_thread(void* s)
+void* info_recv_thread(void* s)
 {
 	printf("one break");
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 	char buffer[ARRAY_SIZE];
-	int conn=((S_Params*)s)->conn;
-        char* ip=((S_Params*)s)->ip;
+//	int conn=((S_Params*)s)->conn;
+  //      char* ip=((S_Params*)s)->ip;
+	int conn=*(int*)s;
         pthread_cleanup_push(sock_cleanup_handler, &conn);
 //	int optval;
 //	socklen_t optlen = sizeof(int);
@@ -198,7 +199,7 @@ void* recv_info_thread(void* s)
 			if(strcmp(buffer,"exit")==0)
 				{
 				close(conn);
-				slist_delete(ip);
+//				slist_delete(ip);
 				raise(SIGINT);
 				break;
 				}
@@ -211,7 +212,7 @@ void* recv_info_thread(void* s)
 		else
 			{
 			close(conn);
-			slist_delete(ip);
+//			slist_delete(ip);
 			raise(SIGINT);
 			break;
 			}
@@ -220,13 +221,14 @@ void* recv_info_thread(void* s)
 //		printf("recv info thread is closed");
 }
 //////////////////////////////////////////////
-void* send_info_thread(void* s)
+void* info_send_thread(void* s)
 {
 	printf("two break");
 	char* msg_buf=NULL;
 //	S_Params* sp=s;
-	int conn=((S_Params*)s)->conn;
-	char* ip=((S_Params*)s)->ip;
+//	int conn=((S_Params*)s)->conn;
+//	char* ip=((S_Params*)s)->ip;
+	int conn=*(int*)s;
 	int send_flag=0;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
@@ -241,7 +243,7 @@ void* send_info_thread(void* s)
 		if(send_flag==-1)
 		{
                         close(conn);
-                        slist_delete(ip);
+                       // slist_delete(ip);
                         raise(SIGINT);
 		}
 		free(msg_buf);
