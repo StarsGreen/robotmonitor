@@ -28,6 +28,7 @@
 
 extern struct video_data v_data;
 extern sem_t v_get,v_send;
+
 /////////////////////////////////////////////
 static void vget_cleanup_handler(void *arg)
 {
@@ -37,6 +38,7 @@ static void vget_cleanup_handler(void *arg)
 	printf("Camera is closed.\n");
 	else
 	printf("can not close the camera");
+	
 }
 //////////////////////////////////////////////
 void *video_get_thread()
@@ -121,7 +123,7 @@ void *video_get_thread()
 	int length[BUFFER_COUNT];
 	unsigned char *start[BUFFER_COUNT];
 
-	for (i = 0; i < BUFFER_COUNT; i++) 
+	for (i = 0; i < BUFFER_COUNT; i++)
 	{
 	bzero(&buf[i],sizeof(buf[i]));
         buf[i].index = i;
@@ -135,7 +137,7 @@ void *video_get_thread()
 	start[i]=(unsigned char *) mmap(0, buf[i].length,
 	 PROT_READ|PROT_WRITE, MAP_SHARED,
 	 fd, buf[i].m.offset);
-    
+
         // Queen buffer
         ret = ioctl(fd , VIDIOC_QBUF, &buf[i]);
         if (ret < 0) {
@@ -182,8 +184,6 @@ while(1)
 	i++;
 	if(i==BUFFER_COUNT)
 	i=0;
-
-
 //	printf("video get successfully\n");
 	sem_post(&v_send);
    }

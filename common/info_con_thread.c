@@ -134,42 +134,47 @@ return code_msg;
 //////////////////////////////////////////////
 char* assemble_info(void)
 {
+//	printf("1\n");
 	static char info[42];
-	char* pointer=(char*)malloc(42);
-	M_Pointer p=NULL;
+//	printf("4\n");
+	M_Pointer p=(M_Pointer)malloc(M_NODE_SIZE);
 	memcpy(p,move_ll.M_Tail_pointer,M_NODE_SIZE);
+//	printf("5\n");
 	int value=(int)(sqrt((p->accel_info.xl_accel)*(p->accel_info.xl_accel)+
 	(p->accel_info.yl_accel)*(p->accel_info.yl_accel)+
-	(p->accel_info.zl_accel)*(p->accel_info.zl_accel))*1000);
+	(p->accel_info.zl_accel)*(p->accel_info.zl_accel))*10000);
 	info[0]='a';
 	memcpy(&info[1],code_info(value),6);
 ////////////////////////////////////////////
 	value=(int)(sqrt((p->vel_info.xl_vel)*(p->vel_info.xl_vel)+
 	(p->vel_info.yl_vel)*(p->vel_info.yl_vel)+
-	(p->vel_info.zl_vel)*(p->vel_info.zl_vel))*1000);
+	(p->vel_info.zl_vel)*(p->vel_info.zl_vel))*10000);
 	info[7]='v';
 	memcpy(&info[8],code_info(value),6);
-
+//	printf("2\n");
 ///////////////////////////////////////////////
-	value=(int)(p->jour_info.xl*1000);
+	value=(int)(p->jour_info.xl*10000);
 	info[14]='x';
 	memcpy(&info[15],code_info(value),6);
 ///////////////////////////////////////////////
-	value=(int)(p->jour_info.yl*1000);
+	value=(int)(p->jour_info.yl*10000);
 	info[21]='y';
 	memcpy(&info[22],code_info(value),6);
 //////////////////////////////////////////
-	value=(int)(p->temper*1000);
+	value=(int)(p->temper*10000);
 	info[28]='t';
 	memcpy(&info[29],code_info(value),6);
 //////////////////////////////////////////
-	value=(int)(p->dist*1000);
+	value=(int)(p->dist*10000);
 	info[35]='d';
 	memcpy(&info[36],code_info(value),6);
 ///////////////////////////////////////////
-	memcpy(pointer,info,42);
+//	memcpy(pointer,info,42);
 //	return info;
-	return pointer;
+//	printf("3\n");
+	free(p);
+	return info;
+
 }
 
 //////////////////////////////////////////////
@@ -177,7 +182,7 @@ char* assemble_info(void)
 /////////////////////////////////////////
 void* info_recv_thread(void* s)
 {
-	printf("one break");
+//	printf("one break \n");
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 	char buffer[ARRAY_SIZE];
@@ -190,7 +195,7 @@ void* info_recv_thread(void* s)
 	while(1)
 	{
 
-		printf("recv info thread");
+		printf("recv info thread\n");
 		pthread_testcancel();
 		memset(buffer,0,sizeof(buffer));
 		int len = recv(conn, buffer, sizeof(buffer),0);
@@ -223,7 +228,7 @@ void* info_recv_thread(void* s)
 //////////////////////////////////////////////
 void* info_send_thread(void* s)
 {
-	printf("two break");
+//	printf("two break\n");
 	char* msg_buf=NULL;
 //	S_Params* sp=s;
 //	int conn=((S_Params*)s)->conn;
@@ -235,18 +240,22 @@ void* info_send_thread(void* s)
         pthread_cleanup_push(sock_cleanup_handler,&conn);
 	while(1)
 	{
-		printf("send info thread");
+		printf("send info thread\n");
 		pthread_testcancel();
+//		msg_buf="ok";
 		msg_buf=assemble_info();
+//		printf("msg_buf is: %s\n",msg_buf);
 		if(msg_buf!=NULL)
 			send_flag=send(conn,msg_buf,strlen(msg_buf), 0);
+//		printf("send_flag is:%d\n",send_flag);
 		if(send_flag==-1)
 		{
                         close(conn);
-                       // slist_delete(ip);
+                        slist_delete(ip);
                         raise(SIGINT);
 		}
-		free(msg_buf);
+//		if(msg_buf!=NULL)
+//			free(msg_buf);
 	}
         pthread_cleanup_pop(0);
 }

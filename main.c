@@ -15,12 +15,17 @@
 int create_all_process();
 int cancel_all_process();
 void sig_proceed(int signo);
-
+extern int destroy_slist(Sock_Pointer head);
+extern int destroy_mlist(M_Pointer head);
+extern void init_mlist();
+extern void init_slist();
 pid_t monitor_pro_pid,socket_pro_pid,cmd_pro_pid,sensor_pro_pid;
 int main_err;
 //////////////////////////////////////////////
 int  main(int argc, char **argv)
 {
+	init_slist();
+	init_mlist();
 	create_all_process();
 	if(signal(SIGINT,sig_proceed)==SIG_ERR)
 		perror("signal error");
@@ -33,6 +38,8 @@ void sig_proceed(int signo)
 {
 if(signo==SIGINT)
 	cancel_all_process();
+destroy_mlist(move_ll.M_Head_pointer);
+destroy_slist(sock_ll.S_Head_pointer);
 exit(1);
 }
 ///////////////////////////////////////////

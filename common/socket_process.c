@@ -1,4 +1,5 @@
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <pthread.h>
 #include <sys/socket.h>
 #include <stdio.h>
@@ -18,7 +19,6 @@ extern void read_cmd(char* cmd);
 extern void slist_add(Sock_Node sock_node);
 extern void init_slist(void);
 extern void* slist_search_ip(void* ip);
-extern int destroy_slist(Sock_Pointer head);
 //extern sem_t v_get,v_send;
 //extern void* video_send_thread(void);
 extern void* info_send_thread(void* s);
@@ -34,13 +34,13 @@ int sock_err;
 void cancel_socket_pro_thread()
 {
 	if(pthread_cancel(send_info)!=0)
-		printf("cancel msg send thread failed");
+		printf("cancel msg send thread failed\n");
 	else{
 		if(pthread_join(send_info,NULL)==0)
 		printf("cancel msg send thread successfully\n");
 		}
 	if(pthread_cancel(recv_info)!=0)
-		printf("cancel msg recv thread failed");
+		printf("cancel msg recv thread failed\n");
 	else{
 		if(pthread_join(recv_info,NULL)==0);
 		printf("cancel msg recv thread successfully\n");
@@ -59,32 +59,35 @@ void signal_socket_proceed(int signo)
 int i;
 if(signo==SIGINT)
 	for(i=0;i<sock_ll.count;i++)
+	{
 	kill(socket_fork[i],SIGINT);
-destroy_slist(sock_ll.S_Head_pointer);
+	waitpid(socket_fork[i],NULL,0);
+	}
 exit(1);
 }
 //////////////////////////////////////////
 void handle_request(int conn,char* ip)
 {
 
-//	if(signal(SIGINT,signal_sockchild_proceed)==SIG_ERR)
-//		perror("socket child signal error");
-//	memcpy(s_params.ip,ip,15);
-//	s_params.conn=conn;
-       printf("connection successful \n");
-sock_err = pthread_create(&send_info, NULL,info_send_thread, &conn);
+	if(signal(SIGINT,signal_sockchild_proceed)==SIG_ERR)
+		perror("socket child signal error");
+	memcpy(s_params.ip,ip,15);
+	s_params.conn=conn;
+        printf("connection successful \n");
+sock_err = pthread_create(&send_info, NULL,info_send_thread, &s_params);
         if (sock_err != 0) {
                 printf("can't create info send thread\n");
 		exit(1);
 			}
-	printf("create info send thread,%d",sock_err);
+	printf("create info send thread,%d\n",sock_err);
 
-sock_err = pthread_create(&recv_info, NULL,info_recv_thread,&conn);
+sock_err = pthread_create(&recv_info, NULL,info_recv_thread,&s_params);
         if (sock_err != 0) {
                 printf("can't create info recv thread\n");
 		exit(1);
 		}
-	 printf("create info recv thread,%d",sock_err);
+	 printf("create info recv thread,%d\n",sock_err);
+
 /* sock_err = pthread_create(&recv_info, NULL, (void*)recv_info_thread, &conn);
         if (sock_err != 0) {
                 fprintf(stderr, "can't create info recv thread: %s\n",
@@ -122,8 +125,8 @@ while(1)
 			if((socket_fork[sock_ll.count++]=fork())>0)
 				{
 				close(conn);
-//			   if(sock_ll.count<=QUEUE)sock_add(ip,port);
-//			   else printf("the conn is full");
+			   if(sock_ll.count<=QUEUE)sock_add(ip,port);
+			   else printf("the conn is full");
 		printf("client %d IP is:%s,port is:%d  is connected\n",
 		cli_num,ip,port);
 				}
@@ -199,7 +202,6 @@ void socket_process(void)
 	sock_info.data_trans_status=1;
 	int conn;
 */
-	init_slist();//initisl the linklist
 	handle_connect(server_sockfd);
 	close(server_sockfd);
 	while(1);
