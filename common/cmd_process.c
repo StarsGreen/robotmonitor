@@ -11,6 +11,8 @@
 #include <signal.h>
 
 ///////////////////////////////////////
+char input_cmd[CMD_LENGTH];
+///////////////////////////////////////
 void input(char* cmd)
 {
 		char tem_char;
@@ -47,7 +49,6 @@ void* cmd_process()
 /*
 while(1)
 	{
-	char input_cmd[CMD_LENGTH];
 	printf("-->");
 	input(input_cmd);
 //	printf("%s",input_cmd);
@@ -56,6 +57,7 @@ while(1)
 	kill(getppid(),SIGINT);
 	break;
 	}
+	else excute_cmd(input_cmd);
     }
 */
 	while(1);

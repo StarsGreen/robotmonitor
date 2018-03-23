@@ -20,11 +20,11 @@ extern void slist_delete(char* ip);
 static void sock_cleanup_handler(void *arg)
 {
       //  printf("Called clean-up handler\n");
-       // cnt = 0;
+      // cnt = 0;
         if(close(*(int*)arg)==0)
         printf("socket is closed.\n");
         else
-        printf("can not close the socket");
+        printf("can not close the socket\n");
 }
 //////////////////////////////////////////////
 int recong_info(int a)
@@ -186,16 +186,15 @@ void* info_recv_thread(void* s)
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 	char buffer[ARRAY_SIZE];
-//	int conn=((S_Params*)s)->conn;
-  //      char* ip=((S_Params*)s)->ip;
-	int conn=*(int*)s;
+	int conn=((S_Params*)s)->conn;
+	char* ip=((S_Params*)s)->ip;
+//	int conn=*(int*)s;
         pthread_cleanup_push(sock_cleanup_handler, &conn);
 //	int optval;
 //	socklen_t optlen = sizeof(int);
 	while(1)
 	{
-
-		printf("recv info thread\n");
+//		printf("recv info thread\n");
 		pthread_testcancel();
 		memset(buffer,0,sizeof(buffer));
 		int len = recv(conn, buffer, sizeof(buffer),0);
@@ -204,7 +203,7 @@ void* info_recv_thread(void* s)
 			if(strcmp(buffer,"exit")==0)
 				{
 				close(conn);
-//				slist_delete(ip);
+				slist_delete(ip);
 				raise(SIGINT);
 				break;
 				}
@@ -217,7 +216,7 @@ void* info_recv_thread(void* s)
 		else
 			{
 			close(conn);
-//			slist_delete(ip);
+			slist_delete(ip);
 			raise(SIGINT);
 			break;
 			}
@@ -231,16 +230,16 @@ void* info_send_thread(void* s)
 //	printf("two break\n");
 	char* msg_buf=NULL;
 //	S_Params* sp=s;
-//	int conn=((S_Params*)s)->conn;
-//	char* ip=((S_Params*)s)->ip;
-	int conn=*(int*)s;
+	int conn=((S_Params*)s)->conn;
+	char* ip=((S_Params*)s)->ip;
+//	int conn=*(int*)s;
 	int send_flag=0;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
         pthread_cleanup_push(sock_cleanup_handler,&conn);
 	while(1)
 	{
-		printf("send info thread\n");
+//		printf("send info thread\n");
 		pthread_testcancel();
 //		msg_buf="ok";
 		msg_buf=assemble_info();
@@ -252,6 +251,7 @@ void* info_send_thread(void* s)
 		{
                         close(conn);
                         slist_delete(ip);
+		//	free(ip);
                         raise(SIGINT);
 		}
 //		if(msg_buf!=NULL)

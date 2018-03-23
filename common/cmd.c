@@ -28,7 +28,7 @@ char* get_cmd(char* buffer)
 		return buffer;
 }
 void read_cmd(char* cmd)
-{	
+{
 	int index[3],i,j;
 	char *temchar,cmd_t[2],vel[2],angle[3];
 	memset(angle,0,sizeof(angle));
@@ -61,8 +61,19 @@ void read_cmd(char* cmd)
 		m_cmd.vel=atoi(vel);
 		}
 //	printf("cmd_type %d\n",m_cmd.cmd_type);
-	
 //	printf("cmd_angle %d\n",m_cmd.angle);
-
 //	printf("cmd_vel %d\n",m_cmd.vel);
 }
+////////////////////////////////////////////////////
+void get_input_cmd()
+{
+	
+
+}
+///////////////////////////////////////////////////
+void init_cmd()
+{
+
+
+}
+////////////////////////////////////////////////////

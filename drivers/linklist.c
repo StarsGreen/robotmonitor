@@ -137,9 +137,9 @@ void slist_add(Sock_Node node)
 	sock_ll.S_Tail_pointer->next=pointer;
 
 	pointer->cli_num=++sock_ll.count+1;
-	
+
 	memcpy(pointer->cli_info.ip,node.cli_info.ip,15);
-	
+
 	pointer->cli_info.port=node.cli_info.port;
 
 	sock_ll.S_Tail_pointer=pointer;
@@ -176,19 +176,15 @@ int destroy_slist(Sock_Pointer head)
 Sock_Pointer slist_search_ip(char* ip)
 {
 Sock_Pointer p=sock_ll.S_Head_pointer->next;
-Sock_Pointer pointer=NULL;
-while(p->next!=NULL)
+while(p!=NULL)
 	{
 	if(memcmp(p->cli_info.ip,ip,15)==0)
 		{
-		pointer=p;
 		break;
 		}
 	p=p->next;
 	}
-if(p->next==NULL&&memcmp(p->cli_info.ip,ip,15)==0)
-	pointer=p;
-return pointer;
+return p;
 }
 ////////////////////////////////////////////////
 void slist_delete(char* ip)

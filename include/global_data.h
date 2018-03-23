@@ -168,3 +168,30 @@ struct video_data
         int length;
 	int send_status;
 }v_data;
+/////////////////////////////////////////////
+typedef struct control_cmd
+{
+int video_get_func;
+int video_send_func;
+int info_get_func;
+int info_send_func;
+int move_ctrl_func;
+}Ctrl_Cmd;
+typedef Ctrl_Cmd* Ctrl_Pointer;
+Ctrl_Cmd ctrl_cmd;
+Ctrl_Pointer ctrl_pointer;
+/////////////////////////////////////////////
+struct Cmd
+{
+	int cmd_code;
+	void* func;
+};
+typedef struct cmd_info
+{
+	struct Cmd cmd[CMD_NUM];
+	int cmd_num;;
+}Cmd_Info;
+typedef Cmd_Info* Cmd_Info_Pointer;
+Cmd_Info cmd_info;
+Cmd_Info_Pointer cmd_pointer;
+/////////////////////////////////////////////

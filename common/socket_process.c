@@ -29,7 +29,9 @@ extern void* info_recv_thread(void* s);
 pthread_t send_info,recv_info;
 pid_t socket_fork[QUEUE];
 int sock_err;
-
+void nothing(void)
+{
+}
 ///////////////////////////////////////////
 void cancel_socket_pro_thread()
 {
@@ -64,6 +66,25 @@ if(signo==SIGINT)
 	waitpid(socket_fork[i],NULL,0);
 	}
 exit(1);
+}
+
+////////////////////////////////////////////
+int check_ip(char* ip)
+{
+int status=0;
+if(slist_search_ip(ip)!=NULL)status=1;
+return status;
+}
+////////////////////////////////////////////
+
+///////////////////////////////////////////
+void sock_add(char* ip,int port)
+{
+memcpy(S_info.cli_info.ip,ip,15);
+S_info.cli_info.port=port;
+S_info.cli_num=sock_ll.count+1;
+slist_add(S_info);
+sock_ll.count++;
 }
 //////////////////////////////////////////
 void handle_request(int conn,char* ip)
@@ -122,6 +143,7 @@ while(1)
 			sock_info.sock_con_status=1;
 			ip=inet_ntoa(client_addr.sin_addr);
 			port=ntohs(client_addr.sin_port);
+			if(check_ip(ip)==1)goto sock_nothing;
 			if((socket_fork[sock_ll.count++]=fork())>0)
 				{
 				close(conn);
@@ -136,31 +158,8 @@ while(1)
 				}
 //		printf("client one");
 			}
-
-
+sock_nothing:nothing();
 	}
-}
-////////////////////////////////////////////
-int check_ip(char* ip)
-{
-int status=0;
-if(slist_search_ip(ip)!=NULL)status=1;
-return status;
-}
-////////////////////////////////////////////
-
-///////////////////////////////////////////
-void sock_add(char* ip,int port)
-{
-if(!check_ip(ip))
-{
-memcpy(S_info.cli_info.ip,ip,15);
-S_info.cli_info.port=port;
-S_info.cli_num++;
-slist_add(S_info);
-sock_ll.count++;
-}
-else printf("the ip exist");
 }
 ////////////////////////////////////////////
 void socket_process(void)
@@ -205,36 +204,5 @@ void socket_process(void)
 	handle_connect(server_sockfd);
 	close(server_sockfd);
 	while(1);
-/*while(1)
-	{
-//	printf("the server is open");
-	conn=accept(server_sockfd, (struct sockaddr*)&client_addr,&length);
-	        if(conn<0)
-                	{
-                	perror("connect error");
-			exit(1);
-               		 }
-		else
-			{
-			sock_info.sock_con_status=1;
-			ip=inet_ntoa(client_addr.sin_addr);
-			port=ntohs(client_addr.sin_port);
-			if((socket_fork[sock_ll.count++]=fork())>0)
-				{
-				close(conn);
-//			   if(sock_ll.count<=QUEUE)sock_add(ip,port);
-//			   else printf("the conn is full");
-		printf("client %d IP is:%s,port is:%d  is connected",
-		cli_num,ip,port);
-				}
-			else
-				{
-			handle_request(conn,ip);
-				}
-//		printf("client one");
-			}
-
-
-	}*/
 }
 ////////////////////////////////////////////
