@@ -9,7 +9,7 @@
 #include "cmd.h"
 
 extern char input_cmd[CMD_LENGTH];
-extern struct move_cmd m_cmd;
+//extern struct move_cmd m_cmd;
 
 int *check_str(char* str)
 {

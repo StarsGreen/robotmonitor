@@ -65,8 +65,8 @@ while(1)
 	{
 		pthread_testcancel();
 		sem_wait(&sensor_start);
-
-
+		while(ctrl_cmd.info_get_func==INFO_GET_DISABLE)
+		pthread_testcancel();
 //		usleep(100000);
 		value=temper_read();
 	if(value!=-1)

@@ -243,6 +243,8 @@ void* info_send_thread(void* s)
 		pthread_testcancel();
 //		msg_buf="ok";
 		msg_buf=assemble_info();
+                while(ctrl_cmd.info_send_func==INFO_SEND_DISABLE)
+                pthread_testcancel();
 //		printf("msg_buf is: %s\n",msg_buf);
 		if(msg_buf!=NULL)
 			send_flag=send(conn,msg_buf,strlen(msg_buf), 0);

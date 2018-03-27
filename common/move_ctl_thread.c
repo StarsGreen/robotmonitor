@@ -20,6 +20,8 @@ void* move_ctl_thread(void)
 while(1)
 	{
 	pthread_testcancel();
+        while(ctrl_cmd.move_ctrl_func==MOVE_CTRL_DISABLE)
+                pthread_testcancel();
 //	move(m_cmd.cmd_type,m_cmd.angle,m_cmd.vel);
 	}
 }

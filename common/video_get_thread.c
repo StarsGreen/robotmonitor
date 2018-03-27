@@ -166,7 +166,8 @@ while(1)
     {
 	pthread_testcancel();
 	sem_wait(&v_get);
-
+        while(ctrl_cmd.video_get_func==VIDEO_GET_DISABLE)
+                pthread_testcancel();
 //	printf("video get start\n");
 
 	v4l2buf.index=i%BUFFER_COUNT;
