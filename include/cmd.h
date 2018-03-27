@@ -33,16 +33,23 @@
 
 #define SET_V_GET_ON 0X00000001
 #define SET_V_GET_OFF 0X00000000
+#define SET_V_SEND_ON 0X00001001
+#define SET_V_SEND_OFF 0X00001000
 #define INFO_GET_ON 0X00001001
 #define INFO_GET_OFF 0X00001000
 #define MOVE_CTRL_OFF 0X00004000
 #define MOVE_CTRL_ON 0X00004001
+
 #define GET_MOVE_INFO 0X10000000
 #define GET_MOVE_ACCEL 0X10010000
 #define GET_MOVE_VEL 0X10020000
 #define GET_MOVE_JOURNEY 0X10030000
 #define GET_TEMPER 0X10040000
 #define GET_DIST 0X10050000
+
+#define HELP_CODE 0xffffffff
+#define CMD_SIZE sizeof(Ctrl_Cmd)
+
 /////////////////////////////////////////////
 typedef struct control_cmd
 {

@@ -12,6 +12,8 @@
 
 ///////////////////////////////////////
 char input_cmd[CMD_LENGTH];
+
+void excute_cmd(char *);
 ///////////////////////////////////////
 void input(char* cmd)
 {
@@ -46,7 +48,7 @@ void* cmd_process()
 {
 	if(signal(SIGINT,signal_cmd_proceed)==SIG_ERR)
 		perror("cmd signal error");
-/*
+
 while(1)
 	{
 	printf("-->");
@@ -59,6 +61,6 @@ while(1)
 	}
 	else excute_cmd(input_cmd);
     }
-*/
+
 	while(1);
 }
