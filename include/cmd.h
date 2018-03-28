@@ -35,8 +35,11 @@
 #define SET_V_GET_OFF 0X00000000
 #define SET_V_SEND_ON 0X00001001
 #define SET_V_SEND_OFF 0X00001000
-#define INFO_GET_ON 0X00001001
-#define INFO_GET_OFF 0X00001000
+#define INFO_GET_ON 0X00002001
+#define INFO_GET_OFF 0X00002000
+#define INFO_SEND_ON 0X00003001
+#define INFO_SEND_OFF 0X00003000
+
 #define MOVE_CTRL_OFF 0X00004000
 #define MOVE_CTRL_ON 0X00004001
 
@@ -66,7 +69,7 @@ Ctrl_Pointer ctrl_pointer;
 struct Cmd
 {
 	int cmd_code;
-	void* func;
+	void (*func)(void);
 };
 typedef struct cmd_info
 {

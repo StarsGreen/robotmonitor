@@ -8,7 +8,7 @@
 #include "include.h"
 #include "cmd.h"
 
-extern char input_cmd[CMD_LENGTH];
+//extern char input_cmd[CMD_LENGTH];
 //extern struct move_cmd m_cmd;
 
 int *check_str(char* str)
@@ -125,7 +125,7 @@ void set_move_ctrl_off()
 }
 
 ///////////////////printf the move info ////////////
-void print_move_info(M_Poninter mp,int flag)
+void print_move_info(M_Pointer mp,int flag)
 {
 char* ptr;
 printf("\n");
@@ -196,7 +196,7 @@ void get_move_info()
 //////////////////printf the accel info/////////////////
 void get_accel_info()
 {
-	print_accel_info(M_info,1);
+	print_move_info(M_info,1);
 }
 /////////////////printf the vel info//////////////////////
 void get_vel_info()
@@ -206,7 +206,7 @@ void get_vel_info()
 ////////////////////printf the journey info///////////////////
 void get_journey_info()
 {
-	print_journey_info(M_info,3);
+	print_move_info(M_info,3);
 }
 ////////////////////////////////////////////////
 void help_info()
@@ -214,12 +214,12 @@ void help_info()
 int i;
 printf("\n-------------help info-------------\n");
 for(i=0;i<CMD_NUM;i++)
-	printf("\n  %d  |  %s  |  %x  \n",i+1,&(cmd_info.cmd[i].func),
+	printf("\n  %d  |  %s  |  %x  \n",i+1,&((char*)(cmd_info.cmd[i].func)),
 cmd_info.cmd[i].cmd_code);
 printf("\n-------------help info-------------\n");
 }
 /////////read the input cmd///////////////////
-int get_input_cmd()
+int get_input_cmd(char* input_cmd)
 {
 	int cmd_code=0,i;
 	char* delim=" ";
@@ -232,33 +232,34 @@ int get_input_cmd()
 		memcpy(str[i+1],p,strlen(p));
 printf("str0 is:%s \n str1 is:%s \n str2 is:%s \n ",str[0],str[1],str[2]);
 
-	if(strncasecmp(str[0],"set"))
+	if(strncasecmp(str[0],"set",3))
 	{
 	cmd_code=cmd_code|(0<<28);
-	if(strncasecmp(str[1],"videoget"))cmd_code=cmd_code|(0<<12);
-	else if(strncasecmp(str[1],"videosend"))cmd_code=cmd_code|(1<<12);
-	else if(strncasecmp(str[1],"infoget"))cmd_code=cmd_code|(2<<12);
-	else if(strncasecmp(str[1],"infosend"))cmd_code=cmd_code|(3<<12);
-	else if(strncasecmp(str[1],"move"))cmd_code=cmd_code|(4<<12);
+	if(strncasecmp(str[1],"videoget",8))cmd_code=cmd_code|(0<<12);
+	else if(strncasecmp(str[1],"videosend,9"))cmd_code=cmd_code|(1<<12);
+	else if(strncasecmp(str[1],"infoget",7))cmd_code=cmd_code|(2<<12);
+	else if(strncasecmp(str[1],"infosend",8))cmd_code=cmd_code|(3<<12);
+	else if(strncasecmp(str[1],"move",4))cmd_code=cmd_code|(4<<12);
 	else goto last;
 
-	if(strncasecmp(str[2],"on"))cmd_code=cmd_code|(1<<4);
-	else if(strncasecmp(str[2],"off"))cmd_code=cmd_code|(1<<4);
+	if(strncasecmp(str[2],"on",2))cmd_code=cmd_code|(1<<4);
+	else if(strncasecmp(str[2],"off",3))cmd_code=cmd_code|(1<<4);
 	else goto last;
 	}
 	else
-	if(strncasecmp(str[0],"get"))
+	if(strncasecmp(str[0],"get",3))
 	{
 	cmd_code=cmd_code|(1<<28);
-	if(strncasecmp(str[1],"moveinfo"))cmd_code=cmd_code|(0<<12);
-	else if(strncasecmp(str[1],"accel"))cmd_code=cmd_code|(1<<12);
-	else if(strncasecmp(str[1],"vel"))cmd_code=cmd_code|(2<<12);
-	else if(strncasecmp(str[1],"journey"))cmd_code=cmd_code|(3<<12);
-	else if(strncasecmp(str[1],"temp"))cmd_code=cmd_code|(4<<12);
-	else if(strncasecmp(str[1],"dist")cmd_code=cmd_code|(5<<12);
+	if(strncasecmp(str[1],"moveinfo",8))cmd_code=cmd_code|(0<<12);
+	else if(strncasecmp(str[1],"accel",5))cmd_code=cmd_code|(1<<12);
+	else if(strncasecmp(str[1],"vel",3))cmd_code=cmd_code|(2<<12);
+	else if(strncasecmp(str[1],"journey",7))cmd_code=cmd_code|(3<<12);
+	else if(strncasecmp(str[1],"temp",4))cmd_code=cmd_code|(4<<12);
+	else if(strncasecmp(str[1],"dist",4))cmd_code=cmd_code|(5<<12);
 	else goto last;
 	}
-	else if(strncasecmp(str[0],"help"))cmd_code=0xffffffff;
+	else
+	if(strncasecmp(str[0],"help",4))cmd_code=0xffffffff;
 	else goto last;
 
 	return cmd_code;

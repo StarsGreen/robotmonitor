@@ -12,7 +12,7 @@
 #include <pthread.h>
 #include <sys/time.h>
 #include "global_data.h"
-
+#include "cmd.h"
 
 extern struct video_data v_data;
 extern struct udp_flag u_flag;

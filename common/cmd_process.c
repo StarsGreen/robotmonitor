@@ -13,7 +13,7 @@
 ///////////////////////////////////////
 char input_cmd[CMD_LENGTH];
 
-extern int get_input_cmd();
+extern int get_input_cmd(char* input_cmd);
 extern void excute_cmd(int code);
 extern void init_cmd();
 ///////////////////////////////////////
@@ -51,7 +51,7 @@ void* cmd_process()
 
 	if(signal(SIGINT,signal_cmd_proceed)==SIG_ERR)
 		perror("cmd signal error");
-	
+	init_cmd();
 while(1)
 	{
 	printf("-->");

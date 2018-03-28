@@ -18,7 +18,7 @@
 #include <time.h>
 #include <pthread.h>
 #include "global_data.h"
-
+#include "cmd.h"
 
 #define CAMERA_DEVICE "/dev/video0"
 

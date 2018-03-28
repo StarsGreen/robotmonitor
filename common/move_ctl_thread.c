@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "global_data.h"
-
+#include "cmd.h"
 extern void move(short cmd_type,short angle,short vel);
 extern void move_init(void);
 
