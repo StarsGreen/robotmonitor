@@ -127,7 +127,7 @@ void set_move_ctrl_off()
 ///////////////////printf the move info ////////////
 void print_move_info(M_Pointer mp,int flag)
 {
-char* ptr;
+char* ptr=NULL;
 printf("\n");
 printf("------------------------------\n");
 if(flag==0||flag==1)goto accel;
@@ -135,52 +135,52 @@ if(flag==2)goto vel;
 if(flag==3)goto journey;
 
 accel:
-gcvt((double)mp.accel_info.xa_accel,5,ptr);
+gcvt((double)(mp->accel_info.xa_accel),5,ptr);
 printf("|          |  xa_accel  |  %s  |\n",ptr);
-gcvt((double)mp.accel_info.ya_accel,5,ptr);
+gcvt((double)(mp->accel_info.ya_accel),5,ptr);
 printf("|          |  ya_accel  |  %s  |\n",ptr);
-gcvt((double)mp.accel_info.za_accel,5,ptr);
+gcvt((double)(mp->accel_info.za_accel),5,ptr);
 printf("|          |  za_accel  |  %s  |\n",ptr);
 
-gcvt((double)mp.accel_info.xl_accel,5,ptr);
+gcvt((double)(mp->accel_info.xl_accel),5,ptr);
 printf("|          |  xl_accel  |  %s  |\n",ptr);
-gcvt((double)mp.accel_info.yl_accel,5,ptr);
+gcvt((double)(mp->accel_info.yl_accel),5,ptr);
 printf("|          |  yl_accel  |  %s  |\n",ptr);
-gcvt((double)mp.accel_info.zl_accel,5,ptr);
+gcvt((double)(mp->accel_info.zl_accel),5,ptr);
 printf("|          |  zl_accel  |  %s  |\n",ptr);
 if(flag==1)goto last;
 
 
 vel:
-gcvt((double)mp.vel_info.xa_vel,5,ptr);
+gcvt((double)(mp->vel_info.xa_vel),5,ptr);
 printf("|          |  xa_vel  |  %s  |\n",ptr);
-gcvt((double)mp.vel_info.ya_vel,5,ptr);
+gcvt((double)(mp->vel_info.ya_vel),5,ptr);
 printf("|          |  ya_vel  |  %s  |\n",ptr);
-gcvt((double)mp.vel_info.za_vel,5,ptr);
+gcvt((double)(mp->vel_info.za_vel),5,ptr);
 printf("|          |  za_vel  |  %s  |\n",ptr);
 
-gcvt((double)mp.vel_info.xl_vel,5,ptr);
+gcvt((double)(mp->vel_info.xl_vel),5,ptr);
 printf("|          |  xl_vel  |  %s  |\n",ptr);
-gcvt((double)mp.vel_info.yl_vel,5,ptr);
+gcvt((double)(mp->vel_info.yl_vel),5,ptr);
 printf("|          |  yl_vel  |  %s  |\n",ptr);
-gcvt((double)mp.vel_info.zl_vel,5,ptr);
+gcvt((double)(mp->vel_info.zl_vel),5,ptr);
 printf("|          |  zl_vel  |  %s  |\n",ptr);
 if(flag==2)goto last;
 
 
 journey:
-gcvt((double)mp.jour_info.xa,5,ptr);
+gcvt((double)(mp->jour_info.xa),5,ptr);
 printf("|          |  xa  |  %s  |\n",ptr);
-gcvt((double)mp.jour_info.ya,5,ptr);
+gcvt((double)(mp->jour_info.ya),5,ptr);
 printf("|          |  ya  |  %s  |\n",ptr);
-gcvt((double)mp.jour_info.za,5,ptr);
+gcvt((double)(mp->jour_info.za),5,ptr);
 printf("|          |  za  |  %s  |\n",ptr);
 
-gcvt((double)mp.jour_info.xl,5,ptr);
+gcvt((double)(mp->jour_info.xl),5,ptr);
 printf("|          |  xl  |  %s  |\n",ptr);
-gcvt((double)mp.jour_info.yl,5,ptr);
+gcvt((double)(mp->jour_info.yl),5,ptr);
 printf("|          |  yl  |  %s  |\n",ptr);
-gcvt((double)mp.jour_info.zl,5,ptr);
+gcvt((double)(mp->jour_info.zl),5,ptr);
 printf("|          |  zl  |  %s  |\n",ptr);
 
 
@@ -190,23 +190,23 @@ printf("------------------------------\n");
 }
 void get_move_info()
 {
-	print_move_info(M_info,0);
+	print_move_info(&M_info,0);
 }
 
 //////////////////printf the accel info/////////////////
 void get_accel_info()
 {
-	print_move_info(M_info,1);
+	print_move_info(&M_info,1);
 }
 /////////////////printf the vel info//////////////////////
 void get_vel_info()
 {
-	print_move_info(M_info,2);
+	print_move_info(&M_info,2);
 }
 ////////////////////printf the journey info///////////////////
 void get_journey_info()
 {
-	print_move_info(M_info,3);
+	print_move_info(&M_info,3);
 }
 ////////////////////////////////////////////////
 void help_info()
@@ -214,7 +214,7 @@ void help_info()
 int i;
 printf("\n-------------help info-------------\n");
 for(i=0;i<CMD_NUM;i++)
-	printf("\n  %d  |  %s  |  %x  \n",i+1,&((char*)(cmd_info.cmd[i].func)),
+	printf("\n  %d  |  %s  |  %x  \n",i+1,cmd_info.cmd[i].func_name,
 cmd_info.cmd[i].cmd_code);
 printf("\n-------------help info-------------\n");
 }
@@ -236,7 +236,7 @@ printf("str0 is:%s \n str1 is:%s \n str2 is:%s \n ",str[0],str[1],str[2]);
 	{
 	cmd_code=cmd_code|(0<<28);
 	if(strncasecmp(str[1],"videoget",8))cmd_code=cmd_code|(0<<12);
-	else if(strncasecmp(str[1],"videosend,9"))cmd_code=cmd_code|(1<<12);
+	else if(strncasecmp(str[1],"videosend",9))cmd_code=cmd_code|(1<<12);
 	else if(strncasecmp(str[1],"infoget",7))cmd_code=cmd_code|(2<<12);
 	else if(strncasecmp(str[1],"infosend",8))cmd_code=cmd_code|(3<<12);
 	else if(strncasecmp(str[1],"move",4))cmd_code=cmd_code|(4<<12);
@@ -279,49 +279,77 @@ void init_cmd()
 {
 	cmd_info.cmd[0].cmd_code=SET_V_GET_ON;
 	cmd_info.cmd[0].func=set_video_get_on;
+	cmd_info.cmd[0].func_name="set video get on";
 	cmd_info.cmd_num=1;
+
 	cmd_info.cmd[1].cmd_code=SET_V_GET_OFF;
 	cmd_info.cmd[1].func=set_video_get_off;
+	cmd_info.cmd[1].func_name="set video get off";
 	cmd_info.cmd_num++;
+
 	cmd_info.cmd[2].cmd_code=SET_V_SEND_ON;
 	cmd_info.cmd[2].func=set_video_send_on;
+	cmd_info.cmd[2].func_name="set video send on";
 	cmd_info.cmd_num++;
+
 	cmd_info.cmd[3].cmd_code=SET_V_SEND_OFF;
 	cmd_info.cmd[3].func=set_video_send_off;
+	cmd_info.cmd[3].func_name="set video send off";
 	cmd_info.cmd_num++;
+
 	cmd_info.cmd[4].cmd_code=INFO_GET_ON;
 	cmd_info.cmd[4].func=set_info_get_on;
 	cmd_info.cmd_num++;
+	cmd_info.cmd[4].func_name="set info get on";
+
 	cmd_info.cmd[5].cmd_code=INFO_GET_OFF;
 	cmd_info.cmd[5].func=set_info_get_off;
+	cmd_info.cmd[5].func_name="set info get off";
 	cmd_info.cmd_num++;
+
 	cmd_info.cmd[6].cmd_code=INFO_SEND_OFF;
 	cmd_info.cmd[6].func=set_info_send_off;
+	cmd_info.cmd[6].func_name="set info send off";
 	cmd_info.cmd_num++;
+
 	cmd_info.cmd[7].cmd_code=INFO_SEND_ON;
 	cmd_info.cmd[7].func=set_info_send_on;
+	cmd_info.cmd[7].func_name="set info send on";
 	cmd_info.cmd_num++;
+
 	cmd_info.cmd[8].cmd_code=MOVE_CTRL_OFF;
 	cmd_info.cmd[8].func=set_move_ctrl_off;
+	cmd_info.cmd[8].func_name="set move ctrl on";
 	cmd_info.cmd_num++;
+
 	cmd_info.cmd[9].cmd_code=MOVE_CTRL_ON;
 	cmd_info.cmd[9].func=set_move_ctrl_on;
+	cmd_info.cmd[9].func_name="set move ctrl on";
 	cmd_info.cmd_num++;
+
 	cmd_info.cmd[10].cmd_code=GET_MOVE_INFO;
 	cmd_info.cmd[10].func=get_move_info;
+	cmd_info.cmd[10].func_name="get move info";
 	cmd_info.cmd_num++;
+
 	cmd_info.cmd[11].cmd_code=GET_MOVE_ACCEL;
 	cmd_info.cmd[11].func=get_accel_info;
+	cmd_info.cmd[11].func_name="get move accel";
 	cmd_info.cmd_num++;
+
 	cmd_info.cmd[12].cmd_code=GET_MOVE_VEL;
 	cmd_info.cmd[12].func=get_vel_info;
+	cmd_info.cmd[12].func_name="get move vel";
 	cmd_info.cmd_num++;
+
 	cmd_info.cmd[13].cmd_code=GET_MOVE_JOURNEY;
 	cmd_info.cmd[13].func=get_journey_info;
+	cmd_info.cmd[13].func_name="get move journey";
 	cmd_info.cmd_num++;
 
 	cmd_info.cmd[14].cmd_code=HELP_CODE;
 	cmd_info.cmd[14].func=help_info;
+	cmd_info.cmd[14].func_name="help info";
 	cmd_info.cmd_num++;
 }
 ////////////////////////////////////////////////////

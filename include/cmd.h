@@ -70,6 +70,7 @@ struct Cmd
 {
 	int cmd_code;
 	void (*func)(void);
+	char* func_name;
 };
 typedef struct cmd_info
 {

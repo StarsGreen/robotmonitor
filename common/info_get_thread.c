@@ -11,7 +11,7 @@
 #include <fcntl.h>
 #include <sys/shm.h>
 #include "global_data.h"
-
+#include "cmd.h"
 
 extern float temper_read();
 extern float dist_read();
