@@ -62,7 +62,8 @@ while(1)
 	kill(getppid(),SIGINT);
 	break;
 	}
-	else excute_cmd(get_input_cmd(input_cmd));
+	else
+	if(strlen(input_cmd)>0) excute_cmd(get_input_cmd(input_cmd));
     }
 
 	while(1);

@@ -121,7 +121,7 @@ sock_err = pthread_create(&recv_info, NULL,info_recv_thread,&s_params);
 ///////////////////////////////////////////
 static void handle_connect(int s_s)
 {
-	printf("handle connect\n");
+	printf("\nhandle connect\n");
 	struct sockaddr_in client_addr;
 	socklen_t length = sizeof(client_addr);
 	int i,port;
@@ -131,7 +131,7 @@ static void handle_connect(int s_s)
 	int conn;
 while(1)
 	{
-	printf("the server is open\n");
+	printf("\nthe server is open\n");
 	conn=accept(s_s, (struct sockaddr*)&client_addr,&length);
 	        if(conn<0)
                 	{
@@ -149,7 +149,7 @@ while(1)
 				close(conn);
 			   if(sock_ll.count<=QUEUE)sock_add(ip,port);
 			   else printf("the conn is full");
-		printf("client %d IP is:%s,port is:%d  is connected\n",
+		printf("\nclient %d IP is:%s,port is:%d  is connected\n",
 		cli_num,ip,port);
 				}
 			else
