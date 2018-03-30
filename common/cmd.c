@@ -41,11 +41,9 @@ void read_cmd(char* cmd)
 //        printf("cmd is %s\n",temchar);
 	int len=strlen(temchar);
 	for(j=0;j<3;j++)
-		*(index+j)=*(check_str(temchar)+j);	
-	
+		*(index+j)=*(check_str(temchar)+j);
 //	for(i=0;i<3;i++)
 //		printf("index[%d]: %d \n",i,index[i]);
-	
 	j=0;
 	for(i=index[0]+1;i<index[1];i++)
 		*(cmd_t+j++)=*(temchar+i);
@@ -225,24 +223,46 @@ void help_info()
 {
 int i;
 printf("\n-------------help info-------------\n");
-for(i=0;i<CMD_NUM;i++)
+for(i=0;i<cmd_info.cmd_num;i++)
 	printf("\n  %d  |  %s  |  %x  \n",i+1,cmd_info.cmd[i].func_name,
 cmd_info.cmd[i].cmd_code);
 printf("\n-------------help info-------------\n");
 }
+/////////fin char num////////////////////////
+int find_char(char* src,char* des)
+{
+int num=0;
+int i;
+int str_length=strlen(src);
+for(i=0;i<str_length;i++)
+	if(*(src+i)==*des)num++;
+return num;
+}
 /////////read the input cmd///////////////////
 int get_input_cmd(char* input_cmd)
 {
+	printf("the input cmd is %s",input_cmd);
 	int cmd_code=0,i;
 	char* delim=" ";
 	char* str[5];
 	char* p;
+	int delim_num=find_char(input_cmd,delim);
+	if(delim_num>0)
+	{
 	p=strtok(input_cmd,delim);
+printf("the first string is %s",p);
 	memcpy(str[0],p,strlen(p));
-	for(i=0;i<3;i++)
+	for(i=0;i<delim_num;i++)
 		if((p=strtok(NULL,delim)))
+		{
 		memcpy(str[i+1],p,strlen(p));
-printf("str0 is:%s \n str1 is:%s \n str2 is:%s \n ",str[0],str[1],str[2]);
+		printf("str[%d] is %s",i+1,str[i+1]);
+		}
+	}
+	else
+	{
+	memcpy(str[0],input_cmd,strlen(input_cmd));
+	}
 
 	if(strncasecmp(str[0],"set",3))
 	{
@@ -276,15 +296,21 @@ printf("str0 is:%s \n str1 is:%s \n str2 is:%s \n ",str[0],str[1],str[2]);
 
 	return cmd_code;
 //	if(strncasecmp(str[1],"videosend"))cmd_code=cmd_code|(1<<12);
-last:	return 0;
+last:	return -1;
 
 }
 /////////////////////////////
 void excute_cmd(int code)
 {
 int i;
+printf("\n the code is %x\n",code);
+if(code<0)goto last;
 for(i=0;i<CMD_NUM;i++)
 	if(cmd_info.cmd[i].cmd_code==code)cmd_info.cmd[i].func();
+last:
+	do{
+	printf("the cmd code %x is error",code);
+	}while(0);
 }
 ///////////////////////////////////////////////////
 void init_cmd()
@@ -371,4 +397,3 @@ void init_cmd()
 
 }
 ////////////////////////////////////////////////////
-v

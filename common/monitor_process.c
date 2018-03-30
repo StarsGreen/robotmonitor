@@ -38,14 +38,14 @@ int sig_init()
 int cancel_monitor_thread()
 {
 	if(pthread_cancel(m_thread)!=0)
-		printf("cancel move thread failed");
+		printf("cancel move thread failed\n");
 	else{
 		if(pthread_join(m_thread,NULL)==0)
 		printf("cancel move thread successfully\n");
 		}
 
 	if(pthread_cancel(vget_thread)!=0)
-		printf("cancel video get thread failed");
+		printf("cancel video get thread failed\n");
 	else{
 		if(pthread_join(vget_thread,NULL)==0)
 		printf("cancel video get thread successfully\n");

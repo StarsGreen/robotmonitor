@@ -17,10 +17,11 @@ extern int get_input_cmd(char* input_cmd);
 extern void excute_cmd(int code);
 extern void init_cmd();
 ///////////////////////////////////////
-void input(char* cmd)
+int input(char* cmd)
 {
 		char tem_char;
 		char input[CMD_LENGTH];
+		int cmd_length=0;
 		int num=0;
 		memset(input,0,sizeof(input));
 	while(1)
@@ -28,6 +29,7 @@ void input(char* cmd)
                 tem_char=getchar();
 		if(tem_char == '\n')
 		{
+		cmd_length=num;
 		num=0;
 		break;
 		}
@@ -38,6 +40,7 @@ void input(char* cmd)
 		}
 	}
 	strcpy(cmd,input);
+	return cmd_length;
 }
 /////////////////////////////////////////
 void signal_cmd_proceed(int signo)
@@ -48,23 +51,38 @@ exit(1);
 //////////////////////////////////////////
 void* cmd_process()
 {
-
+	int cmd_length=0;
+	int code=0;
 	if(signal(SIGINT,signal_cmd_proceed)==SIG_ERR)
 		perror("cmd signal error");
 	init_cmd();
 while(1)
-	{
-	printf("-->");
-	input(input_cmd);
-//	printf("%s",input_cmd);
+  {
+	printf("\n-->");
+	cmd_length=input(input_cmd);
+	printf("\n the input is %s\n",input_cmd);
+	if(cmd_length==0)goto last;
 	if(!strcmp(input_cmd,"exit"))
-	{
+    {
 	kill(getppid(),SIGINT);
 	break;
-	}
-	else
-	if(strlen(input_cmd)>0) excute_cmd(get_input_cmd(input_cmd));
     }
+	else
+    {
+	printf("excute step\n");
+//	printf("cmd length is %d\n",strlen(input_cmd));
+//	if(strlen(input_cmd)>0)
+//	  {
+//	excute_cmd(0xfffffff0);
+	printf("the code is %d",code);
+	code=get_input_cmd(input_cmd);
+	printf("the code is %d",code);
+	excute_cmd(code);
+//	  }
+    }
+last:
+	do{}while(0);
+  }
 
 	while(1);
 }
