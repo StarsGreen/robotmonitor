@@ -50,7 +50,8 @@
 #define GET_TEMPER 0X10040000
 #define GET_DIST 0X10050000
 
-#define HELP_CODE 0xffffffff
+#define GET_CTRL_CMD 0xffffffe0
+#define HELP_CODE 0xfffffff0
 #define CMD_SIZE sizeof(Ctrl_Cmd)
 
 /////////////////////////////////////////////

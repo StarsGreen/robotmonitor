@@ -208,6 +208,18 @@ void get_journey_info()
 {
 	print_move_info(&M_info,3);
 }
+////////////get ctrl cmd info/////////////////////
+void get_ctrl_cmd_info()
+{
+printf("\n----------ctrl cmd ifo----------\n");
+printf("\n 1 is on and 0 is off\n");
+printf("\n video get func is %d",ctrl_cmd.video_get_func);
+printf("\n video send func is %d",ctrl_cmd.video_send_func);
+printf("\n info get func is %d",ctrl_cmd.info_get_func);
+printf("\n info send func is %d",ctrl_cmd.info_send_func);
+printf("\n move ctrl func is %d",ctrl_cmd.move_ctrl_func);
+printf("\n----------ctrl cmd ifo----------\n");
+}
 ////////////////////////////////////////////////
 void help_info()
 {
@@ -351,5 +363,12 @@ void init_cmd()
 	cmd_info.cmd[14].func=help_info;
 	cmd_info.cmd[14].func_name="help info";
 	cmd_info.cmd_num++;
+
+	cmd_info.cmd[15].cmd_code=GET_CTRL_CMD;
+	cmd_info.cmd[15].func=get_ctrl_cmd_info;
+	cmd_info.cmd[15].func_name="ctrl cmd info";
+	cmd_info.cmd_num++;
+
 }
 ////////////////////////////////////////////////////
+v
