@@ -4,8 +4,6 @@
 #define __INCLUDE_H_
 #endif
 
-#define CMD_LENGTH 10
-
 //extern void move(short cmd_type,short angle,short vel);
 /*
 extern void* socket_thread(void);

@@ -5,6 +5,7 @@
 #endif
 
 #define CMD_NUM 250
+#define CMD_LENGTH 40
 
 #define MOVE_DIRECT_UP 1
 #define MOVE_DIRECT_DOWN 5
@@ -31,8 +32,8 @@
 #define MOVE_CTRL_ENABLE 1
 #define MOVE_CTRL_DISABLE 0
 
-#define SET_V_GET_ON 0X00000001
-#define SET_V_GET_OFF 0X00000000
+#define SET_V_GET_ON 0X00005001
+#define SET_V_GET_OFF 0X00005000
 #define SET_V_SEND_ON 0X00001001
 #define SET_V_SEND_OFF 0X00001000
 #define INFO_GET_ON 0X00002001
@@ -44,16 +45,20 @@
 #define MOVE_CTRL_ON 0X00004001
 
 #define GET_MOVE_INFO 0X10000000
-#define GET_MOVE_ACCEL 0X10010000
-#define GET_MOVE_VEL 0X10020000
-#define GET_MOVE_JOURNEY 0X10030000
-#define GET_TEMPER 0X10040000
-#define GET_DIST 0X10050000
+#define GET_MOVE_ACCEL 0X10001000
+#define GET_MOVE_VEL 0X10002000
+#define GET_MOVE_JOURNEY 0X10003000
+#define GET_TEMPER 0X10004000
+#define GET_DIST 0X10005000
+
 
 #define GET_CTRL_CMD 0xffffffe0
 #define HELP_CODE 0xfffffff0
-#define CMD_SIZE sizeof(Ctrl_Cmd)
+#define ERROR_CODE 0xf0f0f0f0
 
+#define CTRL_CMD_SIZE sizeof(Ctrl_Cmd)
+#define CMD_INFO_SIZE sizeof(Ctrl_Cmd)
+#define MAX_CMD_LENGTH 40
 /////////////////////////////////////////////
 typedef struct control_cmd
 {

@@ -71,116 +71,144 @@ void read_cmd(char* cmd)
 void set_video_get_on()
 {
 	ctrl_cmd.video_get_func=1;
+	printf("the video get func is on\n");
 }
 //////////////////////////////////////////////////
 void set_video_get_off()
 {
 	ctrl_cmd.video_get_func=0;
+	printf("the video get func is off\n");
 }
 
 //////////////////////////////////////////////////
 void set_video_send_off()
 {
 	ctrl_cmd.video_send_func=0;
+	printf("the video send func is off\n");
 }
 //////////////////////////////////////////////////
 void set_video_send_on()
 {
 	ctrl_cmd.video_send_func=1;
+	printf("the video send func is on\n");
 }
 
 //////////////////////////////////////////////////
 void set_info_get_on()
 {
 	ctrl_cmd.info_get_func=1;
+	printf("the info get func is on\n");
 }
 //////////////////////////////////////////////////
 void set_info_get_off()
 {
 	ctrl_cmd.info_get_func=0;
+	printf("the info get func is off\n");
 }
 
 //////////////////////////////////////////////////
 void set_info_send_on()
 {
 	ctrl_cmd.info_send_func=1;
+	printf("the info send func is on\n");
 }
 //////////////////////////////////////////////////
 void set_info_send_off()
 {
 	ctrl_cmd.info_send_func=0;
+	printf("the info send func is on\n");
 }
 
 //////////////////////////////////////////////////
 void set_move_ctrl_on()
 {
 	ctrl_cmd.move_ctrl_func=1;
+	printf("the move ctrl func is on\n");
 }
 //////////////////////////////////////////////////
 void set_move_ctrl_off()
 {
 	ctrl_cmd.move_ctrl_func=0;
+	printf("the move ctrl func is off\n");
 }
 
 ///////////////////printf the move info ////////////
 void print_move_info(M_Pointer mp,int flag)
 {
-char* ptr=NULL;
-printf("\n");
-printf("------------------------------\n");
+char* ptr=(char*)malloc(10);
+//printf("move info\n");
+printf("--------------move info ----------------\n");
 if(flag==0||flag==1)goto accel;
 if(flag==2)goto vel;
 if(flag==3)goto journey;
+if(flag==4)goto temper;
+if(flag==5)goto dist;
 
 accel:
+printf("accel info :\n");
 gcvt((double)(mp->accel_info.xa_accel),5,ptr);
-printf("|          |  xa_accel  |  %s  |\n",ptr);
+printf("|          |       xa_accel     |  %s  |\n",ptr);
 gcvt((double)(mp->accel_info.ya_accel),5,ptr);
-printf("|          |  ya_accel  |  %s  |\n",ptr);
+printf("|          |       ya_accel     |  %s  |\n",ptr);
 gcvt((double)(mp->accel_info.za_accel),5,ptr);
-printf("|          |  za_accel  |  %s  |\n",ptr);
+printf("|          |       za_accel     |  %s  |\n",ptr);
 
 gcvt((double)(mp->accel_info.xl_accel),5,ptr);
-printf("|          |  xl_accel  |  %s  |\n",ptr);
+printf("|          |       xl_accel     |  %s  |\n",ptr);
 gcvt((double)(mp->accel_info.yl_accel),5,ptr);
-printf("|          |  yl_accel  |  %s  |\n",ptr);
+printf("|          |       yl_accel     |  %s  |\n",ptr);
 gcvt((double)(mp->accel_info.zl_accel),5,ptr);
-printf("|          |  zl_accel  |  %s  |\n",ptr);
+printf("|          |       zl_accel     |  %s  |\n",ptr);
 if(flag==1)goto last;
 
 
 vel:
+printf("vel info :\n");
+
 gcvt((double)(mp->vel_info.xa_vel),5,ptr);
-printf("|          |  xa_vel  |  %s  |\n",ptr);
+printf("|          |       xa_vel      |  %s  |\n",ptr);
 gcvt((double)(mp->vel_info.ya_vel),5,ptr);
-printf("|          |  ya_vel  |  %s  |\n",ptr);
+printf("|          |       ya_vel      |  %s  |\n",ptr);
 gcvt((double)(mp->vel_info.za_vel),5,ptr);
-printf("|          |  za_vel  |  %s  |\n",ptr);
+printf("|          |       za_vel      |  %s  |\n",ptr);
 
 gcvt((double)(mp->vel_info.xl_vel),5,ptr);
-printf("|          |  xl_vel  |  %s  |\n",ptr);
+printf("|          |       xl_vel      |  %s  |\n",ptr);
 gcvt((double)(mp->vel_info.yl_vel),5,ptr);
-printf("|          |  yl_vel  |  %s  |\n",ptr);
+printf("|          |       yl_vel      |  %s  |\n",ptr);
 gcvt((double)(mp->vel_info.zl_vel),5,ptr);
-printf("|          |  zl_vel  |  %s  |\n",ptr);
+printf("|          |       zl_vel      |  %s  |\n",ptr);
 if(flag==2)goto last;
 
 
 journey:
+printf("journey info :\n");
 gcvt((double)(mp->jour_info.xa),5,ptr);
-printf("|          |  xa  |  %s  |\n",ptr);
+printf("|          |         xa        |  %s  |\n",ptr);
 gcvt((double)(mp->jour_info.ya),5,ptr);
-printf("|          |  ya  |  %s  |\n",ptr);
+printf("|          |         ya        |  %s  |\n",ptr);
 gcvt((double)(mp->jour_info.za),5,ptr);
-printf("|          |  za  |  %s  |\n",ptr);
+printf("|          |         za        |  %s  |\n",ptr);
 
 gcvt((double)(mp->jour_info.xl),5,ptr);
-printf("|          |  xl  |  %s  |\n",ptr);
+printf("|          |         xl        |  %s  |\n",ptr);
 gcvt((double)(mp->jour_info.yl),5,ptr);
-printf("|          |  yl  |  %s  |\n",ptr);
+printf("|          |         yl        |  %s  |\n",ptr);
 gcvt((double)(mp->jour_info.zl),5,ptr);
-printf("|          |  zl  |  %s  |\n",ptr);
+printf("|          |         zl        |  %s  |\n",ptr);
+if(flag==3)goto last;
 
+temper:
+printf("temper info :\n");
+gcvt((double)(mp->temper),5,ptr);
+printf("|          |  env temperature  |  %s  |\n",ptr);
+if(flag==4)goto last;
+
+dist:
+printf("dist info :\n");
+gcvt((double)(mp->dist),5,ptr);
+printf("|          |      distance     |  %s  |\n",ptr);
+if(flag==5)goto last;
 
 last:
 printf("\n");
@@ -206,115 +234,160 @@ void get_journey_info()
 {
 	print_move_info(&M_info,3);
 }
+////////////////////printf the journey info///////////////////
+void get_temper_info()
+{
+	print_move_info(&M_info,4);
+}
+////////////////////printf the journey info///////////////////
+void get_dist_info()
+{
+	print_move_info(&M_info,5);
+}
 ////////////get ctrl cmd info/////////////////////
 void get_ctrl_cmd_info()
 {
-printf("\n----------ctrl cmd ifo----------\n");
-printf("\n 1 is on and 0 is off\n");
-printf("\n video get func is %d",ctrl_cmd.video_get_func);
-printf("\n video send func is %d",ctrl_cmd.video_send_func);
-printf("\n info get func is %d",ctrl_cmd.info_get_func);
-printf("\n info send func is %d",ctrl_cmd.info_send_func);
-printf("\n move ctrl func is %d",ctrl_cmd.move_ctrl_func);
-printf("\n----------ctrl cmd ifo----------\n");
+printf("\n----------------ctrl cmd ifo----------------\n");
+printf("\n           1 is on and 0 is off             \n");
+printf("\n      video get func   is       %d",ctrl_cmd.video_get_func);
+printf("\n     video send func   is       %d",ctrl_cmd.video_send_func);
+printf("\n     info get func     is       %d",ctrl_cmd.info_get_func);
+printf("\n     info send func    is       %d",ctrl_cmd.info_send_func);
+printf("\n     move ctrl func    is       %d",ctrl_cmd.move_ctrl_func);
+printf("\n----------------ctrl cmd ifo-----------------\n");
 }
 ////////////////////////////////////////////////
 void help_info()
 {
 int i;
-printf("\n-------------help info-------------\n");
+printf("\n------------------help info-------------------\n");
 for(i=0;i<cmd_info.cmd_num;i++)
 	printf("\n  %d  |  %s  |  %x  \n",i+1,cmd_info.cmd[i].func_name,
 cmd_info.cmd[i].cmd_code);
-printf("\n-------------help info-------------\n");
+printf("\n------------------help info--------------------\n");
 }
 /////////fin char num////////////////////////
-int find_char(char* src,char* des)
+int find_char(char* src,char des)
 {
+//printf("b 0");
 int num=0;
 int i;
 int str_length=strlen(src);
+
+//printf("b 1");
 for(i=0;i<str_length;i++)
-	if(*(src+i)==*des)num++;
+	if(*(src+i)==des)num++;
+
+//printf("b 2");
 return num;
 }
 /////////read the input cmd///////////////////
-int get_input_cmd(char* input_cmd)
+unsigned int get_input_cmd(char*input_cmd)
 {
-	printf("the input cmd is %s",input_cmd);
-	int cmd_code=0,i;
+	printf("the input cmd is %s\n",input_cmd);
+	printf("get input cmd b0\n");
+	unsigned int cmd_code=0;
+	int i;
 	char* delim=" ";
+	printf("get input cmd b2\n");
 	char* str[5];
+	for(i=0;i<5;i++)
+		{
+		str[i]=(char*)malloc(MAX_CMD_LENGTH);
+		memset(str[i],0,MAX_CMD_LENGTH);
+		}
+//	char* p=(char*)malloc(MAX_CMD_LENGTH/2);
 	char* p;
-	int delim_num=find_char(input_cmd,delim);
+	printf("get input cmd b3\n");
+	int delim_num=find_char(input_cmd,' ');
+	printf("the delim num is %d\n",delim_num);
+/////////////////
 	if(delim_num>0)
 	{
 	p=strtok(input_cmd,delim);
-printf("the first string is %s",p);
+	printf("the first string is %s\n",p);
 	memcpy(str[0],p,strlen(p));
 	for(i=0;i<delim_num;i++)
-		if((p=strtok(NULL,delim)))
 		{
+		p=strtok(NULL,delim);
+		if(p!=NULL)
+		  {
 		memcpy(str[i+1],p,strlen(p));
-		printf("str[%d] is %s",i+1,str[i+1]);
+		printf("str[%d] is %s\n",i+1,str[i+1]);
+		  }
 		}
 	}
 	else
 	{
+	printf("get input cmd b4\n");
 	memcpy(str[0],input_cmd,strlen(input_cmd));
+	printf("str0 is %s\n",str[0]);
 	}
-
-	if(strncasecmp(str[0],"set",3))
+/////////////
+	if(strncasecmp(str[0],"set",3)==0)
 	{
 	cmd_code=cmd_code|(0<<28);
-	if(strncasecmp(str[1],"videoget",8))cmd_code=cmd_code|(0<<12);
-	else if(strncasecmp(str[1],"videosend",9))cmd_code=cmd_code|(1<<12);
-	else if(strncasecmp(str[1],"infoget",7))cmd_code=cmd_code|(2<<12);
-	else if(strncasecmp(str[1],"infosend",8))cmd_code=cmd_code|(3<<12);
-	else if(strncasecmp(str[1],"move",4))cmd_code=cmd_code|(4<<12);
+	if(strncasecmp(str[1],"videoget",8)==0)cmd_code=cmd_code|(5<<12);
+	else if(strncasecmp(str[1],"videosend",9)==0)cmd_code=cmd_code|(1<<12);
+	else if(strncasecmp(str[1],"infoget",7)==0)cmd_code=cmd_code|(2<<12);
+	else if(strncasecmp(str[1],"infosend",8)==0)cmd_code=cmd_code|(3<<12);
+	else if(strncasecmp(str[1],"move",4)==0)cmd_code=cmd_code|(4<<12);
 	else goto last;
-
-	if(strncasecmp(str[2],"on",2))cmd_code=cmd_code|(1<<4);
-	else if(strncasecmp(str[2],"off",3))cmd_code=cmd_code|(1<<4);
+	if(strncasecmp(str[2],"on",2)==0)cmd_code=cmd_code|(1<<4);
+	else if(strncasecmp(str[2],"off",3)==0)cmd_code=cmd_code|(0<<4);
 	else goto last;
 	}
 	else
-	if(strncasecmp(str[0],"get",3))
+	if(strncasecmp(str[0],"get",3)==0)
 	{
 	cmd_code=cmd_code|(1<<28);
-	if(strncasecmp(str[1],"moveinfo",8))cmd_code=cmd_code|(0<<12);
-	else if(strncasecmp(str[1],"accel",5))cmd_code=cmd_code|(1<<12);
-	else if(strncasecmp(str[1],"vel",3))cmd_code=cmd_code|(2<<12);
-	else if(strncasecmp(str[1],"journey",7))cmd_code=cmd_code|(3<<12);
-	else if(strncasecmp(str[1],"temp",4))cmd_code=cmd_code|(4<<12);
-	else if(strncasecmp(str[1],"dist",4))cmd_code=cmd_code|(5<<12);
+	if(strncasecmp(str[1],"moveinfo",8)==0)cmd_code=cmd_code|(0<<12);
+	else if(strncasecmp(str[1],"accel",5)==0)cmd_code=cmd_code|(1<<12);
+	else if(strncasecmp(str[1],"vel",3)==0)cmd_code=cmd_code|(2<<12);
+	else if(strncasecmp(str[1],"journey",7)==0)cmd_code=cmd_code|(3<<12);
+	else if(strncasecmp(str[1],"temp",4)==0)cmd_code=cmd_code|(4<<12);
+	else if(strncasecmp(str[1],"dist",4)==0)cmd_code=cmd_code|(5<<12);
+	else if(strncasecmp(str[1],"ctrlinfo",4)==0)cmd_code=0xffffffe0;
 	else goto last;
 	}
 	else
-	if(strncasecmp(str[0],"help",4))cmd_code=0xffffffff;
+	if(strncasecmp(str[0],"help",4)==0)cmd_code=0xfffffff0;
 	else goto last;
 
+	for(i=0;i<5;i++)
+		{
+		free(str[i]);
+//		free(p);
+		}
 	return cmd_code;
-//	if(strncasecmp(str[1],"videosend"))cmd_code=cmd_code|(1<<12);
-last:	return -1;
+last:	return ERROR_CODE;
 
 }
 /////////////////////////////
-void excute_cmd(int code)
+int excute_cmd(unsigned int code)
 {
 int i;
-printf("\n the code is %x\n",code);
-if(code<0)goto last;
-for(i=0;i<CMD_NUM;i++)
+printf("\n the excute code is %x\n",code);
+if(code==ERROR_CODE)goto last;
+for(i=0;i<cmd_info.cmd_num;i++)
 	if(cmd_info.cmd[i].cmd_code==code)cmd_info.cmd[i].func();
+return 0;
 last:
 	do{
-	printf("the cmd code %x is error",code);
+	printf("the cmd code %x is error\n",code);
 	}while(0);
+return 1;
 }
 ///////////////////////////////////////////////////
+void init_ctrl_cmd()
+{
+memset(&ctrl_cmd,0,CTRL_CMD_SIZE);
+}
+///////////////////////////////////////////////
 void init_cmd()
 {
+	init_ctrl_cmd();
+
 	cmd_info.cmd[0].cmd_code=SET_V_GET_ON;
 	cmd_info.cmd[0].func=set_video_get_on;
 	cmd_info.cmd[0].func_name="set video get on";
@@ -395,5 +468,17 @@ void init_cmd()
 	cmd_info.cmd[15].func_name="ctrl cmd info";
 	cmd_info.cmd_num++;
 
+	cmd_info.cmd[16].cmd_code=GET_TEMPER;
+	cmd_info.cmd[16].func=get_temper_info;
+	cmd_info.cmd[16].func_name="get temperature info";
+	cmd_info.cmd_num++;
+
+	cmd_info.cmd[17].cmd_code=GET_DIST;
+	cmd_info.cmd[17].func=get_dist_info;
+	cmd_info.cmd[17].func_name="get distance info";
+	cmd_info.cmd_num++;
+
 }
+//////////////////////////////////////////////////
+
 ////////////////////////////////////////////////////

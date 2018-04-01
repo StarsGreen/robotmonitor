@@ -7,14 +7,14 @@
 #include <pthread.h>
 #include "global_data.h"
 #include <semaphore.h>
-#include "include.h"
+#include "cmd.h"
 #include <signal.h>
 
 ///////////////////////////////////////
 char input_cmd[CMD_LENGTH];
 
-extern int get_input_cmd(char* input_cmd);
-extern void excute_cmd(int code);
+extern unsigned int get_input_cmd(char* input_cmd);
+extern int excute_cmd(unsigned int code);
 extern void init_cmd();
 ///////////////////////////////////////
 int input(char* cmd)
@@ -52,7 +52,7 @@ exit(1);
 void* cmd_process()
 {
 	int cmd_length=0;
-	int code=0;
+	unsigned int code=0;
 	if(signal(SIGINT,signal_cmd_proceed)==SIG_ERR)
 		perror("cmd signal error");
 	init_cmd();
@@ -69,16 +69,13 @@ while(1)
     }
 	else
     {
-	printf("excute step\n");
-//	printf("cmd length is %d\n",strlen(input_cmd));
-//	if(strlen(input_cmd)>0)
-//	  {
+//	printf("excute step\n");
+	printf("cmd length is %d\n",strlen(input_cmd));
 //	excute_cmd(0xfffffff0);
-	printf("the code is %d",code);
+//	printf("the code is %x",code);
 	code=get_input_cmd(input_cmd);
-	printf("the code is %d",code);
+	printf("the code is %x",code);
 	excute_cmd(code);
-//	  }
     }
 last:
 	do{}while(0);
