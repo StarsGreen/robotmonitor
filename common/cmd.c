@@ -332,7 +332,7 @@ unsigned int get_input_cmd(char*input_cmd)
 	else if(strncasecmp(str[1],"infoget",7)==0)cmd_code=cmd_code|(2<<12);
 	else if(strncasecmp(str[1],"infosend",8)==0)cmd_code=cmd_code|(3<<12);
 	else if(strncasecmp(str[1],"move",4)==0)cmd_code=cmd_code|(4<<12);
-	else goto last;
+
 	if(strncasecmp(str[2],"on",2)==0)cmd_code=cmd_code|(1<<4);
 	else if(strncasecmp(str[2],"off",3)==0)cmd_code=cmd_code|(0<<4);
 	else goto last;
@@ -476,6 +476,16 @@ void init_cmd()
 	cmd_info.cmd[17].cmd_code=GET_DIST;
 	cmd_info.cmd[17].func=get_dist_info;
 	cmd_info.cmd[17].func_name="get distance info";
+	cmd_info.cmd_num++;
+
+	cmd_info.cmd[18].cmd_code=ALL_CTRL_FUNC_ON;
+	cmd_info.cmd[18].func=set_all_func_on;
+	cmd_info.cmd[18].func_name="set all ctrl func on";
+	cmd_info.cmd_num++;
+
+	cmd_info.cmd[19].cmd_code=ALL_CTRL_FUNC_OFF;
+	cmd_info.cmd[19].func=set_all_func_off;
+	cmd_info.cmd[19].func_name="set all ctrl func off";
 	cmd_info.cmd_num++;
 
 }

@@ -74,7 +74,7 @@ while(1)
 //	excute_cmd(0xfffffff0);
 //	printf("the code is %x",code);
 	code=get_input_cmd(input_cmd);
-	printf("the code is %x",code);
+//	printf("the code is %x",code);
 	excute_cmd(code);
     }
 last:
