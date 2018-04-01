@@ -51,8 +51,8 @@
 #define GET_TEMPER 0X10004000
 #define GET_DIST 0X10005000
 
-#define ALL_CTRL_FUNC_ON 0xffffffd0
-#define ALL_CTRL_FUNC_OFF 0xffffffc0
+#define ALL_CTRL_FUNC_ON 0x0000f010
+#define ALL_CTRL_FUNC_OFF 0x0000f000
 #define GET_CTRL_CMD 0xffffffe0
 #define HELP_CODE 0xfffffff0
 #define ERROR_CODE 0xf0f0f0f0

@@ -131,7 +131,26 @@ void set_move_ctrl_off()
 	ctrl_cmd.move_ctrl_func=0;
 	printf("the move ctrl func is off\n");
 }
-
+/////////////////////////////////////////////////
+void set_all_func_on()
+{
+ctrl_cmd.video_get_func=1;
+ctrl_cmd.video_send_func=1;
+ctrl_cmd.info_get_func=1;
+ctrl_cmd.info_send_func=1;
+ctrl_cmd.move_ctrl_func=1;
+printf("the all function is on\n");
+}
+/////////////////////////////////////////////////
+void set_all_func_off()
+{
+ctrl_cmd.video_get_func=0;
+ctrl_cmd.video_send_func=0;
+ctrl_cmd.info_get_func=0;
+ctrl_cmd.info_send_func=0;
+ctrl_cmd.move_ctrl_func=0;
+printf("the all function is off\n");
+}
 ///////////////////printf the move info ////////////
 void print_move_info(M_Pointer mp,int flag)
 {
@@ -262,7 +281,7 @@ void help_info()
 int i;
 printf("\n------------------help info-------------------\n");
 for(i=0;i<cmd_info.cmd_num;i++)
-	printf("\n  %d  |  %s  |  %x  \n",i+1,cmd_info.cmd[i].func_name,
+	printf("\n  %d  |  %s  |  %#8x  \n",i+1,cmd_info.cmd[i].func_name,
 cmd_info.cmd[i].cmd_code);
 printf("\n------------------help info--------------------\n");
 }
@@ -332,6 +351,7 @@ unsigned int get_input_cmd(char*input_cmd)
 	else if(strncasecmp(str[1],"infoget",7)==0)cmd_code=cmd_code|(2<<12);
 	else if(strncasecmp(str[1],"infosend",8)==0)cmd_code=cmd_code|(3<<12);
 	else if(strncasecmp(str[1],"move",4)==0)cmd_code=cmd_code|(4<<12);
+	else if(strncasecmp(str[1],"all",3)==0)cmd_code=cmd_code|(15<<12);
 
 	if(strncasecmp(str[2],"on",2)==0)cmd_code=cmd_code|(1<<4);
 	else if(strncasecmp(str[2],"off",3)==0)cmd_code=cmd_code|(0<<4);
