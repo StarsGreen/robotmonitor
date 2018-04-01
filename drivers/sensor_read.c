@@ -17,13 +17,13 @@
 ///////////////////////////////////////////
 float temper_read()
 {
-    float temp;
+    float temp=0;
     int i, j;
     int fd;
     int ret;
     char buf[BUFSIZE];
     char tempBuf[5];
-    fd = open("/sys/bus/w1/devices/28-00000495dbACCEL_XOUT_H35/w1_slave", O_RDONLY);
+    fd = open("/sys/bus/w1/devices/28-0316b41b7eff/w1_slave", O_RDONLY);
     if(-1 == fd){
         perror("open device file error");
         return -1;
@@ -134,7 +134,7 @@ void init_dist_sensor(void)
 ////////////////////////////////////////////
 float dist_read(void)
 {
-//	init_dist_sensor();
+	init_dist_sensor();
 // 低高低是发射声波的信号，通过4号一脚发出
 	digitalWrite(4, LOW);
 	digitalWrite(5, HIGH);
@@ -161,7 +161,7 @@ float dist_read(void)
 	long start, stop;//换算为微秒
 	start = t1.tv_sec * 1000000 + t1.tv_usec; // 开始时刻
 	stop = t2.tv_sec * 1000000 + t2.tv_usec;  // 结束时刻计算距离
-	float dis;
+	float dis=0;
 dis = (float)(stop - start) / 1000000 * 340 / 2 * 100; //单位换算成cm
 	return dis;
 }

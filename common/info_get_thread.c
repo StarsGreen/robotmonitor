@@ -57,31 +57,47 @@ static void sensor_cleanup_handler(void *arg)
 void* temper_get_thread(void)
 {
 	float value=0;
+	int num=0;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 //	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
         pthread_cleanup_push(sensor_cleanup_handler, NULL);
 while(1)
 	{
+	start:
 		pthread_testcancel();
 		sem_wait(&sensor_start);
 		while(ctrl_cmd.info_get_func==INFO_GET_DISABLE)
 		pthread_testcancel();
 //		usleep(100000);
 		value=temper_read();
-	if(value!=-1)
+		printf("the temper is %lf",value);
+	if(value!=0)
 		M_info.temper=value;
-	else goto nothing;
+	else
+		{
+		num++;
+		if(num==10)
+		  {
+		printf("can not get the temper data\n");
+		num=0;
+		goto nothing;
+		  }
+		goto start;
+		}
 		sem_post(&sensor_mid);
 //		pthread_testcancel();
 	}
 nothing:
+	sem_post(&sensor_mid);
 	while(1)pthread_testcancel();
         pthread_cleanup_pop(0);
 }
 ////////////////////////////////////////////////
 void* dist_get_thread(void)
 {
+	float value;
+	int num=0;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 //	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
@@ -89,15 +105,31 @@ void* dist_get_thread(void)
 	init_dist_sensor();
 while(1)
 	{
+	start:
 		pthread_testcancel();
 
 		sem_wait(&sensor_mid);
 //		usleep(100000);
-		M_info.dist=dist_read();
+		value=dist_read();
+		if(value>0)
+			M_info.dist=value;
+		else
+		{
+		num++;
+		if(num==10)
+		  {
+		num=0;
+		printf("can not get the dist data\n");
+		goto nothing;
+		  }
+		goto start;
+		}
 		sem_post(&sensor_stop);
-
 		pthread_testcancel();
 	}
+nothing:
+	sem_post(&sensor_stop);
+	while(1)pthread_testcancel();
         pthread_cleanup_pop(0);
 }
 //////////////////////////////////////////////
@@ -176,6 +208,7 @@ mlist_clear(move_ll.M_Head_pointer->next->next);
 //		pthread_testcancel();
 	}
 nothing:
+	sem_post(&sensor_start);
 	while(1)pthread_testcancel();
         pthread_cleanup_pop(0);
 
