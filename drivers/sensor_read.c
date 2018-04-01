@@ -55,10 +55,10 @@ float temper_read()
 	return temp;
 }
 ///////////////////////////////////////////
-int read_i2c(int fd ,int data)
+int read_i2c(int fd ,int addr)
 {
 	int result;
-	result=wiringPiI2CReadReg8(fd,data);
+	result=wiringPiI2CReadReg8(fd,addr);
 	return result;
 }
 //////////////////////////////////////////
@@ -69,6 +69,7 @@ void write_i2c(int fd ,int reg,int data)
 ///////////////////////////////////////////
 int init_mpu6050()
 {
+	wiringPiSetup();
 	int fd = wiringPiI2CSetup(DEVIIC_ID);
         if (fd < 0) {
                 printf("Error setup I2C device %x\n", DEVIIC_ID);
@@ -126,31 +127,31 @@ return ACCEL_RANGE*get_data(fd,ACCEL_ZOUT_H)/32768;
 void init_dist_sensor(void)
 {
 	wiringPiSetup();  // 初始化库
-	pinMode(15, OUTPUT);  // 设置15号引脚功能为输出
-	pinMode(16, INPUT);  // 设置16号引脚功能为输入
+	pinMode(4, OUTPUT);  // 设置4号引脚功能为输出
+	pinMode(5, INPUT);  // 设置5号引脚功能为输入
 	// 大循环不断测距
 }
 ////////////////////////////////////////////
 float dist_read(void)
 {
 //	init_dist_sensor();
-// 低高低是发射声波的信号，通过15号一脚发出
-	digitalWrite(15, LOW);
-	digitalWrite(15, HIGH);
+// 低高低是发射声波的信号，通过4号一脚发出
+	digitalWrite(4, LOW);
+	digitalWrite(5, HIGH);
 	delayMicroseconds(10);
-	digitalWrite(15, LOW);
-// 通过16号引脚接收信号，判断超声波是否发出
+	digitalWrite(4, LOW);
+// 通过5号引脚接收信号，判断超声波是否发出
 	while(1){
-	if (digitalRead(16) == 1)
+	if (digitalRead(5) == 1)
 // 如果是1，即高电平，表示超声波已发出
 		break;  // 跳出循环
 	}
 	struct timeval t1;  // 结构体，可以记录秒和微秒两部分值
 	gettimeofday(&t1, NULL);
  // 记录电平变高的时刻，即超声波发出时的时刻
-//依然监听16引脚的信号，判断是否收到超声波信号
+//依然监听5引脚的信号，判断是否收到超声波信号
 	while(1){
-		if(digitalRead(16) == 0)
+		if(digitalRead(5) == 0)
   // 如果是0，即低电平，表示超声波已收到
 		break;  // 跳出循环
 		}

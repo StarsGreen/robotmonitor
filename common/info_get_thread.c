@@ -72,7 +72,6 @@ while(1)
 	if(value!=-1)
 		M_info.temper=value;
 	else goto nothing;
-
 		sem_post(&sensor_mid);
 //		pthread_testcancel();
 	}

@@ -22,6 +22,7 @@
 #define	GYRO_CONFIG		0x1B	//陀螺仪自检及测量范围，典型值：0x18(不自检，2000deg/s)
 #define	ACCEL_CONFIG	0x1C	//加速计自检、测量范围及高通滤波频率，典型值：0x01(不自检，2G，5Hz)
 #define ACCEL_RANGE	2*9.8
+
 #define	ACCEL_XOUT_H	0x3B
 #define	ACCEL_XOUT_L	0x3C
 #define	ACCEL_YOUT_H	0x3D
@@ -39,10 +40,11 @@
 #define	GYRO_YOUT_L		0x46
 #define	GYRO_ZOUT_H		0x47
 #define	GYRO_ZOUT_L		0x48
+
 #define	PWR_MGMT_1		0x6B	//电源管理，典型值：0x00(正常启用)
 #define	WHO_AM_I		0x75	//IIC地址寄存器(默认数值0x68，只读)
 //IIC写入时的地址字节数据，+1为读取
-#define   DEVIIC_ID	0b1010000
+#define   DEVIIC_ID	0x68
 
 #define VIDEO_WIDTH 320
 #define VIDEO_HEIGHT 240
@@ -119,6 +121,7 @@ struct move_info
 	struct journey jour_info;
 	float temper;
 	float dist;
+	
 }m_info;
 //////////////////////////////////////////////
 struct client_info
