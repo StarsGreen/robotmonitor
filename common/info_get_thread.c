@@ -71,9 +71,11 @@ while(1)
 		pthread_testcancel();
 //		usleep(100000);
 		value=temper_read();
-		printf("the temper is %lf",value);
 	if(value!=0)
+		{
 		M_info.temper=value;
+		printf("the temper is %lf",value);
+		}
 	else
 		{
 		num++;
@@ -112,7 +114,11 @@ while(1)
 //		usleep(100000);
 		value=dist_read();
 		if(value>0)
-			M_info.dist=value;
+		{
+		M_info.dist=value;
+		printf("the dist is %lf",value);
+
+		}
 		else
 		{
 		num++;
@@ -125,7 +131,7 @@ while(1)
 		goto start;
 		}
 		sem_post(&sensor_stop);
-		pthread_testcancel();
+//		pthread_testcancel();
 	}
 nothing:
 	sem_post(&sensor_stop);

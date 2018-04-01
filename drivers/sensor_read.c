@@ -69,7 +69,6 @@ void write_i2c(int fd ,int reg,int data)
 ///////////////////////////////////////////
 int init_mpu6050()
 {
-	wiringPiSetup();
 	int fd = wiringPiI2CSetup(DEVIIC_ID);
         if (fd < 0) {
                 printf("Error setup I2C device %x\n", DEVIIC_ID);
@@ -126,7 +125,6 @@ return ACCEL_RANGE*get_data(fd,ACCEL_ZOUT_H)/32768;
 //////////////////////////////////////////////
 void init_dist_sensor(void)
 {
-	wiringPiSetup();  // 初始化库
 	pinMode(4, OUTPUT);  // 设置4号引脚功能为输出
 	pinMode(5, INPUT);  // 设置5号引脚功能为输入
 	// 大循环不断测距
@@ -166,3 +164,7 @@ dis = (float)(stop - start) / 1000000 * 340 / 2 * 100; //单位换算成cm
 	return dis;
 }
 //////////////////////////////////////////
+void init_interface_pin()
+{
+wiringPiSetup();
+}

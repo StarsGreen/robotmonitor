@@ -17,7 +17,7 @@
 extern void *temper_get_thread(void);
 extern void *dist_get_thread(void);
 extern void *accel_get_thread(void);
-
+//extern void init_sensor(void);
 
 int sensor_err;
 pthread_t temper_thread,accel_thread,dist_thread;
@@ -97,6 +97,7 @@ exit(1);
 void sensor_process()
 {
 	spro_sem_init();
+	init_interface_pin();
 	create_sensor_thread();
 	if(signal(SIGINT,signal_sensor_proceed)==SIG_ERR)
 		perror("signal error");
