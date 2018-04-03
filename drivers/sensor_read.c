@@ -4,6 +4,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <wiringPi.h>
@@ -12,7 +13,7 @@
 
 #include "global_data.h"
 ///////////////////////////////////////////
-#define  BUFSIZE  128
+#define  BUFSIZE  40
 
 ///////////////////////////////////////////
 float temper_read()
@@ -22,6 +23,7 @@ float temper_read()
     int fd;
     int ret;
     char buf[BUFSIZE];
+    memset(buf,0,BUFSIZE);
     char tempBuf[5];
     fd = open("/sys/bus/w1/devices/28-0316b41b7eff/w1_slave", O_RDONLY);
     if(-1 == fd){
@@ -42,7 +44,7 @@ float temper_read()
             return 1;
         }
     }
-    for(i=0;i<sizeof(buf);i++){
+    for(i=0;i<strlen(buf);i++){
         if(buf[i] == 't'){               //如果读到‘t’，说明后面马上出现温度值
             for(j=0;j<sizeof(tempBuf);j++){
                 tempBuf[j] = buf[i+2+j]; //将温度值以字符串的形式写入tempBuf
@@ -132,10 +134,10 @@ void init_dist_sensor(void)
 ////////////////////////////////////////////
 float dist_read(void)
 {
-	init_dist_sensor();
+//	init_dist_sensor();
 // 低高低是发射声波的信号，通过4号一脚发出
 	digitalWrite(4, LOW);
-	digitalWrite(5, HIGH);
+	digitalWrite(4, HIGH);
 	delayMicroseconds(10);
 	digitalWrite(4, LOW);
 // 通过5号引脚接收信号，判断超声波是否发出

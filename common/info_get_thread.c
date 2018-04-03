@@ -67,14 +67,12 @@ while(1)
 	start:
 		pthread_testcancel();
 		sem_wait(&sensor_start);
-		while(ctrl_cmd.info_get_func==INFO_GET_DISABLE)
-		pthread_testcancel();
-//		usleep(100000);
+//		while(ctrl_cmd.info_get_func==INFO_GET_DISABLE)
 		value=temper_read();
 	if(value!=0)
 		{
 		M_info.temper=value;
-		printf("the temper is %lf",value);
+		printf("the temper is %6.3f",value);
 		}
 	else
 		{
@@ -107,17 +105,17 @@ void* dist_get_thread(void)
 	init_dist_sensor();
 while(1)
 	{
-	start:
+	start: 
 		pthread_testcancel();
 
 		sem_wait(&sensor_mid);
 //		usleep(100000);
 		value=dist_read();
+		printf("the dist is %6.3f",value);
 		if(value>0)
 		{
 		M_info.dist=value;
-		printf("the dist is %lf",value);
-
+		printf("the dist is %6.3f",value);
 		}
 		else
 		{

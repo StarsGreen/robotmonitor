@@ -17,7 +17,7 @@
 extern void *temper_get_thread(void);
 extern void *dist_get_thread(void);
 extern void *accel_get_thread(void);
-//extern void init_sensor(void);
+extern void init_interface_pin(void);
 
 int sensor_err;
 pthread_t temper_thread,accel_thread,dist_thread;
