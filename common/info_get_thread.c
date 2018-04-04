@@ -23,6 +23,7 @@ extern float yl_read(int fd);
 extern float zl_read(int fd);
 extern int init_mpu6050();
 extern void init_dist_sensor();
+extern void get_move_info();
 
 extern float kalman_filter(float last_result,float last_value,float cur_value,
 float time,float* p_next,float Q_offset,float R_offset);
@@ -72,7 +73,7 @@ while(1)
 	if(value!=0)
 		{
 		M_info.temper=value;
-		printf("the temper is %6.3f",value);
+//		printf("the temper is %6.3f\n",value);
 		}
 	else
 		{
@@ -111,11 +112,11 @@ while(1)
 		sem_wait(&sensor_mid);
 //		usleep(100000);
 		value=dist_read();
-		printf("the dist is %6.3f",value);
+//		printf("the dist is %6.3f\n",value);
 		if(value>0)
 		{
 		M_info.dist=value;
-		printf("the dist is %6.3f",value);
+//		printf("the dist is %6.3f\n",value);
 		}
 		else
 		{
@@ -139,32 +140,46 @@ nothing:
 //////////////////////////////////////////////
 void* accel_get_thread(void)
 {
+	int num=0;
+	int fd;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 //	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
         pthread_cleanup_push(sensor_cleanup_handler,NULL);
-	int fd=init_mpu6050();
+start:
+	fd=init_mpu6050();
 while(1)
 	{
 		pthread_testcancel();
 
 		sem_wait(&sensor_stop);
 //		usleep(100000);
+	M_info_pointer=(M_Pointer)malloc(M_NODE_SIZE);
+	memset(M_info_pointer,0,M_NODE_SIZE);
+
+	pthread_mutex_lock(&move_ll.move_ll_lock);
 	memcpy(M_info_pointer,move_ll.M_Tail_pointer,M_NODE_SIZE);
+	pthread_mutex_unlock(&move_ll.move_ll_lock);
+
 	if(fd!=-1)
-	{
-		M_info.accel_info.xa_accel=xa_read(fd);
-		M_info.accel_info.ya_accel=ya_read(fd);
-		M_info.accel_info.za_accel=za_read(fd);
+	    {
+		M_info.vel_info.xa_vel=xa_read(fd);
+		M_info.vel_info.ya_vel=ya_read(fd);
+		M_info.vel_info.za_vel=za_read(fd);
 		M_info.accel_info.xl_accel=xl_read(fd);
 		M_info.accel_info.yl_accel=yl_read(fd);
 		M_info.accel_info.zl_accel=zl_read(fd);
-	}
+	    }
 	else
-	{
-	printf("the dev is not found");
+	    {
+	num++;
+	if(num==10)
+	      {
+	printf("the dev is not found\n");
 	goto nothing;
-	}
+	      }
+	goto start;
+     	    }
 
 	if(M_info_pointer->prev!=NULL){
 M_info.vel_info.xl_vel=M_info_pointer->prev->vel_info.xl_vel+
@@ -175,15 +190,6 @@ M_info.accel_info.yl_accel*dt;
 
 M_info.vel_info.zl_vel=M_info_pointer->prev->vel_info.zl_vel+
 M_info.accel_info.zl_accel*dt;
-
-M_info.vel_info.xa_vel=M_info_pointer->prev->vel_info.xa_vel+
-M_info.accel_info.xa_accel*dt;
-
-M_info.vel_info.ya_vel=M_info_pointer->prev->vel_info.ya_vel+
-M_info.accel_info.ya_accel*dt;
-
-M_info.vel_info.za_vel=M_info_pointer->prev->vel_info.za_vel+
-M_info.accel_info.za_accel*dt;
 
 M_info.jour_info.xl=kalman_filter(M_info_pointer->prev->jour_info.xl,
 M_info_pointer->prev->accel_info.xl_accel,
@@ -200,19 +206,20 @@ M_info_pointer->prev->accel_info.zl_accel,
 M_info.accel_info.zl_accel,
 dt,&pzl_conv,Q_offset,R_offset);
 		}
-mlist_add(M_info);
-
+		mlist_add(M_info);
+//		get_move_info();
 if(move_ll.count==MAX_NODE_NUM)
     {
 memcpy(move_ll.M_Head_pointer->next,move_ll.M_Tail_pointer,M_NODE_SIZE);
 mlist_clear(move_ll.M_Head_pointer->next->next);
     }
 	sem_post(&sensor_start);
-
+	free(M_info_pointer);
 //		pthread_testcancel();
 	}
 nothing:
 	sem_post(&sensor_start);
+	free(M_info_pointer);
 	while(1)pthread_testcancel();
         pthread_cleanup_pop(0);
 

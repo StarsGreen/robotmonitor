@@ -29,16 +29,13 @@ void mlist_add(M_Node node)
 	memset(pointer,0,M_NODE_SIZE);
 	pointer->next=NULL;
 
+        pthread_mutex_lock(&move_ll.move_ll_lock);
 	pointer->prev=move_ll.M_Tail_pointer;
 	move_ll.M_Tail_pointer->next=pointer;
-
 	move_ll.M_Tail_pointer=pointer;
-
 	pointer->num=++move_ll.count+1;;
+        pthread_mutex_unlock(&move_ll.move_ll_lock);
 
-	pointer->accel_info.xa_accel=node.accel_info.xa_accel;
-	pointer->accel_info.ya_accel=node.accel_info.ya_accel;
-	pointer->accel_info.za_accel=node.accel_info.za_accel;
 	pointer->accel_info.xl_accel=node.accel_info.xl_accel;
 	pointer->accel_info.yl_accel=node.accel_info.yl_accel;
 	pointer->accel_info.zl_accel=node.accel_info.zl_accel;
@@ -54,6 +51,8 @@ void mlist_add(M_Node node)
 	pointer->jour_info.xl=node.jour_info.xl;
 	pointer->jour_info.yl=node.jour_info.yl;
 	pointer->jour_info.zl=node.jour_info.zl;
+	pointer->temper=node.temper;
+	pointer->dist=node.dist;
 }
 /////////////////////////////////////////////////
 void mlist_clear(M_Pointer head)
@@ -86,7 +85,10 @@ int destroy_mlist(M_Pointer head)
 M_Pointer mlist_search_num(int num)
 {
 M_Pointer pointer=NULL;
+
+pthread_mutex_lock(&move_ll.move_ll_lock);
 M_Pointer p=move_ll.M_Head_pointer->next;
+pthread_mutex_unlock(&move_ll.move_ll_lock);
 
 while(p->next!=NULL)
 	{
@@ -121,10 +123,11 @@ void init_slist()
 	pointer->prev=NULL;
 	pointer->cli_num=0;
 
+//        pthread_mutex_lock(&sock_ll.sock_ll_lock);
 	sock_ll.S_Head_pointer=pointer;
 	sock_ll.S_Tail_pointer=pointer;
 	sock_ll.count=0;
-
+//        pthread_mutex_unlock(&sock_ll.sock_ll_lock);
 //	return pointer;
 }
 //////////////////////////////////////////////////////
@@ -133,16 +136,18 @@ void slist_add(Sock_Node node)
 	Sock_Pointer pointer = (Sock_Pointer)malloc(S_NODE_SIZE);
 	memset(pointer,0,S_NODE_SIZE);
 	pointer->next=NULL;
+
+        pthread_mutex_lock(&sock_ll.sock_ll_lock);
 	pointer->prev=sock_ll.S_Tail_pointer;
 	sock_ll.S_Tail_pointer->next=pointer;
-
+	sock_ll.S_Tail_pointer=pointer;
 	pointer->cli_num=++sock_ll.count+1;
+        pthread_mutex_unlock(&sock_ll.sock_ll_lock);
+
 
 	memcpy(pointer->cli_info.ip,node.cli_info.ip,15);
-
 	pointer->cli_info.port=node.cli_info.port;
 
-	sock_ll.S_Tail_pointer=pointer;
 }
 
 /////////////////////////////////////////////////

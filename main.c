@@ -15,6 +15,8 @@
 int create_all_process();
 int cancel_all_process();
 void sig_proceed(int signo);
+void sys_init();
+void init_syslock();
 extern int destroy_slist(Sock_Pointer head);
 extern int destroy_mlist(M_Pointer head);
 extern void init_mlist();
@@ -24,8 +26,7 @@ int main_err;
 //////////////////////////////////////////////
 int  main(int argc, char **argv)
 {
-	init_slist();
-	init_mlist();
+	sys_init();
 	create_all_process();
 	if(signal(SIGINT,sig_proceed)==SIG_ERR)
 		perror("signal error");
@@ -33,6 +34,18 @@ int  main(int argc, char **argv)
 	return 0;
 }
 ///////////////////////////////////////////
+void sys_init()
+{
+	init_slist();
+	init_mlist();
+	init_syslock();
+}
+//////////////////////////////////////////
+void init_syslock()
+{
+pthread_mutex_init(&move_ll.move_ll_lock,NULL);
+pthread_mutex_init(&sock_ll.sock_ll_lock,NULL);
+}
 ///////////////////////////////////////////
 void sig_proceed(int signo)
 {
@@ -40,6 +53,8 @@ if(signo==SIGINT)
 	cancel_all_process();
 destroy_mlist(move_ll.M_Head_pointer);
 destroy_slist(sock_ll.S_Head_pointer);
+pthread_mutex_destroy(&move_ll.move_ll_lock);
+pthread_mutex_destroy(&sock_ll.sock_ll_lock);
 exit(1);
 }
 ///////////////////////////////////////////

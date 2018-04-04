@@ -1,6 +1,6 @@
 //defined some datastructure to store global data
 #include<netdb.h>
-
+#include<pthread.h>
 #ifndef __GLOBAL_DATA_H__
 #define __GLOBAL_DATA_H_
 #endif
@@ -17,10 +17,14 @@
 #define    BACKLOG      4
 #define    FILENAME	"video.jpg"
 
-#define	SMPLRT_DIV		0x19	//陀螺仪采样率，典型值：0x07(125Hz)
-#define	CONFIG			0x1A	//低通滤波频率，典型值：0x06(5Hz)
-#define	GYRO_CONFIG		0x1B	//陀螺仪自检及测量范围，典型值：0x18(不自检，2000deg/s)
-#define	ACCEL_CONFIG	0x1C	//加速计自检、测量范围及高通滤波频率，典型值：0x01(不自检，2G，5Hz)
+#define	SMPLRT_DIV	0x19
+//陀螺仪采样率，典型值：0x07(125Hz)
+#define	CONFIG		0x1A
+//低通滤波频率，典型值：0x06(5Hz)
+#define	GYRO_CONFIG	0xe0
+//陀螺仪自检及测量范围，典型值：0x18(不自检，2000deg/s)
+#define	ACCEL_CONFIG	0xe1
+//加速计自检、测量范围及高通滤波频率，典型值：0x01(不自检，2G，5Hz)
 #define ACCEL_RANGE	2*9.8
 
 #define	ACCEL_XOUT_H	0x3B
@@ -65,9 +69,6 @@ struct move_cmd
 ///////////////////////////////////
 struct accel
 {
-	float xa_accel;
-	float ya_accel;
-	float za_accel;
 	float xl_accel;
 	float yl_accel;
 	float zl_accel;
@@ -110,6 +111,7 @@ struct M_LinkList
 M_Pointer M_Head_pointer;
 M_Pointer M_Tail_pointer;
 int count;
+pthread_mutex_t move_ll_lock;
 }move_ll;
 M_Node M_info;
 M_Pointer M_info_pointer;
@@ -121,7 +123,6 @@ struct move_info
 	struct journey jour_info;
 	float temper;
 	float dist;
-	
 }m_info;
 //////////////////////////////////////////////
 struct client_info
@@ -144,6 +145,7 @@ struct S_LinkList
 Sock_Pointer S_Head_pointer;
 Sock_Pointer S_Tail_pointer;
 int count;
+pthread_mutex_t sock_ll_lock;
 }sock_ll;
 //////////////////////////////////////////////
 typedef struct sock_params

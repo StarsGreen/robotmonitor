@@ -165,13 +165,13 @@ if(flag==5)goto dist;
 
 accel:
 printf("accel info :\n");
-gcvt((double)(mp->accel_info.xa_accel),5,ptr);
+/*gcvt((double)(mp->accel_info.xa_accel),5,ptr);
 printf("|          |       xa_accel     |  %s  |\n",ptr);
 gcvt((double)(mp->accel_info.ya_accel),5,ptr);
 printf("|          |       ya_accel     |  %s  |\n",ptr);
 gcvt((double)(mp->accel_info.za_accel),5,ptr);
 printf("|          |       za_accel     |  %s  |\n",ptr);
-
+*/
 gcvt((double)(mp->accel_info.xl_accel),5,ptr);
 printf("|          |       xl_accel     |  %s  |\n",ptr);
 gcvt((double)(mp->accel_info.yl_accel),5,ptr);
@@ -231,37 +231,37 @@ if(flag==5)goto last;
 
 last:
 printf("\n");
-printf("------------------------------\n");
+printf("---------------move info---------------\n");
 }
 void get_move_info()
 {
-	print_move_info(&M_info,0);
+	print_move_info(move_ll.M_Tail_pointer,0);
 }
 
 //////////////////printf the accel info/////////////////
 void get_accel_info()
 {
-	print_move_info(&M_info,1);
+	print_move_info(move_ll.M_Tail_pointer,1);
 }
 /////////////////printf the vel info//////////////////////
 void get_vel_info()
 {
-	print_move_info(&M_info,2);
+	print_move_info(move_ll.M_Tail_pointer,2);
 }
 ////////////////////printf the journey info///////////////////
 void get_journey_info()
 {
-	print_move_info(&M_info,3);
+	print_move_info(move_ll.M_Tail_pointer,3);
 }
 ////////////////////printf the journey info///////////////////
 void get_temper_info()
 {
-	print_move_info(&M_info,4);
+	print_move_info(move_ll.M_Tail_pointer,4);
 }
 ////////////////////printf the journey info///////////////////
 void get_dist_info()
 {
-	print_move_info(&M_info,5);
+	print_move_info(move_ll.M_Tail_pointer,5);
 }
 ////////////get ctrl cmd info/////////////////////
 void get_ctrl_cmd_info()

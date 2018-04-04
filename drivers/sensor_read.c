@@ -83,46 +83,83 @@ int init_mpu6050()
 	write_i2c(fd,ACCEL_CONFIG, 0x01);
 	return fd;
 }
-////////////////////////////////////////////
-int get_data(int fd,unsigned char REG_Address)
+//////////////////////////////////////////
+short get_data(int fd,unsigned char REG_Address)
 {
 	unsigned char H,L;
 	H=read_i2c(fd,REG_Address);
 	L=read_i2c(fd,REG_Address+1);
-	return ((H<<8)+L);   //合成数据
+	return (H<<8)+L;
 }
 ////////////////////////////////////////////
 float xa_read(int fd)
 {
-return GYRO_RANGE*get_data(fd,GYRO_XOUT_H)/32768;
+short data=get_data(fd,GYRO_XOUT_H)+80;
+if(data&0x8000)
+  {
+	data=data&0x7fff;
+	return -GYRO_RANGE*data/32768;
+  }
+else return GYRO_RANGE*data/32768;
 }
 ////////////////////////////////////////////
 float ya_read(int fd)
 {
-return GYRO_RANGE*get_data(fd,GYRO_YOUT_H)/32768;
+
+short data=get_data(fd,GYRO_YOUT_H)+50;
+if(data&0x8000)
+  {
+	data=data&0x7fff;
+	return -GYRO_RANGE*data/32768;
+  }
+else return GYRO_RANGE*data/32768;
 }
 ////////////////////////////////////////////
 float za_read(int fd)
 {
-return GYRO_RANGE*get_data(fd,GYRO_ZOUT_H)/32768;
-}
+short data=get_data(fd,GYRO_ZOUT_H)+80;
+if(data&0x8000)
+  {
+        data=data&0x7fff;
+        return -GYRO_RANGE*data/32768;
+  }
+else return GYRO_RANGE*data/32768;
 
+}
 ////////////////////////////////////////////
 float xl_read(int fd)
 {
-return ACCEL_RANGE*get_data(fd,ACCEL_XOUT_H)/32768;
+short data=get_data(fd,ACCEL_XOUT_H)-350;
+if(data&0x8000)
+  {
+        data=data&0x7fff;
+        return -ACCEL_RANGE*data/32768;
+  }
+else return ACCEL_RANGE*data/32768;
 }
 
 ////////////////////////////////////////////
 float yl_read(int fd)
 {
-return ACCEL_RANGE*get_data(fd,ACCEL_YOUT_H)/32768;
+short data=get_data(fd,ACCEL_YOUT_H)+10;
+if(data&0x8000)
+  {
+        data=data&0x7fff;
+        return -ACCEL_RANGE*data/32768;
+  }
+else return ACCEL_RANGE*data/32768;
 }
 
 ////////////////////////////////////////////
 float zl_read(int fd)
 {
-return ACCEL_RANGE*get_data(fd,ACCEL_ZOUT_H)/32768;
+short data=get_data(fd,ACCEL_ZOUT_H)-700;
+if(data&0x8000)
+  {
+        data=data&0x7fff;
+        return -ACCEL_RANGE*data/32768;
+  }
+else return ACCEL_RANGE*data/32768;
 }
 //////////////////////////////////////////////
 void init_dist_sensor(void)
