@@ -7,7 +7,7 @@
 #include <pthread.h>
 #include <semaphore.h>
 #include "data_config.h"
-//#include "data_refer.h"
+#include "cmd.h"
 #include <signal.h>
 
 ///////////////////////////////////////

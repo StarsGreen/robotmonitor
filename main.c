@@ -6,7 +6,7 @@
 #include <string.h>
 #include <pthread.h>
 #include "global_data.h"
-#include "cmd.h"
+//#include "cmd.h"
 #include <semaphore.h>
 #include "include.h"
 #include <semaphore.h>

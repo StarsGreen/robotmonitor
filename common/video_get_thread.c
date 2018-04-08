@@ -17,7 +17,8 @@
 #include <linux/videodev2.h>
 #include <time.h>
 #include <pthread.h>
-#include "global_data.h"
+#include "data_refer.h"
+#include "data_config.h"
 #include "cmd.h"
 
 #define CAMERA_DEVICE "/dev/video0"

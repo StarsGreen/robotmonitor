@@ -4,13 +4,10 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include "global_data.h"
+#include "data_refer.h"
 #include "cmd.h"
 extern void move(short cmd_type,short angle,short vel);
 extern void move_init(void);
-
-extern struct move_cmd m_cmd;
-extern struct move_info m_info;
 
 void* move_ctl_thread(void)
 {

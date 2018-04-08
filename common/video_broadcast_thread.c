@@ -11,11 +11,12 @@
 #include <arpa/inet.h>  
 #include <pthread.h>
 #include <sys/time.h>
-#include "global_data.h"
+#include "data_refer.h"
+#include "data_config.h"
 #include "cmd.h"
-
+/*
 extern struct video_data v_data;
-extern struct udp_flag u_flag;
+extern struct udp_flag u_flag;*/
 extern sem_t v_get,v_send;
 
 extern int read_file_to_buff(char* filename,unsigned char* buff);
@@ -71,12 +72,11 @@ void* video_broadcast_thread(void)
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 while(1)
-{		
+{
 	pthread_testcancel();	
 //unsigned char* jpeg_buff=(unsigned char*)malloc(VIDEO_WIDTH*VIDEO_HEIGHT/2);
 	unsigned char* jpeg_buff=NULL;
 	unsigned long jpeg_size=0;
-
 		sem_wait(&v_send);
        while(ctrl_cmd.video_send_func==VIDEO_SEND_DISABLE)
                 pthread_testcancel();

@@ -10,8 +10,8 @@
 #include <wiringPi.h>
 #include <wiringPiI2C.h>
 #include <sys/time.h>
-
-#include "global_data.h"
+#include "data_config.h"
+//#include "data_refer.h"
 ///////////////////////////////////////////
 #define  BUFSIZE  40
 

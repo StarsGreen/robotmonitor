@@ -10,7 +10,7 @@
 #include <semaphore.h>
 #include <fcntl.h>
 #include <sys/shm.h>
-#include "global_data.h"
+//#include "global_data.h"
 #include <signal.h>
 
 extern void *move_ctl_thread(void);

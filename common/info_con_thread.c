@@ -12,7 +12,7 @@
 #include <sys/shm.h>
 #include "data_refer.h"
 #include "data_config.h"
-//#include "cmd.h"
+#include "cmd.h"
 #include <signal.h>
 #include <math.h>
 extern void read_cmd(char* cmd);

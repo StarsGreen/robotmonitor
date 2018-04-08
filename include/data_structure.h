@@ -1,8 +1,10 @@
 //defined some datastructure to store global data
 #include<pthread.h>
+#include "cmd.h"
 #ifndef __DATA_STRUCTURE_H__
 #define __DATA_STRUCTURE_H__
 #endif
+
 /////////////////////////////////////////////
 typedef struct control_cmd
 {

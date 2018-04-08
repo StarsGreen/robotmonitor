@@ -12,7 +12,8 @@
 #include <fcntl.h>
 #include <sys/shm.h>
 #include <signal.h>
-#include "global_data.h"
+#include "data_config.h"
+#include "data_refer.h"
 
 //extern struct socket_info sock_info; 
 extern void read_cmd(char* cmd);

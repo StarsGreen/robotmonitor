@@ -11,11 +11,10 @@
 #include <arpa/inet.h>  
 #include <pthread.h>
 #include <sys/time.h>
-#include "global_data.h"
+#include "data_refer.h"
 
 
-extern struct video_data v_data;
-extern struct udp_flag u_flag;
+
 extern sem_t v_get,v_send;
 
 extern int read_file_to_buff(unsigned char* filename,char* buff);
@@ -82,9 +81,6 @@ while(1)
 	1024); 
 		if(send_len<0)printf("send video data error");
 		}*/
-
-
-	
 	write(conn,end,3);
 	sem_post(&v_get);
 //	printf("send over");
