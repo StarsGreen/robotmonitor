@@ -16,7 +16,7 @@
 extern void *move_ctl_thread(void);
 extern void *video_get_thread(void);
 extern void *video_broadcast_thread(void);
-
+extern void get_move_info();
 int monitor_err;
 
 sem_t v_get,v_send;

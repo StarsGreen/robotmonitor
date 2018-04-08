@@ -4,13 +4,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include "global_data.h"
+#include "data_structure.h"
 #include "include.h"
 #include "cmd.h"
 
 //extern char input_cmd[CMD_LENGTH];
-//extern struct move_cmd m_cmd;
-
+extern struct move_cmd m_cmd; 
 int *check_str(char* str)
 {
 	int i,j=0;
@@ -157,6 +156,7 @@ void print_move_info(M_Pointer mp,int flag)
 char* ptr=(char*)malloc(10);
 //printf("move info\n");
 printf("--------------move info ----------------\n");
+printf("\nmove_ll num is :%d\n",move_ll.count);
 if(flag==0||flag==1)goto accel;
 if(flag==2)goto vel;
 if(flag==3)goto journey;
@@ -233,35 +233,49 @@ last:
 printf("\n");
 printf("---------------move info---------------\n");
 }
+/////////////////////////////////////////////////
 void get_move_info()
 {
+	pthread_mutex_lock(&move_ll.move_ll_lock);
 	print_move_info(move_ll.M_Tail_pointer,0);
+        pthread_mutex_unlock(&move_ll.move_ll_lock);
+
 }
 
 //////////////////printf the accel info/////////////////
 void get_accel_info()
 {
+        pthread_mutex_lock(&move_ll.move_ll_lock);
 	print_move_info(move_ll.M_Tail_pointer,1);
+        pthread_mutex_unlock(&move_ll.move_ll_lock);
 }
 /////////////////printf the vel info//////////////////////
 void get_vel_info()
 {
+        pthread_mutex_lock(&move_ll.move_ll_lock);
 	print_move_info(move_ll.M_Tail_pointer,2);
+        pthread_mutex_unlock(&move_ll.move_ll_lock);
 }
 ////////////////////printf the journey info///////////////////
 void get_journey_info()
 {
+        pthread_mutex_lock(&move_ll.move_ll_lock);
 	print_move_info(move_ll.M_Tail_pointer,3);
+        pthread_mutex_unlock(&move_ll.move_ll_lock);
 }
 ////////////////////printf the journey info///////////////////
 void get_temper_info()
 {
+        pthread_mutex_lock(&move_ll.move_ll_lock);
 	print_move_info(move_ll.M_Tail_pointer,4);
+        pthread_mutex_unlock(&move_ll.move_ll_lock);
 }
 ////////////////////printf the journey info///////////////////
 void get_dist_info()
 {
+        pthread_mutex_lock(&move_ll.move_ll_lock);
 	print_move_info(move_ll.M_Tail_pointer,5);
+        pthread_mutex_unlock(&move_ll.move_ll_lock);
 }
 ////////////get ctrl cmd info/////////////////////
 void get_ctrl_cmd_info()

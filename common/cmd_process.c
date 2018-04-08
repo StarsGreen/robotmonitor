@@ -16,6 +16,7 @@ char input_cmd[CMD_LENGTH];
 extern unsigned int get_input_cmd(char* input_cmd);
 extern int excute_cmd(unsigned int code);
 extern void init_cmd();
+extern void get_move_info();
 ///////////////////////////////////////
 int input(char* cmd)
 {
@@ -78,7 +79,10 @@ while(1)
 	excute_cmd(code);
     }
 last:
-	do{}while(0);
+	do{
+//	get_move_info();
+	}while(0);
+
   }
 
 	while(1);
