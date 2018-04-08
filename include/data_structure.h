@@ -1,14 +1,31 @@
 //defined some datastructure to store global data
-#include<netdb.h>
 #include<pthread.h>
 #ifndef __DATA_STRUCTURE_H__
 #define __DATA_STRUCTURE_H__
 #endif
-
-#define M_NODE_SIZE sizeof(M_Node)//motion structure size
-#define S_NODE_SIZE sizeof(Sock_Node)//motion structure size
-#define MAX_NODE_NUM 200
-
+/////////////////////////////////////////////
+typedef struct control_cmd
+{
+int video_get_func;
+int video_send_func;
+int info_get_func;
+int info_send_func;
+int move_ctrl_func;
+}Ctrl_Cmd;
+typedef Ctrl_Cmd* Ctrl_Pointer;
+////////////////////////////////////////////
+struct Cmd
+{
+        int cmd_code;
+        void (*func)(void);
+        char* func_name;
+};
+typedef struct cmd_info
+{
+        struct Cmd cmd[CMD_NUM];
+        int cmd_num;;
+}Cmd_Info;
+typedef Cmd_Info* Cmd_Info_Pointer;
 /////////////////////////////
 struct move_cmd
 {

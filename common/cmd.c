@@ -4,12 +4,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include "data_structure.h"
-#include "include.h"
+#include "data_refer.h"
 #include "cmd.h"
-
+#include "data_config.h"
 //extern char input_cmd[CMD_LENGTH];
-extern struct move_cmd m_cmd; 
+
+////////////////////////////////////////// 
 int *check_str(char* str)
 {
 	int i,j=0;

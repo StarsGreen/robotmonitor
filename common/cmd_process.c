@@ -5,9 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
-#include "global_data.h"
 #include <semaphore.h>
-#include "cmd.h"
+#include "data_config.h"
+//#include "data_refer.h"
 #include <signal.h>
 
 ///////////////////////////////////////

@@ -10,8 +10,9 @@
 #include <semaphore.h>
 #include <fcntl.h>
 #include <sys/shm.h>
-#include "global_data.h"
-#include "cmd.h"
+#include "data_refer.h"
+#include "data_config.h"
+//#include "cmd.h"
 #include <signal.h>
 #include <math.h>
 extern void read_cmd(char* cmd);
