@@ -110,13 +110,19 @@ void mlist_add(M_Node node)
 void mlist_clear(void)
 {
     struct M_LinkList* p=get_move_ll_shmid();
-    int shmid0 = shmget(p->Tail_shmid,M_NODE_SIZE,IPC_CREAT|0666);
-    if(shmid0 == -1)
-    {
-        perror("failed to shmget move_ll_node\n");
-        return -1;
-    }
-        M_Pointer pointer = (M_Pointer)shmat(shmid0,NULL,0);
+    M_Pointer pointer = (M_Pointer)shmat(p->Tail_shmid,NULL,0);
+    while(pointer->next_shmid!=0)
+   {
+        M_Pointer mp = (M_Pointer)shmat(pointer->next_shmid,NULL,0);
+	memset(&mp->accel_info,0,sizeof(mp->accel_info));
+	memset(&mp->vel_info,0,sizeof(mp->vel_info));
+	memset(&mp->jour_info,0,sizeof(mp->jour_info));
+	memset(&mp->temper,0,sizeof(mp->temper));
+	memset(&mp->dist,0,sizeof(mp->dist));
+	pointer=mp;
+   }
+   shmdt(pointer);
+   shmdt(mp);
 /*
 if(head->next!=NULL&&head->prev==NULL)
 	head=head->next;
@@ -132,6 +138,19 @@ while(head->next!=NULL)
 //销毁链表
 int destroy_mlist(M_Pointer head)
 {
+
+    struct M_LinkList* p=get_move_ll_shmid();
+    M_Pointer pointer = (M_Pointer)shmat(p->Tail_shmid,NULL,0);
+    if(pointer==NULL)return -1;
+    do
+    {
+        M_Pointer mp = (M_Pointer)shmat(pointer->next_shmid,NULL,0);
+	shmctl(pointer,IPC_RMID,NULL);
+	pointer=mp;
+    }while(pointer->next_shmid!=0)
+	return 0;
+
+/*
     M_Pointer p;
     if(head==NULL)
         return 0;
@@ -141,7 +160,8 @@ int destroy_mlist(M_Pointer head)
         free(head);
         head=p;
     }
-    return 1;
+    return 1;*/
+
 }
 ////////////////////////////////////////////////
 M_Pointer mlist_search_num(int num)
