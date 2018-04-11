@@ -10,9 +10,9 @@
 #include <semaphore.h>
 //#include "include.h"
 #include <signal.h>
-void* get_shm_addr()
+void* get_shm_addr(int size)
 {
-    int shmid0 = shmget(0,M_NODE_SIZE,IPC_CREAT|0666);
+    int shmid0 = shmget(0,sizeY,IPC_CREAT|0666);
     if(shmid0 == -1)
     {
         perror("failed to shmget move_ll_node\n");
@@ -21,9 +21,9 @@ void* get_shm_addr()
     return (void*)shmat(shmid0,NULL,0);
 }
 /////////////////////////////////////////////////
-void* get_move_ll_shmid()
+void* get_ll_shmid(ket_t key,int size)
 {
-    int move_ll_shmid = shmget(MOVE_LL_KEY,MOVE_LL_SIZE,IPC_CREAT|0666);
+    int move_ll_shmid = shmget(key,size,IPC_CREAT|0666);
     if(move_ll_shmid == -1)
     {
         perror("failed to shmget move_ll\n");
@@ -34,7 +34,7 @@ void* get_move_ll_shmid()
 ////////////////////////////////////
 void init_mlist()
 {
-    struct M_LinkList* p=get_move_ll_shmid();
+struct M_LinkList* p=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
     int shmid0 = shmget(0,M_NODE_SIZE,IPC_CREAT|0666);
     if(shmid0 == -1)
     {
@@ -42,7 +42,7 @@ void init_mlist()
         return -1;
     }
         M_Pointer pointer = (M_Pointer)shmat(shmid0,NULL,0);
-//	M_Pointer pointer = (M_Pointer)get_shm_addr();
+//	M_Pointer pointer = (M_Pointer)get_shm_addr(M_NODE_SIZE);
 	memset(pointer,0,M_NODE_SIZE);
 	pointer->next_shmid=0;
 	pointer->prev_shmid=0;
@@ -58,7 +58,7 @@ void init_mlist()
 //////////////////////////////////////
 void mlist_add(M_Node node)
 {
-    struct M_LinkList* p=get_move_ll_shmid();
+struct M_LinkList* p=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
     int shmid0 = shmget(0,M_NODE_SIZE,IPC_CREAT|0666);
     if(shmid0 == -1)
     {
@@ -109,7 +109,7 @@ void mlist_add(M_Node node)
 /////////////////////////////////////////////////
 void mlist_clear(void)
 {
-    struct M_LinkList* p=get_move_ll_shmid();
+struct M_LinkList* p=( struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
     M_Pointer pointer = (M_Pointer)shmat(p->Tail_shmid,NULL,0);
     while(pointer->next_shmid!=0)
    {
@@ -138,8 +138,7 @@ while(head->next!=NULL)
 //销毁链表
 int destroy_mlist(M_Pointer head)
 {
-
-    struct M_LinkList* p=get_move_ll_shmid();
+struct M_LinkList* p=( struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
     M_Pointer pointer = (M_Pointer)shmat(p->Tail_shmid,NULL,0);
     if(pointer==NULL)return -1;
     do
