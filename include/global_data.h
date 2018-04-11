@@ -29,3 +29,5 @@ Ctrl_Pointer ctrl_pointer;
 Cmd_Info cmd_info;
 Cmd_Info_Pointer cmd_pointer;
 
+int move_ll_shmid;
+int sock_ll_shmid;

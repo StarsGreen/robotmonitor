@@ -58,3 +58,7 @@
 #define CMD_INFO_SIZE sizeof(Ctrl_Cmd)
 #define MAX_CMD_LENGTH 40
 
+#define MOVE_LL_KEY 0X0001
+#define SOCK_LL_KEY 0X0002
+#define MOVE_LL_SIZE sizeof(struct M_LinkList)
+#define SOCK_LL_SIZE sizeof(struct S_LinkList)

@@ -299,7 +299,7 @@ for(i=0;i<cmd_info.cmd_num;i++)
 cmd_info.cmd[i].cmd_code);
 printf("\n------------------help info--------------------\n");
 }
-/////////fin char num////////////////////////
+/////////find char num////////////////////////
 int find_char(char* src,char des)
 {
 //printf("b 0");

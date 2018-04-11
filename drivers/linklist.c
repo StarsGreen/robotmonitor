@@ -10,32 +10,80 @@
 #include <semaphore.h>
 //#include "include.h"
 #include <signal.h>
-
+void* get_shm_addr()
+{
+    int shmid0 = shmget(0,M_NODE_SIZE,IPC_CREAT|0666);
+    if(shmid0 == -1)
+    {
+        perror("failed to shmget move_ll_node\n");
+        return -1;
+    }
+    return (void*)shmat(shmid0,NULL,0);
+}
+/////////////////////////////////////////////////
+void* get_move_ll_shmid()
+{
+    int move_ll_shmid = shmget(MOVE_LL_KEY,MOVE_LL_SIZE,IPC_CREAT|0666);
+    if(move_ll_shmid == -1)
+    {
+        perror("failed to shmget move_ll\n");
+        return -1;
+    }
+    return (void*)shmat(move_ll_shmid,NULL,0);
+}
+////////////////////////////////////
 void init_mlist()
 {
-	M_Pointer pointer = (M_Pointer)malloc(M_NODE_SIZE);
+    struct M_LinkList* p=get_move_ll_shmid();
+    int shmid0 = shmget(0,M_NODE_SIZE,IPC_CREAT|0666);
+    if(shmid0 == -1)
+    {
+        perror("failed to shmget move_ll_node\n");
+        return -1;
+    }
+        M_Pointer pointer = (M_Pointer)shmat(shmid0,NULL,0);
+//	M_Pointer pointer = (M_Pointer)get_shm_addr();
 	memset(pointer,0,M_NODE_SIZE);
-	pointer->next=NULL;
-	pointer->prev=NULL;
+	pointer->next_shmid=0;
+	pointer->prev_shmid=0;
 	pointer->num=0;
-	move_ll.M_Head_pointer=pointer;
-	move_ll.M_Tail_pointer=pointer;
-	move_ll.count=0;
+
+	p.Head_shmid=shmid0;
+	p.Tail_shmid=shmid0;
+	p.count=0;
 //	return pointer;
+	shmdt(p);
+	shmdt(pointer);
 }
 //////////////////////////////////////
 void mlist_add(M_Node node)
 {
-	M_Pointer pointer = (M_Pointer)malloc(M_NODE_SIZE);
+    struct M_LinkList* p=get_move_ll_shmid();
+    int shmid0 = shmget(0,M_NODE_SIZE,IPC_CREAT|0666);
+    if(shmid0 == -1)
+    {
+        perror("failed to shmget move_ll_node\n");
+        return -1;
+    }
+        M_Pointer pointer = (M_Pointer)shmat(shmid0,NULL,0);
+//	M_Pointer pointer = (M_Pointer)malloc(M_NODE_SIZE);
 	memset(pointer,0,M_NODE_SIZE);
-	pointer->next=NULL;
-
-        pthread_mutex_lock(&move_ll.move_ll_lock);
-	pointer->prev=move_ll.M_Tail_pointer;
+//	pointer->next=NULL;
+        pointer->next_shmid=0;
+//	shmat(move_ll_shmid,NULL,0);
+        pthread_mutex_lock(&p.move_ll_lock);
+	struct M_LinkList* mp=shmat(p->Tail_shmid,NULL,0);
+	mp->next_shmid=shmid0;
+	shmdt(mp);
+	pointer->prev_shmid=p->Tail_shmid;
+	p->Tail_shmid=shmid0;
+	pointer->num++;
+	p->count++;
+/*	pointer->prev=move_ll.M_Tail_pointer;
 	move_ll.M_Tail_pointer->next=pointer;
 	move_ll.M_Tail_pointer=pointer;
 	pointer->num=++move_ll.count+1;;
-        pthread_mutex_unlock(&move_ll.move_ll_lock);
+*/       pthread_mutex_unlock(&p.move_ll_lock);
 
 	pointer->accel_info.xl_accel=node.accel_info.xl_accel;
 	pointer->accel_info.yl_accel=node.accel_info.yl_accel;
@@ -54,10 +102,22 @@ void mlist_add(M_Node node)
 	pointer->jour_info.zl=node.jour_info.zl;
 	pointer->temper=node.temper;
 	pointer->dist=node.dist;
+
+	shmdt(p);
+	shmdt(pointer);
 }
 /////////////////////////////////////////////////
-void mlist_clear(M_Pointer head)
+void mlist_clear(void)
 {
+    struct M_LinkList* p=get_move_ll_shmid();
+    int shmid0 = shmget(p->Tail_shmid,M_NODE_SIZE,IPC_CREAT|0666);
+    if(shmid0 == -1)
+    {
+        perror("failed to shmget move_ll_node\n");
+        return -1;
+    }
+        M_Pointer pointer = (M_Pointer)shmat(shmid0,NULL,0);
+/*
 if(head->next!=NULL&&head->prev==NULL)
 	head=head->next;
 while(head->next!=NULL)
@@ -66,6 +126,7 @@ while(head->next!=NULL)
 	head=head->next;
 }
 	memset(head,0,M_NODE_SIZE);
+*/
 }
 ////////////////////////////////////////////////
 //销毁链表
@@ -118,18 +179,33 @@ void mlist_delete(int num)
 ////////////////////////////////////////////////
 void init_slist()
 {
-	Sock_Pointer pointer = (Sock_Pointer)malloc(S_NODE_SIZE);
-	memset(pointer,0,S_NODE_SIZE);
-	pointer->next=NULL;
-	pointer->prev=NULL;
-	pointer->cli_num=0;
+    sock_ll_shmid = shmget(SOCK_LL_KEY,sizeof(sock_ll),IPC_CREAT|0666);
+    if(sock_ll_shmid == -1)
+    {
+        perror("failed to shmget sock_ll\n");
+        return -1;
+    }
+    struct S_LinkList* p=(struct M_LinkList*)shmat(sock_ll_shmid,NULL,0);
 
+    int shmid0 = shmget(0,S_NODE_SIZE,IPC_CREAT|0666);
+    if(shmid0 == -1)
+    {
+        perror("failed to shmget sock_ll_node\n");
+        return -1;
+    }
+	Sock_Pointer pointer = (Sock_Pointer)shmat(shmid0,NULL,0);
+	memset(pointer,0,S_NODE_SIZE);
+	pointer->next_shmid=0;
+	pointer->prev_shmid=0;
+	pointer->cli_num=0;
 //        pthread_mutex_lock(&sock_ll.sock_ll_lock);
-	sock_ll.S_Head_pointer=pointer;
-	sock_ll.S_Tail_pointer=pointer;
-	sock_ll.count=0;
+	p.Head_shmid=pointer;
+	p.Tail_shmid=pointer;
+	p.count=0;
 //        pthread_mutex_unlock(&sock_ll.sock_ll_lock);
 //	return pointer;
+	shmdt(p);
+	shmdt(pointer);
 }
 //////////////////////////////////////////////////////
 void slist_add(Sock_Node node)

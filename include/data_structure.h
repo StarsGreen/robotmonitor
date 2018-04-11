@@ -71,14 +71,18 @@ typedef struct M_Node
 	float temper;
 	float dist;
 	int num;
-	struct M_Node* next;
-	struct M_Node* prev;
+//	struct M_Node* next;
+//	struct M_Node* prev;
+	int prev_shmid;
+	int next_shmid;
 }M_Node;
 typedef struct M_Node* M_Pointer;
 struct M_LinkList
 {
-M_Pointer M_Head_pointer;
-M_Pointer M_Tail_pointer;
+//M_Pointer M_Head_pointer;
+//M_Pointer M_Tail_pointer;
+int Head_shmid;
+int Tail_shmid;
 int count;
 pthread_mutex_t move_ll_lock;
 };
@@ -92,14 +96,18 @@ typedef struct Sock_Node
 {
 	struct client_info cli_info;
 	int cli_num;
-	struct Sock_Node* next;
-	struct Sock_Node* prev;
+        int prev_shmid;
+        int next_shmid;
+//	struct Sock_Node* next;
+//	struct Sock_Node* prev;
 }Sock_Node;
 typedef struct Sock_Node* Sock_Pointer;
 struct S_LinkList
 {
-Sock_Pointer S_Head_pointer;
-Sock_Pointer S_Tail_pointer;
+//Sock_Pointer S_Head_pointer;
+//Sock_Pointer S_Tail_pointer;
+int Head_shmid;
+int Tail_shmid;
 int count;
 pthread_mutex_t sock_ll_lock;
 };
