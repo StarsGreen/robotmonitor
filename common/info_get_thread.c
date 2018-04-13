@@ -160,9 +160,11 @@ while(1)
 	memset(M_info_pointer,0,M_NODE_SIZE);
 
 struct M_LinkList* p=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
-	M_Pointer mp=shmat(p->Tail_shmid,NULL,0)
+	M_Pointer tail=shmat(p->Tail_shmid,NULL,0)
 	pthread_mutex_lock(&p.move_ll_lock);
-	memcpy(M_info_pointer,mp,M_NODE_SIZE);
+	memcpy(M_info_pointer,tail,M_NODE_SIZE);
+//	shmdt(mp);
+//	shmdt(p);
 	pthread_mutex_unlock(&p.move_ll_lock);
 
 	if(fd!=-1)
@@ -215,9 +217,16 @@ dt,&pzl_conv,Q_offset,R_offset);
 
 if(p->count==MAX_NODE_NUM)
     {
-M_Pointer mp=shmat(p->Head_shmid,NULL,0);
-memcpy(shmat(mp->next_shmid,NULL,0),shmat(p->Tail_shmid,NULL,0),M_NODE_SIZE);
+M_Pointer tem_p=malloc(M_NODE_SIZE);
+M_Pointer head=shmat(p->Head_shmid,NULL,0);
+M_Pointer mp0=shmat(head->next_shmid,NULL,0);
+//M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
+memcpy(tem_p,tail,M_NODE_SIZE);
 mlist_clear();
+memcpy(mp0,temp_p,M_NODE_SIZE);
+shmdt(head);
+shmdt(mp0);
+free(tem_p);
     }
 	sem_post(&sensor_start);
 	free(M_info_pointer);
