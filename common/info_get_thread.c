@@ -30,6 +30,7 @@ extern float kalman_filter(float last_result,float last_value,float cur_value,
 float time,float* p_next,float Q_offset,float R_offset);
 extern void mlist_add(M_Node node);
 extern void mlist_clear(M_Pointer head);
+extern void* get_ll_shmid(ket_t key,int size);
 
 extern sem_t sensor_start,sensor_mid,sensor_stop;
 
@@ -158,9 +159,11 @@ while(1)
 	M_info_pointer=(M_Pointer)malloc(M_NODE_SIZE);
 	memset(M_info_pointer,0,M_NODE_SIZE);
 
-	pthread_mutex_lock(&move_ll.move_ll_lock);
-	memcpy(M_info_pointer,move_ll.M_Tail_pointer,M_NODE_SIZE);
-	pthread_mutex_unlock(&move_ll.move_ll_lock);
+struct M_LinkList* p=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+	M_Pointer mp=shmat(p->Tail_shmid,NULL,0)
+	pthread_mutex_lock(&p.move_ll_lock);
+	memcpy(M_info_pointer,mp,M_NODE_SIZE);
+	pthread_mutex_unlock(&p.move_ll_lock);
 
 	if(fd!=-1)
 	    {
@@ -182,37 +185,39 @@ while(1)
 	goto start;
      	    }
 
-	if(M_info_pointer->prev!=NULL){
-M_info.vel_info.xl_vel=M_info_pointer->prev->vel_info.xl_vel+
+	if(M_info_pointer!=NULL){
+M_info.vel_info.xl_vel=M_info_pointer->vel_info.xl_vel+
 M_info.accel_info.xl_accel*dt;
 
-M_info.vel_info.yl_vel=M_info_pointer->prev->vel_info.yl_vel+
+M_info.vel_info.yl_vel=M_info_pointer->vel_info.yl_vel+
 M_info.accel_info.yl_accel*dt;
 
-M_info.vel_info.zl_vel=M_info_pointer->prev->vel_info.zl_vel+
+M_info.vel_info.zl_vel=M_info_pointer->vel_info.zl_vel+
 M_info.accel_info.zl_accel*dt;
 
-M_info.jour_info.xl=kalman_filter(M_info_pointer->prev->jour_info.xl,
-M_info_pointer->prev->accel_info.xl_accel,
+M_info.jour_info.xl=kalman_filter(M_info_pointer->jour_info.xl,
+M_info_pointer->accel_info.xl_accel,
 M_info.accel_info.xl_accel,
 dt,&pxl_conv,Q_offset,R_offset);
 
-M_info.jour_info.yl=kalman_filter(M_info_pointer->prev->jour_info.yl,
-M_info_pointer->prev->accel_info.yl_accel,
+M_info.jour_info.yl=kalman_filter(M_info_pointer->jour_info.yl,
+M_info_pointer->accel_info.yl_accel,
 M_info.accel_info.yl_accel,
 dt,&pyl_conv,Q_offset,R_offset);
 
-M_info.jour_info.zl=kalman_filter(M_info_pointer->prev->jour_info.zl,
-M_info_pointer->prev->accel_info.zl_accel,
+M_info.jour_info.zl=kalman_filter(M_info_pointer->jour_info.zl,
+M_info_pointer->accel_info.zl_accel,
 M_info.accel_info.zl_accel,
 dt,&pzl_conv,Q_offset,R_offset);
 		}
 		mlist_add(M_info);
 //		get_move_info();
-if(move_ll.count==MAX_NODE_NUM)
+
+if(p->count==MAX_NODE_NUM)
     {
-memcpy(move_ll.M_Head_pointer->next,move_ll.M_Tail_pointer,M_NODE_SIZE);
-mlist_clear(move_ll.M_Head_pointer->next->next);
+M_Pointer mp=shmat(p->Head_shmid,NULL,0);
+memcpy(shmat(mp->next_shmid,NULL,0),shmat(p->Tail_shmid,NULL,0),M_NODE_SIZE);
+mlist_clear();
     }
 	sem_post(&sensor_start);
 	free(M_info_pointer);
