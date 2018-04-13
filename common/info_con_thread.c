@@ -140,7 +140,9 @@ char* assemble_info(void)
 	static char info[42];
 //	printf("4\n");
 	M_Pointer p=(M_Pointer)malloc(M_NODE_SIZE);
-	memcpy(p,move_ll.M_Tail_pointer,M_NODE_SIZE);
+	M_LinkList* gp=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE))
+	M_Pointer tail=(M_Pointer)shmat(gp->Tail_shmid,NULL,0);
+	memcpy(p,tail,M_NODE_SIZE);
 //	printf("5\n");
 	int value=(int)(sqrt((p->accel_info.xl_accel)*(p->accel_info.xl_accel)+
 	(p->accel_info.yl_accel)*(p->accel_info.yl_accel)+
@@ -174,6 +176,8 @@ char* assemble_info(void)
 //	memcpy(pointer,info,42);
 //	return info;
 //	printf("3\n");
+	shmdt(gp);
+	shmdt(tail);
 	free(p);
 	return info;
 

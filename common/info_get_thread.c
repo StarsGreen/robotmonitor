@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <semaphore.h>
 #include <fcntl.h>
+#include <sys/ipc.h>
 #include <sys/shm.h>
 #include "data_refer.h"
 #include "data_config.h"
@@ -165,8 +166,7 @@ struct M_LinkList* p=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
 	memcpy(M_info_pointer,tail,M_NODE_SIZE);
 //	shmdt(mp);
 //	shmdt(p);
-	pthread_mutex_unlock(&p.move_ll_lock);
-
+	pthread_mutex_unlock(&p->move_ll_lock);
 	if(fd!=-1)
 	    {
 		M_info.vel_info.xa_vel=xa_read(fd);
