@@ -17,8 +17,8 @@
 
 //extern struct socket_info sock_info; 
 extern void read_cmd(char* cmd);
-extern void slist_add(Sock_Node sock_node);
-extern void init_slist(void);
+extern int slist_add(Sock_Node sock_node);
+extern int init_slist(void);
 extern void* slist_search_ip(void* ip);
 //extern sem_t v_get,v_send;
 //extern void* video_send_thread(void);
@@ -125,7 +125,7 @@ static void handle_connect(int s_s)
 	printf("\nhandle connect\n");
 	struct sockaddr_in client_addr;
 	socklen_t length = sizeof(client_addr);
-	int i,port;
+	int port;
 	char *ip;
 	int cli_num=0;
 	sock_info.data_trans_status=1;

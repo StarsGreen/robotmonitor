@@ -59,5 +59,6 @@
 
 #define CTRL_CMD_SIZE sizeof(Ctrl_Cmd)
 #define CMD_INFO_SIZE sizeof(Ctrl_Cmd)
+#define MOVE_CMD_SIZE sizeof(struct move_cmd)
 #define MAX_CMD_LENGTH 40
 /////////////////////////////////////////////

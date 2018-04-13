@@ -18,6 +18,9 @@ extern int excute_cmd(unsigned int code);
 extern void init_cmd();
 extern void get_move_info();
 ///////////////////////////////////////
+
+
+///////////////////////////////////////
 int input(char* cmd)
 {
 		char tem_char;

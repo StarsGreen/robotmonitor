@@ -94,13 +94,18 @@ short get_data(int fd,unsigned char REG_Address)
 ////////////////////////////////////////////
 float xa_read(int fd)
 {
-short data=get_data(fd,GYRO_XOUT_H)+80;
+short data=get_data(fd,GYRO_XOUT_H);
 if(data&0x8000)
   {
 	data=data&0x7fff;
+	if(data>25000)data=0;
 	return -GYRO_RANGE*data/32768;
   }
-else return GYRO_RANGE*data/32768;
+else
+   {
+        if(data>25000)data=0;
+ return GYRO_RANGE*data/32768;
+    }
 }
 ////////////////////////////////////////////
 float ya_read(int fd)
@@ -110,9 +115,14 @@ short data=get_data(fd,GYRO_YOUT_H)+50;
 if(data&0x8000)
   {
 	data=data&0x7fff;
+	if(data>25000)data=0;
 	return -GYRO_RANGE*data/32768;
   }
-else return GYRO_RANGE*data/32768;
+else 
+  {
+if(data>25000)data=0;
+return GYRO_RANGE*data/32768;
+  }
 }
 ////////////////////////////////////////////
 float za_read(int fd)
@@ -121,10 +131,14 @@ short data=get_data(fd,GYRO_ZOUT_H)+80;
 if(data&0x8000)
   {
         data=data&0x7fff;
+        if(data>25000)data=0;
         return -GYRO_RANGE*data/32768;
   }
-else return GYRO_RANGE*data/32768;
-
+else 
+  {
+        if(data>25000)data=0;
+return GYRO_RANGE*data/32768;
+  }
 }
 ////////////////////////////////////////////
 float xl_read(int fd)
@@ -133,9 +147,14 @@ short data=get_data(fd,ACCEL_XOUT_H)-350;
 if(data&0x8000)
   {
         data=data&0x7fff;
+        if(data>25000)data=0;
         return -ACCEL_RANGE*data/32768;
   }
-else return ACCEL_RANGE*data/32768;
+else 
+  {
+  if(data>25000)data=0;
+return ACCEL_RANGE*data/32768;
+   }
 }
 
 ////////////////////////////////////////////
@@ -145,9 +164,14 @@ short data=get_data(fd,ACCEL_YOUT_H)+10;
 if(data&0x8000)
   {
         data=data&0x7fff;
+        if(data>25000)data=0;
         return -ACCEL_RANGE*data/32768;
   }
-else return ACCEL_RANGE*data/32768;
+else 
+  {
+        if(data>25000)data=0;
+return ACCEL_RANGE*data/32768;
+  }
 }
 
 ////////////////////////////////////////////
@@ -157,9 +181,14 @@ short data=get_data(fd,ACCEL_ZOUT_H)-700;
 if(data&0x8000)
   {
         data=data&0x7fff;
+        if(data>25000)data=0;
         return -ACCEL_RANGE*data/32768;
   }
-else return ACCEL_RANGE*data/32768;
+else
+  {
+        if(data>25000)data=0;
+ return ACCEL_RANGE*data/32768;
+  }
 }
 //////////////////////////////////////////////
 void init_dist_sensor(void)

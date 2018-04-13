@@ -30,9 +30,9 @@ extern void get_move_info();
 extern float kalman_filter(float last_result,float last_value,float cur_value,
 float time,float* p_next,float Q_offset,float R_offset);
 extern void mlist_add(M_Node node);
-extern void mlist_clear(M_Pointer head);
-extern void* get_ll_shmid(ket_t key,int size);
-
+extern void mlist_clear(void);
+extern void* get_ll_shmid(key_t key,int size);
+extern int rebuild_mlist();
 extern sem_t sensor_start,sensor_mid,sensor_stop;
 
 float pxl_conv=0.5;
@@ -145,6 +145,8 @@ void* accel_get_thread(void)
 {
 	int num=0;
 	int fd;
+	mll_ptr p=NULL;
+	M_Pointer tail=NULL;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 //	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
@@ -160,12 +162,12 @@ while(1)
 	M_info_pointer=(M_Pointer)malloc(M_NODE_SIZE);
 	memset(M_info_pointer,0,M_NODE_SIZE);
 
-struct M_LinkList* p=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
-	M_Pointer tail=shmat(p->Tail_shmid,NULL,0)
-	pthread_mutex_lock(&p.move_ll_lock);
+	p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
+	tail=shmat(p->Tail_shmid,NULL,0);
+	pthread_mutex_lock(&p->move_ll_lock);
 	memcpy(M_info_pointer,tail,M_NODE_SIZE);
 //	shmdt(mp);
-//	shmdt(p);
+//	shmdt(tail);
 	pthread_mutex_unlock(&p->move_ll_lock);
 	if(fd!=-1)
 	    {
@@ -186,7 +188,6 @@ struct M_LinkList* p=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
 	      }
 	goto start;
      	    }
-
 	if(M_info_pointer!=NULL){
 M_info.vel_info.xl_vel=M_info_pointer->vel_info.xl_vel+
 M_info.accel_info.xl_accel*dt;
@@ -217,27 +218,33 @@ dt,&pzl_conv,Q_offset,R_offset);
 
 if(p->count==MAX_NODE_NUM)
     {
-M_Pointer tem_p=malloc(M_NODE_SIZE);
+/*
+//M_Pointer tem_p=malloc(M_NODE_SIZE);
 M_Pointer head=shmat(p->Head_shmid,NULL,0);
-M_Pointer mp0=shmat(head->next_shmid,NULL,0);
+//M_Pointer mp0=shmat(head->next_shmid,NULL,0);
 //M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
-memcpy(tem_p,tail,M_NODE_SIZE);
-mlist_clear();
-memcpy(mp0,temp_p,M_NODE_SIZE);
-shmdt(head);
-shmdt(mp0);
-free(tem_p);
+//memcpy(tem_p,tail,M_NODE_SIZE);
+p->Tail_shmid=head->next_shmid;
+p->count=0;*/
+rebuild_mlist();
+mlist_add(M_info);
+//shmdt(head);
+//shmdt(mp0);
+//free(tem_p);
     }
 	sem_post(&sensor_start);
 	free(M_info_pointer);
+	shmdt(p);
+	shmdt(tail);
 //		pthread_testcancel();
 	}
 nothing:
 	sem_post(&sensor_start);
 	free(M_info_pointer);
+	shmdt(tail);
+	shmdt(p);
 	while(1)pthread_testcancel();
         pthread_cleanup_pop(0);
-
 }
 ///////////////////////////////////////////////
 

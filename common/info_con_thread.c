@@ -18,6 +18,7 @@
 extern void read_cmd(char* cmd);
 //extern struct move_info M_info;
 extern void slist_delete(char* ip);
+extern void* get_ll_shmid(key_t key,int size);
 /////////////////////////////////////////
 static void sock_cleanup_handler(void *arg)
 {
@@ -140,7 +141,7 @@ char* assemble_info(void)
 	static char info[42];
 //	printf("4\n");
 	M_Pointer p=(M_Pointer)malloc(M_NODE_SIZE);
-	M_LinkList* gp=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE))
+ 	mll_ptr gp=get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
 	M_Pointer tail=(M_Pointer)shmat(gp->Tail_shmid,NULL,0);
 	memcpy(p,tail,M_NODE_SIZE);
 //	printf("5\n");

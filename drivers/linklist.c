@@ -18,30 +18,30 @@ void* get_shm_addr(int size)
     if(shmid0 == -1)
     {
         perror("failed to shmget move_ll_node\n");
-        return -1;
+        return NULL;
     }
     return (void*)shmat(shmid0,NULL,0);
 }
 /////////////////////////////////////////////////
 /////////////////////////////////////////////////
-void* get_ll_shmid(ket_t key,int size)
+void* get_ll_shmid(key_t key,int size)
 {
     int move_ll_shmid = shmget(key,size,IPC_CREAT|0666);
     if(move_ll_shmid == -1)
     {
         perror("failed to shmget move_ll\n");
-        return -1;
+        return NULL;
     }
     void* ptr=NULL;
     if (NULL !=  ptr)
           return NULL;
-    ptr= (void*)shmat(move_ll_shmid,ptr,0)
+    ptr= (void*)shmat(move_ll_shmid,ptr,0);
     return ptr;
 }
 ////////////////////////////////////
-void init_mlist()
+int init_mlist()
 {
-struct M_LinkList* p=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
     int shmid0 = shmget(0,M_NODE_SIZE,IPC_CREAT|0666);
     if(shmid0 == -1)
     {
@@ -63,11 +63,12 @@ struct M_LinkList* p=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
 //	return pointer;
 	shmdt(p);
 	shmdt(pointer);
+	return 0;
 }
 //////////////////////////////////////
-void mlist_add(M_Node node)
+int mlist_add(M_Node node)
 {
-struct M_LinkList* p=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+	mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
     int shmid0 = shmget(0,M_NODE_SIZE,IPC_CREAT|0666);
     if(shmid0 == -1)
     {
@@ -117,15 +118,17 @@ struct M_LinkList* p=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
 	shmdt(mp);
 	shmdt(p);
 	shmdt(pointer);
+
+	return 0;
 }
 /////////////////////////////////////////////////
-void mlist_clear(void)
+int mlist_clear(void)
 {
 int num=0;
 int i=0;
 M_Pointer tem_p[MAX_NODE_NUM];
 memset(tem_p,0,M_NODE_SIZE);
-struct M_LinkList* p=( struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+    mll_ptr p=( mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
     M_Pointer pointer = (M_Pointer)shmat(p->Head_shmid,NULL,0);
     while(pointer->next_shmid!=0)
    {
@@ -136,12 +139,14 @@ struct M_LinkList* p=( struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
 	memset(&mp->vel_info,0,sizeof(mp->vel_info));
 	memset(&mp->jour_info,0,sizeof(mp->jour_info));
 	memset(&mp->temper,0,sizeof(mp->temper));
+
 	memset(&mp->dist,0,sizeof(mp->dist));
 	pointer=mp;
    }
    shmdt(pointer);
-for(i=0;i++;i<num-1)
+for(i=0;i<num-1;i++)
 	shmdt(tem_p[i]);
+	return 0;
 //   shmdt(mp);
 /*
 if(head->next!=NULL&&head->prev==NULL)
@@ -154,11 +159,29 @@ while(head->next!=NULL)
 	memset(head,0,M_NODE_SIZE);
 */
 }
+/////////////////////////////////////////////
+int rebuild_mlist()
+{
+    mll_ptr p=( mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
+    M_Pointer pointer = (M_Pointer)shmat(p->Tail_shmid,NULL,0);
+    while(pointer->prev_shmid!=0)
+   {
+        M_Pointer mp = (M_Pointer)shmat(pointer->prev_shmid,NULL,0);
+	shmctl(mp->next_shmid,IPC_RMID,NULL);
+	pointer=mp;
+   }
+   p->Tail_shmid= p->Head_shmid;
+   p->count=0;
+   pointer->next_shmid=0;
+   pointer->prev_shmid=0;
+   shmdt(p);
+   return 0;
+}
 ////////////////////////////////////////////////
 //销毁链表
-int destroy_mlist(M_Pointer head)
+int destroy_mlist()
 {
-struct M_LinkList* p=( struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+mll_ptr p=( mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
     M_Pointer pointer = (M_Pointer)shmat(p->Head_shmid,NULL,0);
     if(pointer==NULL)return -1;
     while(pointer->next_shmid!=0)
@@ -194,7 +217,7 @@ memset(tem_p,0,M_NODE_SIZE);
 M_Pointer rp=NULL;
 M_Pointer mp=NULL;
 
-struct M_LinkList* p=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
 pthread_mutex_lock(&p->move_ll_lock);
 M_Pointer pointer=(M_Pointer)shmat(p->Head_shmid,NULL,0);
 while(pointer->next_shmid!=0)
@@ -213,7 +236,7 @@ if(mp->num==num)rp=mp;
 last:
 pthread_mutex_unlock(&p->move_ll_lock);
 shmdt(pointer);
-for(i=0;i++;i<count-1)
+for(i=0;i<count-1;i++)
         shmdt(tem_p[i]);
 return rp;
 /*
@@ -237,7 +260,7 @@ if(p->next==NULL&&p->num==num)
 return pointer;*/
 }
 ////////////////////////////////////////////////
-void mlist_delete(int num)
+int mlist_delete(int num)
 {
         M_Pointer mp=mlist_search_num(num);
 	M_Pointer mp0=NULL;
@@ -246,8 +269,10 @@ void mlist_delete(int num)
 
 	if(mp!=NULL)
 	{
-if(mp->prev_shmid!=0)M_Pointer mp0=(M_Pointer)shmat(mp->prev_shmid,NULL,0);
-if(mp->next_shmid!=0)M_Pointer mp1=(M_Pointer)shmat(mp->next_shmid,NULL,0);
+	if(mp->prev_shmid!=0)
+		mp0=(M_Pointer)shmat(mp->prev_shmid,NULL,0);
+	if(mp->next_shmid!=0)
+		mp1=(M_Pointer)shmat(mp->next_shmid,NULL,0);
 	id=mp0->next_shmid;
 	if(mp0!=NULL)
 		{
@@ -259,11 +284,11 @@ if(mp->next_shmid!=0)M_Pointer mp1=(M_Pointer)shmat(mp->next_shmid,NULL,0);
 		mp1->prev_shmid=mp->prev_shmid;
 		shmdt(mp1);
 		}
-	shmctl(id,NULL,0);
+	shmctl(id,IPC_RMID,NULL);
 	shmdt(mp);
-	shmdt(p);
 	}
-/*
+	return 0;
+	/*
 	M_Pointer mp=mlist_search_num(num);
 	mp->next->prev=mp->prev;
         mp->prev->next=mp->next;
@@ -274,13 +299,13 @@ if(mp->next_shmid!=0)M_Pointer mp1=(M_Pointer)shmat(mp->next_shmid,NULL,0);
 ////////////////////////////////////////////////
 int init_slist()
 {
-    int sock_ll_shmid = shmget(SOCK_LL_KEY,sizeof(sock_ll),IPC_CREAT|0666);
+    int sock_ll_shmid = shmget(SOCK_LL_KEY,SOCK_LL_SIZE,IPC_CREAT|0666);
     if(sock_ll_shmid == -1)
     {
         perror("failed to shmget sock_ll\n");
         return -1;
     }
-    struct S_LinkList* p=(struct S_LinkList*)shmat(sock_ll_shmid,NULL,0);
+    sll_ptr p=(sll_ptr)shmat(sock_ll_shmid,NULL,0);
 
     int shmid0 = shmget(0,S_NODE_SIZE,IPC_CREAT|0666);
     if(shmid0 == -1)
@@ -301,12 +326,13 @@ int init_slist()
 //	return pointer;
 	shmdt(p);
 	shmdt(pointer);
+	return 0;
 }
 //////////////////////////////////////////////////////
-void slist_add(Sock_Node node)
+int slist_add(Sock_Node node)
 {
 
-struct S_LinkList* p=(struct S_LinkList*)get_ll_shmid(SOCK_LL_KEY,S_NODE_SIZE);
+sll_ptr p=(sll_ptr)get_ll_shmid(SOCK_LL_KEY,SOCK_LL_SIZE);
     int shmid0 = shmget(0,S_NODE_SIZE,IPC_CREAT|0666);
     if(shmid0 == -1)
     {
@@ -319,18 +345,18 @@ struct S_LinkList* p=(struct S_LinkList*)get_ll_shmid(SOCK_LL_KEY,S_NODE_SIZE);
 //	pointer->next=NULL;
         pointer->next_shmid=0;
 //	shmat(move_ll_shmid,NULL,0);
-        pthread_mutex_lock(&p.sock_ll_lock);
+        pthread_mutex_lock(&p->sock_ll_lock);
 
 	Sock_Pointer mp=shmat(p->Tail_shmid,NULL,0);
 	mp->next_shmid=shmid0;
 	pointer->prev_shmid=p->Tail_shmid;
 	pointer->next_shmid=0;
-	pointer->num=p->count+1;
+	pointer->cli_num=p->count+1;
 
 	p->Tail_shmid=shmid0;
 	p->count++;
 
-        pthread_mutex_unlock(&p.sock_ll_lock);
+        pthread_mutex_unlock(&p->sock_ll_lock);
 
 	memcpy(pointer->cli_info.ip,node.cli_info.ip,15);
 	pointer->cli_info.port=node.cli_info.port;
@@ -339,6 +365,7 @@ struct S_LinkList* p=(struct S_LinkList*)get_ll_shmid(SOCK_LL_KEY,S_NODE_SIZE);
 	shmdt(p);
 	shmdt(pointer);
 	shmdt(mp);
+	return 0;
 /*
 	Sock_Pointer pointer = (Sock_Pointer)malloc(S_NODE_SIZE);
 	memset(pointer,0,S_NODE_SIZE);
@@ -358,13 +385,13 @@ struct S_LinkList* p=(struct S_LinkList*)get_ll_shmid(SOCK_LL_KEY,S_NODE_SIZE);
 }
 
 /////////////////////////////////////////////////
-void slist_clear(Sock_Pointer head)
+int slist_clear()
 {
 int num=0;
 int i=0;
 Sock_Pointer tem_p[MAX_NODE_NUM];
 memset(tem_p,0,M_NODE_SIZE);
-struct S_LinkList* p=(struct S_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+sll_ptr p=(sll_ptr)get_ll_shmid(MOVE_LL_KEY,SOCK_LL_SIZE);
     Sock_Pointer pointer = (Sock_Pointer)shmat(p->Head_shmid,NULL,0);
     while(pointer->next_shmid!=0)
    {
@@ -376,8 +403,9 @@ struct S_LinkList* p=(struct S_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
 	pointer=sp;
    }
    shmdt(pointer);
-for(i=0;i++;i<num-1)
-	shmdt(tem_p[i],IPC_RMID,NULL);
+for(i=0;i<num-1;i++)
+	shmdt(tem_p[i]);
+	return 0;
 /*
 if(head->next==NULL&&head->prev==NULL)
 	memset(head,0,S_NODE_SIZE);
@@ -393,7 +421,7 @@ while(head->next!=NULL)
 //销毁链表
 int destroy_slist(void)
 {
-struct S_LinkList* p=( struct S_LinkList*)get_ll_shmid(SOCK_LL_KEY,S_NODE_SIZE);
+sll_ptr p=( sll_ptr)get_ll_shmid(SOCK_LL_KEY,SOCK_LL_SIZE);
     Sock_Pointer pointer = (Sock_Pointer)shmat(p->Head_shmid,NULL,0);
     if(pointer==NULL)return -1;
     while(pointer->next_shmid!=0)
@@ -425,12 +453,14 @@ Sock_Pointer tem_p[MAX_NODE_NUM];
 memset(tem_p,0,S_NODE_SIZE);
 
 Sock_Pointer rp=NULL;
-struct S_LinkList* p=(struct S_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+Sock_Pointer sp=NULL;
+
+sll_ptr p=(sll_ptr)get_ll_shmid(MOVE_LL_KEY,SOCK_LL_SIZE);
 pthread_mutex_lock(&p->sock_ll_lock);
 Sock_Pointer pointer=(Sock_Pointer)shmat(p->Head_shmid,NULL,0);
 while(pointer->next_shmid!=0)
 {
-Sock_Pointer sp=(Sock_Pointer)shmat(pointer->next_shmid,NULL,0);
+sp=(Sock_Pointer)shmat(pointer->next_shmid,NULL,0);
 if(memcmp(sp->cli_info.ip,ip,15)==0)
 	{
 	rp=sp;
@@ -444,7 +474,7 @@ if(memcmp(sp->cli_info.ip,ip,15)==0)rp=sp;
 last:
 pthread_mutex_unlock(&p->sock_ll_lock);
 shmdt(pointer);
-for(i=0;i++;i<count-1)
+for(i=0;i<count-1;i++)
         shmdt(tem_p[i]);
 return rp;
 /*
@@ -459,17 +489,36 @@ while(p!=NULL)
 	}
 return p;*/
 }
+/////////////////////////////////////////////
+int rebuild_slist()
+{
+    sll_ptr p=(sll_ptr)get_ll_shmid(SOCK_LL_KEY,SOCK_LL_SIZE);
+    Sock_Pointer pointer = (Sock_Pointer)shmat(p->Tail_shmid,NULL,0);
+    while(pointer->prev_shmid!=0)
+   {
+        Sock_Pointer mp = (Sock_Pointer)shmat(pointer->prev_shmid,NULL,0);
+	shmctl(mp->next_shmid,IPC_RMID,NULL);
+	pointer=mp;
+   }
+   p->Tail_shmid= p->Head_shmid;
+   p->count=0;
+   pointer->next_shmid=0;
+   pointer->prev_shmid=0;
+   shmdt(p);
+   shmdt(pointer);
+   return 0;
+}
 ////////////////////////////////////////////////
-void slist_delete(char* ip)
+int slist_delete(char* ip)
 {
         Sock_Pointer sp=slist_search_ip(ip);
 	Sock_Pointer sp0=NULL;
 	Sock_Pointer sp1=NULL;
-
+	int id=0;
 	if(sp!=NULL)
 	{
-	if(sp->prev_shmid!=0)Sock_Pointer sp0=shmat(sp->prev_shmid,NULL,0);
-	if(sp->next_shmid!=0)Sock_Pointer sp1=shmat(sp->next_shmid,NULL,0);
+	if(sp->prev_shmid!=0)sp0=shmat(sp->prev_shmid,NULL,0);
+	if(sp->next_shmid!=0)sp1=shmat(sp->next_shmid,NULL,0);
 	id=sp0->next_shmid;
 	if(sp0!=NULL)
 	sp0->next_shmid=sp->next_shmid;
@@ -477,6 +526,7 @@ void slist_delete(char* ip)
 	sp1->prev_shmid=sp->prev_shmid;
 	shmctl(id,IPC_RMID,NULL);
 	}
+	return 0;
 /*
 	Sock_Pointer sp=slist_search_ip(ip);
 	sp->next->prev=sp->prev;

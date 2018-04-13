@@ -5,9 +5,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
+#include "data_config.h"
 #include "global_data.h"
 //#include "cmd.h"
 #include <semaphore.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 #include "include.h"
 #include <semaphore.h>
 #include <signal.h>
@@ -18,10 +21,11 @@ int cancel_all_process();
 void sig_proceed(int signo);
 void sys_init();
 void init_syslock();
-extern int destroy_slist(Sock_Pointer head);
-extern int destroy_mlist(M_Pointer head);
-extern void init_mlist();
-extern void init_slist();
+extern int destroy_slist(void);
+extern int destroy_mlist(void);
+extern int init_mlist();
+extern int init_slist();
+extern void* get_ll_shmid(key_t key,int size);
 pid_t monitor_pro_pid,socket_pro_pid,cmd_pro_pid,sensor_pro_pid;
 int main_err;
 //////////////////////////////////////////////
@@ -45,20 +49,26 @@ void sys_init()
 //////////////////////////////////////////
 void init_syslock()
 {
-pthread_mutex_init(&move_ll.move_ll_lock,NULL);
-pthread_mutex_init(&sock_ll.sock_ll_lock,NULL);
+struct M_LinkList* m_gp=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+pthread_mutex_init(&m_gp->move_ll_lock,NULL);
+struct S_LinkList* s_gp=(struct S_LinkList*)get_ll_shmid(SOCK_LL_KEY,S_NODE_SIZE);
+pthread_mutex_init(&s_gp->sock_ll_lock,NULL);
+shmdt(m_gp);
+shmdt(s_gp);
 }
 ///////////////////////////////////////////
 void sig_proceed(int signo)
 {
 if(signo==SIGINT)
 	cancel_all_process();
-destroy_mlist(move_ll.M_Head_pointer);
-destroy_slist(sock_ll.S_Head_pointer);
-pthread_mutex_destroy(&move_ll.move_ll_lock);
-pthread_mutex_destroy(&sock_ll.sock_ll_lock);
-shmctl(move_shmid, IPC_RMID, NULL);
-shmctl(sock_shmid, IPC_RMID, NULL); 
+destroy_mlist();
+destroy_slist();
+struct M_LinkList* m_gp=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
+struct S_LinkList* s_gp=(struct S_LinkList*)get_ll_shmid(SOCK_LL_KEY,SOCK_LL_SIZE);
+pthread_mutex_destroy(&m_gp->move_ll_lock);
+pthread_mutex_destroy(&s_gp->sock_ll_lock);
+shmctl(shmget(MOVE_LL_KEY,MOVE_LL_SIZE,IPC_CREAT|0666),IPC_RMID, NULL);
+shmctl(shmget(SOCK_LL_KEY,SOCK_LL_SIZE,IPC_CREAT|0666), IPC_RMID, NULL); 
 exit(1);
 }
 ///////////////////////////////////////////
