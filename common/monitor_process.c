@@ -12,6 +12,7 @@
 #include <sys/shm.h>
 //#include "global_data.h"
 #include <signal.h>
+#include "data_structure.h"
 
 extern void *move_ctl_thread(void);
 extern void *video_get_thread(void);
@@ -19,8 +20,9 @@ extern void *video_broadcast_thread(void);
 extern void get_move_info();
 int monitor_err;
 
+struct video_data v_data;
+Ctrl_Pointer ctrl_cmd;
 sem_t v_get,v_send;
-
 pthread_t m_thread,vget_thread,vsend_thread;
 
 ///////////////////////////////////////////

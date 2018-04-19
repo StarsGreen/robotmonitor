@@ -212,12 +212,12 @@ M_Pointer mlist_search_num(int num)
 int count=0;
 int i=0;
 M_Pointer tem_p[MAX_NODE_NUM];
-memset(tem_p,0,M_NODE_SIZE);
+memset(tem_p,0,MAX_NODE_NUM*sizeof(int));
 
 M_Pointer rp=NULL;
 M_Pointer mp=NULL;
 
-mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
 pthread_mutex_lock(&p->move_ll_lock);
 M_Pointer pointer=(M_Pointer)shmat(p->Head_shmid,NULL,0);
 while(pointer->next_shmid!=0)
@@ -232,7 +232,7 @@ tem_p[count]=mp;
 count++;
 pointer=mp;
 }
-if(mp->num==num)rp=mp;
+//if(mp->num==num)rp=mp;
 last:
 pthread_mutex_unlock(&p->move_ll_lock);
 shmdt(pointer);
@@ -322,7 +322,7 @@ int init_slist()
 	p->Head_shmid=shmid0;
 	p->Tail_shmid=shmid0;
 	p->count=0;
-//        pthread_mutex_unlock(&sock_ll.sock_ll_lock);
+//      pthread_mutex_unlock(&sock_ll.sock_ll_lock);
 //	return pointer;
 	shmdt(p);
 	shmdt(pointer);
@@ -450,12 +450,12 @@ Sock_Pointer slist_search_ip(char* ip)
 {
 int count=0,i=0;
 Sock_Pointer tem_p[MAX_NODE_NUM];
-memset(tem_p,0,S_NODE_SIZE);
+memset(tem_p,0,MAX_NODE_NUM*sizeof(int));
 
 Sock_Pointer rp=NULL;
 Sock_Pointer sp=NULL;
 
-sll_ptr p=(sll_ptr)get_ll_shmid(MOVE_LL_KEY,SOCK_LL_SIZE);
+sll_ptr p=(sll_ptr)get_ll_shmid(SOCK_LL_KEY,SOCK_LL_SIZE);
 pthread_mutex_lock(&p->sock_ll_lock);
 Sock_Pointer pointer=(Sock_Pointer)shmat(p->Head_shmid,NULL,0);
 while(pointer->next_shmid!=0)
@@ -470,11 +470,11 @@ tem_p[count]=sp;
 count++;
 pointer=sp;
 }
-if(memcmp(sp->cli_info.ip,ip,15)==0)rp=sp;
+//if(memcmp(sp->cli_info.ip,ip,15)==0)rp=sp;
 last:
 pthread_mutex_unlock(&p->sock_ll_lock);
 shmdt(pointer);
-for(i=0;i<count-1;i++)
+for(i=0;i<count;i++)
         shmdt(tem_p[i]);
 return rp;
 /*

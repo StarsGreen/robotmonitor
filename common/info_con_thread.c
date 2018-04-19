@@ -10,7 +10,8 @@
 #include <semaphore.h>
 #include <fcntl.h>
 #include <sys/shm.h>
-#include "data_refer.h"
+#include <sys/ipc.h>
+#include "data_structure.h"
 #include "data_config.h"
 #include "cmd.h"
 #include <signal.h>
@@ -19,15 +20,19 @@ extern void read_cmd(char* cmd);
 //extern struct move_info M_info;
 extern void slist_delete(char* ip);
 extern void* get_ll_shmid(key_t key,int size);
+extern void* get_ctrl_cmd_addr();
+Ctrl_Pointer cp=NULL;
 /////////////////////////////////////////
 static void sock_cleanup_handler(void *arg)
 {
+	shmdt(cp);
       //  printf("Called clean-up handler\n");
       // cnt = 0;
-        if(close(*(int*)arg)==0)
+/*        if(close(*(int*)arg)==0)
         printf("socket is closed.\n");
         else
         printf("can not close the socket\n");
+*/
 }
 //////////////////////////////////////////////
 int recong_info(int a)
@@ -181,7 +186,6 @@ char* assemble_info(void)
 	shmdt(tail);
 	free(p);
 	return info;
-
 }
 
 //////////////////////////////////////////////
@@ -195,6 +199,7 @@ void* info_recv_thread(void* s)
 	char buffer[ARRAY_SIZE];
 	int conn=((S_Params*)s)->conn;
 	char* ip=((S_Params*)s)->ip;
+//	Ctrl_Pointer cp=get_ctrl_cmd_addr();
 //	int conn=*(int*)s;
         pthread_cleanup_push(sock_cleanup_handler, &conn);
 //	int optval;
@@ -204,6 +209,7 @@ void* info_recv_thread(void* s)
 //		printf("recv info thread\n");
 		pthread_testcancel();
 		memset(buffer,0,sizeof(buffer));
+//                while(cp->info_send_func==INFO_SEND_DISABLE)
 		int len = recv(conn, buffer, sizeof(buffer),0);
 		if(len>0)
 			{
@@ -250,7 +256,8 @@ void* info_send_thread(void* s)
 		pthread_testcancel();
 //		msg_buf="ok";
 		msg_buf=assemble_info();
-                while(ctrl_cmd.info_send_func==INFO_SEND_DISABLE)
+		sleep(500);
+//                while(cp->info_send_func==INFO_SEND_DISABLE)
                 pthread_testcancel();
 //		printf("msg_buf is: %s\n",msg_buf);
 		if(msg_buf!=NULL)

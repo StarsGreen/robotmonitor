@@ -17,7 +17,7 @@
 #include <linux/videodev2.h>
 #include <time.h>
 #include <pthread.h>
-#include "data_refer.h"
+#include "data_structure.h"
 #include "data_config.h"
 #include "cmd.h"
 
@@ -28,8 +28,10 @@
 #define BUFFER_COUNT 4
 
 extern struct video_data v_data;
-extern sem_t v_get,v_send;
 
+extern sem_t v_get,v_send;
+extern Ctrl_Pointer ctrl_cmd;
+extern void* get_ctrl_cmd_addr();
 /////////////////////////////////////////////
 static void vget_cleanup_handler(void *arg)
 {
@@ -39,7 +41,6 @@ static void vget_cleanup_handler(void *arg)
 	printf("Camera is closed.\n");
 	else
 	printf("can not close the camera");
-	
 }
 //////////////////////////////////////////////
 void *video_get_thread()
@@ -163,12 +164,13 @@ void *video_get_thread()
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 	pthread_cleanup_push(vget_cleanup_handler, &fd);
 	i=0;
+	ctrl_cmd=get_ctrl_cmd_addr();
 while(1)
     {
 	pthread_testcancel();
 	sem_wait(&v_get);
-        while(ctrl_cmd.video_get_func==VIDEO_GET_DISABLE)
-                pthread_testcancel();
+//        while(ctrl_cmd->video_get_func==VIDEO_GET_DISABLE)
+//                pthread_testcancel();
 //	printf("video get start\n");
 
 	v4l2buf.index=i%BUFFER_COUNT;

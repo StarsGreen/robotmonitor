@@ -7,6 +7,8 @@
 #include "jpeglib.h"
 #include "global_data.h"
 
+#define FILENAME "test.jpeg"
+
 static void yuv422_to_rgb24(unsigned char *yuv422,unsigned char *rgb24,
 int width, int height)
 {
@@ -57,8 +59,8 @@ unsigned long *j_size,int width, int height,int quality )
 {
   struct jpeg_compress_struct cinfo;
   struct jpeg_error_mgr jerr;
- 
-//  FILE * outfile;	/* target file */
+
+  FILE * outfile;	/* target file */
   JSAMPROW row_pointer[1];	/* pointer to JSAMPLE row[s] */
   int row_stride;		/* physical row width in image buffer */
 
@@ -70,16 +72,16 @@ unsigned long *j_size,int width, int height,int quality )
 
    unsigned char* image_buff=NULL;
    unsigned long image_size=0;
-   jpeg_mem_dest(&cinfo,&image_buff,&image_size);	
+   jpeg_mem_dest(&cinfo,&image_buff,&image_size);
 
 
 
 
-//  if ((outfile = fopen(FILENAME, "wb")) == NULL) {
-//    fprintf(stderr, "can't open %s\n", FILENAME);
-//    exit(1);
-//	}
-//  jpeg_stdio_dest(&cinfo, outfile);
+  if ((outfile = fopen(FILENAME, "wb")) == NULL) {
+    fprintf(stderr, "can't open %s\n", FILENAME);
+    exit(1);
+	}
+  jpeg_stdio_dest(&cinfo, outfile);
 
   cinfo.image_width = width; 	/* image width and height, in pixels */
   cinfo.image_height = height;
@@ -127,10 +129,10 @@ unsigned long *j_size,int width, int height,int quality )
 ////////////////////////////////////////////////////////
 int yuyv_to_jpeg(unsigned char* yuv422,unsigned char**jpeg_buff,
 unsigned long *jpeg_size,int width, int height,int quality)
-{	
+{
 	unsigned char* rgb24=(unsigned char *)malloc(width*height*3);
  	yuv422_to_rgb24(yuv422,rgb24,width,height);
- 
+
 	rgb24_to_jpeg(rgb24,jpeg_buff,jpeg_size,width,height,quality);
 
  	free(rgb24);
