@@ -80,13 +80,13 @@ while(1)
 	unsigned long jpeg_size=0;
 		sem_wait(&v_send);
 //       while(ctrl_cmd->video_send_func==VIDEO_SEND_DISABLE)
-                pthread_testcancel();
+//                pthread_testcancel();
 	yuyv_to_jpeg(v_data.start_data,&jpeg_buff,&jpeg_size,
 	VIDEO_WIDTH,VIDEO_HEIGHT,QUALITY);
 
 //	printf("the jpeg size is:%ld\n",jpeg_size);
 //	file_len=read_file_to_buff(FILENAME,video_buff);
-//	printf("the video pic is %d bytes\n",file_len);
+//	printf("the video pic is %d bytes\n",strlen(jpeg_buff));
 
 sendto(ss,jpeg_buff,jpeg_size,0,(struct sockaddr*)&client_addr,addr_len);
 
