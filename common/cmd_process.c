@@ -6,13 +6,14 @@
 #include <string.h>
 #include <pthread.h>
 #include <semaphore.h>
+#include "data_structure.h"
 #include "data_config.h"
 #include "cmd.h"
 #include <signal.h>
 
 ///////////////////////////////////////
 char input_cmd[CMD_LENGTH];
-
+Cmd_Info cmd_info;
 extern unsigned int get_input_cmd(char* input_cmd);
 extern int excute_cmd(unsigned int code);
 extern void init_cmd();

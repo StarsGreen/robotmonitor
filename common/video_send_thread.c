@@ -11,12 +11,12 @@
 #include <arpa/inet.h>  
 #include <pthread.h>
 #include <sys/time.h>
-#include "data_refer.h"
+//#include "data_refer.h"
 
 
 
 extern sem_t v_get,v_send;
-
+struct video_data v_data;
 extern int read_file_to_buff(unsigned char* filename,char* buff);
 extern int yuyv_to_jpeg(unsigned char* yuv422,int quality,
 int width, int height);
@@ -32,7 +32,6 @@ void* video_send_thread(int conn)
 
 	unsigned char *filebuff;
 	v_data.send_status=0;
-
 
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);

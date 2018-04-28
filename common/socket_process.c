@@ -13,8 +13,9 @@
 #include <sys/shm.h>
 #include <sys/ipc.h>
 #include <signal.h>
-#include "data_config.h"
 #include "data_structure.h"
+#include "data_config.h"
+//#include "data_structure.h"
 
 //extern struct socket_info sock_info; 
 extern void read_cmd(char* cmd);

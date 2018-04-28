@@ -6,12 +6,12 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include "data_refer.h"
 #include "data_structure.h"
 #include "cmd.h"
 #include "data_config.h"
 //extern char input_cmd[CMD_LENGTH];
 extern void* get_ll_shmid(key_t key,int size);
+extern Cmd_Info cmd_info;
 /////////////////////////////////////////////////
 
 void* get_move_cmd_addr()

@@ -11,7 +11,7 @@
 #include <fcntl.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include "data_refer.h"
+#include "data_structure.h"
 #include "data_config.h"
 //#include "cmd.h"
 
@@ -45,6 +45,8 @@ const float Q_offset=0.5;
 const float R_offset=0.25;
 const float dt=0.1;
 
+M_Node M_info;
+M_Pointer M_info_pointer;
 //extern int cond;
 //extern pthread_mutex_t thread_mutex;
 //extern pthread_cond_t thread_cond;

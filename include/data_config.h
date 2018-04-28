@@ -57,9 +57,9 @@
 #define MOVE_LL_KEY 0X0001
 #define SOCK_LL_KEY 0X0002
 #define CTRL_CMD_KEY 0X0003
-#define MOVE_CMD_KEY 0X0004
+#define MOVE_CMD_KEY 0X0005
 
-#define MOVE_LL_SIZE sizeof(struct M_LinkList)
-#define SOCK_LL_SIZE sizeof(struct S_LinkList)
+#define MOVE_LL_SIZE sizeof(mll)
+#define SOCK_LL_SIZE sizeof(sll)
 
 

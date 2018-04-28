@@ -5,8 +5,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <pthread.h>
+#include "data_structure.h"
 #include "data_config.h"
-#include "global_data.h"
+//#include "global_data.h"
 //#include "cmd.h"
 #include <semaphore.h>
 #include <sys/ipc.h>
