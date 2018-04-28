@@ -142,43 +142,42 @@ return code_msg;
 //////////////////////////////////////////////
 char* assemble_info(void)
 {
-//	printf("1\n");
-	static char info[42];
-//	printf("4\n");
+	static char info[43];
+
 	M_Pointer p=(M_Pointer)malloc(M_NODE_SIZE);
  	mll_ptr gp=get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
 	M_Pointer tail=(M_Pointer)shmat(gp->Tail_shmid,NULL,0);
 	memcpy(p,tail,M_NODE_SIZE);
-//	printf("5\n");
+
 	int value=(int)(sqrt((p->accel_info.xl_accel)*(p->accel_info.xl_accel)+
 	(p->accel_info.yl_accel)*(p->accel_info.yl_accel)+
-	(p->accel_info.zl_accel)*(p->accel_info.zl_accel))*10000);
+	(p->accel_info.zl_accel)*(p->accel_info.zl_accel))*100);
 	info[0]='a';
 	memcpy(&info[1],code_info(value),6);
 ////////////////////////////////////////////
 	value=(int)(sqrt((p->vel_info.xl_vel)*(p->vel_info.xl_vel)+
 	(p->vel_info.yl_vel)*(p->vel_info.yl_vel)+
-	(p->vel_info.zl_vel)*(p->vel_info.zl_vel))*10000);
+	(p->vel_info.zl_vel)*(p->vel_info.zl_vel))*100);
 	info[7]='v';
 	memcpy(&info[8],code_info(value),6);
-//	printf("2\n");
 ///////////////////////////////////////////////
-	value=(int)(p->jour_info.xl*10000);
+	value=(int)(p->jour_info.xl*10);
 	info[14]='x';
 	memcpy(&info[15],code_info(value),6);
 ///////////////////////////////////////////////
-	value=(int)(p->jour_info.yl*10000);
+	value=(int)(p->jour_info.yl*10);
 	info[21]='y';
 	memcpy(&info[22],code_info(value),6);
 //////////////////////////////////////////
-	value=(int)(p->temper*10000);
+	value=(int)(p->temper*10);
 	info[28]='t';
 	memcpy(&info[29],code_info(value),6);
 //////////////////////////////////////////
-	value=(int)(p->dist*10000);
+	value=(int)(p->dist*10);
 	info[35]='d';
 	memcpy(&info[36],code_info(value),6);
 ///////////////////////////////////////////
+	info[42]='\n';
 //	memcpy(pointer,info,42);
 //	return info;
 //	printf("3\n");
@@ -211,6 +210,7 @@ void* info_recv_thread(void* s)
 		memset(buffer,0,sizeof(buffer));
 //                while(cp->info_send_func==INFO_SEND_DISABLE)
 		int len = recv(conn, buffer, sizeof(buffer),0);
+		printf("the recv msg is:%s",buffer);
 		if(len>0)
 			{
 			if(strcmp(buffer,"exit")==0)
@@ -256,9 +256,9 @@ void* info_send_thread(void* s)
 		pthread_testcancel();
 //		msg_buf="ok";
 		msg_buf=assemble_info();
-		sleep(500);
+		sleep(1);
 //                while(cp->info_send_func==INFO_SEND_DISABLE)
-                pthread_testcancel();
+//                pthread_testcancel();
 //		printf("msg_buf is: %s\n",msg_buf);
 		if(msg_buf!=NULL)
 			send_flag=send(conn,msg_buf,strlen(msg_buf), 0);

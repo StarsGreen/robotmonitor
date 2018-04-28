@@ -182,12 +182,12 @@ if(data&0x8000)
   {
         data=data&0x7fff;
         if(data>25000)data=0;
-        return -ACCEL_RANGE*data/32768;
+        return -ACCEL_RANGE*data/32768+9.8;
   }
 else
   {
         if(data>25000)data=0;
- return ACCEL_RANGE*data/32768;
+ return ACCEL_RANGE*data/32768-9.8;
   }
 }
 //////////////////////////////////////////////
