@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <setjmp.h>
 #include "jpeglib.h"
-#include "global_data.h"
+//#include "global_data.h"
 
 #define FILENAME "test.jpeg"
 

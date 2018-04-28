@@ -7,18 +7,19 @@
 #include <string.h>
 #include <stdlib.h>
 #include "data_refer.h"
+#include "data_structure.h"
 #include "cmd.h"
-//#include "data_structure.h"
 #include "data_config.h"
 //extern char input_cmd[CMD_LENGTH];
 extern void* get_ll_shmid(key_t key,int size);
 /////////////////////////////////////////////////
+
 void* get_move_cmd_addr()
 {
-int move_cmd_shmid = shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT|0666);
+int move_cmd_shmid = shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT);
     if(move_cmd_shmid == -1)
     {
-        perror("failed to shmget move_ll\n");
+        perror("failed to shmget move_cmd_addr\n");
         return NULL;
     }
     void* ptr=NULL;
@@ -74,7 +75,7 @@ void read_cmd(char* cmd)
 
 	if(len>5)
 		{
-
+//		move_cmd* m_cmd=get_ll_shmid(MOVE_CMD_KEY,MOVE_CMD_SIZE);
 		move_cmd* m_cmd=get_move_cmd_addr();
 		pthread_mutex_lock(&m_cmd->lock);
 		m_cmd->cmd_type=atoi(cmd_t);

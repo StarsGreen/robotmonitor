@@ -29,7 +29,7 @@ typedef struct cmd_info
 }Cmd_Info;
 typedef Cmd_Info* Cmd_Info_Pointer;
 /////////////////////////////
-typedef struct move_cmd
+typedef struct move_cmd_struct
 {
 	int cmd_type;
 	int angle;
