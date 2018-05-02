@@ -13,15 +13,18 @@
 #include <sys/ipc.h>
 #include "data_structure.h"
 #include "data_config.h"
-#include "cmd.h"
+//#include "cmd.h"
 #include <signal.h>
 #include <math.h>
-extern void read_cmd(char* cmd);
+extern int read_cmd(char* cmd);
 //extern struct move_info M_info;
 extern void slist_delete(char* ip);
 extern void* get_ll_shmid(key_t key,int size);
 extern void* get_ctrl_cmd_addr();
 Ctrl_Pointer cp=NULL;
+
+//static int read_enable=0,read_status=0;
+static char buffer[ARRAY_SIZE];
 /////////////////////////////////////////
 static void sock_cleanup_handler(void *arg)
 {
@@ -195,9 +198,11 @@ void* info_recv_thread(void* s)
 //	printf("one break \n");
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
-	char buffer[ARRAY_SIZE];
+//	char buffer[ARRAY_SIZE];
 	int conn=((S_Params*)s)->conn;
 	char* ip=((S_Params*)s)->ip;
+	char* delim="\n";
+	char* p;
 //	Ctrl_Pointer cp=get_ctrl_cmd_addr();
 //	int conn=*(int*)s;
         pthread_cleanup_push(sock_cleanup_handler, &conn);
@@ -209,7 +214,8 @@ void* info_recv_thread(void* s)
 		pthread_testcancel();
 		memset(buffer,0,sizeof(buffer));
 //                while(cp->info_send_func==INFO_SEND_DISABLE)
-		int len = recv(conn, buffer, sizeof(buffer),0);
+//		read_enable=0;
+		int len = recv(conn, buffer,9,0);
 		printf("the recv msg is:%s",buffer);
 		if(len>0)
 			{
@@ -222,8 +228,16 @@ void* info_recv_thread(void* s)
 				}
 			else
 				{
-				printf("the recv msg is:%s",buffer);
-				read_cmd(buffer);
+//				printf("the recv msg is:%s",buffer);
+//				read_enable=1;
+//			while(read_status==0);
+/*			p=strtok(buffer,delim);
+			if(p!=NULL)
+			read_cmd(p);
+			while((p=strtok(NULL,delim))){
+			printf("tne recv move cmd is:%s\n",p);*/
+			read_cmd(buffer);
+			memset(buffer,0,sizeof(buffer));
 				}
 			}
 		else
@@ -275,6 +289,26 @@ void* info_send_thread(void* s)
 	}
         pthread_cleanup_pop(0);
 }
-
-
+////////////////////////////////////////////////////////
+/*
+void * cmd_read_thread(void* s)
+{
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
+//        pthread_cleanup_push(sock_cleanup_handler,&conn);
+	char buff[ARRAY_SIZE];
+while(1)
+  {
+  pthread_testcancel();
+  read_status=0;
+  if(read_enable)
+     {
+	memcpy(buff,buffer,ARRAY_SIZE);
+	read_cmd(buff);
+	memset(buff,0,sizeof(buffer));
+     }
+  read_status=1;
+  }
+}
+*/
 

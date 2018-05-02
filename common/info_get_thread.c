@@ -11,6 +11,7 @@
 #include <fcntl.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
+#include <sys/time.h>
 #include "data_structure.h"
 #include "data_config.h"
 //#include "cmd.h"
@@ -43,7 +44,7 @@ float pya_conv=0.5;
 float pza_conv=0.5;
 const float Q_offset=0.5;
 const float R_offset=0.25;
-const float dt=0.1;
+static float dt=0.1;
 
 M_Node M_info;
 M_Pointer M_info_pointer;
@@ -92,6 +93,7 @@ while(1)
 		goto start;
 		}
 		sem_post(&sensor_mid);
+//printf("temper get finished!\n");
 //		pthread_testcancel();
 	}
 nothing:
@@ -135,6 +137,7 @@ while(1)
 		goto start;
 		}
 		sem_post(&sensor_stop);
+//printf("dist get finished!\n");
 //		pthread_testcancel();
 	}
 nothing:
@@ -171,6 +174,8 @@ while(1)
 //	shmdt(mp);
 //	shmdt(tail);
 	pthread_mutex_unlock(&p->move_ll_lock);
+	struct timeval t1;  // 结构体，可以记录秒和微秒两部分值
+	gettimeofday(&t1, NULL);
 	if(fd!=-1)
 	    {
 		M_info.vel_info.xa_vel=xa_read(fd);
@@ -190,6 +195,12 @@ while(1)
 	      }
 	goto start;
      	    }
+	struct timeval t2;
+	gettimeofday(&t2, NULL);
+	long start, stop;//换算为微秒
+	start = t1.tv_sec * 1000000 + t1.tv_usec; // 开始时刻
+	stop = t2.tv_sec * 1000000 + t2.tv_usec;  // 结束时刻计算距离
+	dt=(float)(stop - start) / 1000000;
 	if(M_info_pointer!=NULL){
 M_info.vel_info.xl_vel=M_info_pointer->vel_info.xl_vel+
 M_info.accel_info.xl_accel*dt;
@@ -235,6 +246,7 @@ mlist_add(M_info);
 //free(tem_p);
     }
 	sem_post(&sensor_start);
+//printf("accel get finished!\n");
 	free(M_info_pointer);
 	shmdt(p);
 	shmdt(tail);

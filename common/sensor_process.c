@@ -26,21 +26,21 @@ sem_t sensor_start,sensor_mid,sensor_stop;
 int cancel_sensor_thread()
 {
 	if(pthread_cancel(temper_thread)!=0)
-		printf("cancel temper thread failed");
+		printf("cancel temper thread failed!!!!!!\n");
 	else{
 		if(pthread_join(temper_thread,NULL)==0)
 		printf("cancel temper thread successfully\n");
 		}
 
 	if(pthread_cancel(accel_thread)!=0)
-		printf("cancel accel get thread failed");
+		printf("cancel accel get thread failed!!!!!!\n");
 	else{
 		if(pthread_join(accel_thread,NULL)==0);
 		printf("cancel accel get thread successfully\n");
 		}
 
 	if(pthread_cancel(dist_thread)!=0)
-		printf("cancel dist get thread failed");
+		printf("cancel dist get thread failed!!!!!!\n");
 	else{
 		if(pthread_join(dist_thread,NULL)==0);
 		printf("cancel dist get thread successfully\n");

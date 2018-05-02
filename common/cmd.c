@@ -16,7 +16,7 @@ extern Cmd_Info cmd_info;
 
 void* get_move_cmd_addr()
 {
-int move_cmd_shmid = shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT);
+int move_cmd_shmid = shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT|0666);
     if(move_cmd_shmid == -1)
     {
         perror("failed to shmget move_cmd_addr\n");
@@ -33,46 +33,50 @@ int *check_str(char* str)
 {
 	int i,j=0;
 	static int index[3];
+	char ch[3]={'t','a','v'};
 	int len=strlen(str);
+	if(len<6)goto last;
+	for(j=0;j<3;j++)
 	for(i=0;i<len;i++)
-		if(((*(str+i))=='t')||((*(str+i)=='a'))||((*(str+i)=='v')))
+		if(((*(str+i))==ch[j]))
 		{
 		index[j]=i;
-		j++;
 		}
+	if(index[0]==0&&index[1]==2&&index[2]==len-2)
 	return index;
-}
-//////////////////////////////////////////////
-char* get_cmd(char* buffer)
-{
-		return buffer;
+	else
+	{
+//	printf("recv wrong move cmd\n");
+	return NULL;
+	}
+last:return NULL;
 }
 ///////////////////////////////////////////
-void read_cmd(char* cmd)
+int read_cmd(char* cmd)
 {
 	int index[3],i,j;
-	char *temchar,cmd_t[2],vel[2],angle[3];
+	int *p;
+	int len=strlen(cmd);
+	p=check_str(cmd);
+	if(p!=NULL)
+	memcpy(index,p,3);
+	else goto last;
+	char cmd_t[2],vel[2],angle[3];
 	memset(angle,0,sizeof(angle));
 	memset(vel,0,sizeof(vel));
 	memset(cmd_t,0,sizeof(cmd_t));
-	temchar=get_cmd(cmd);
 //        printf("cmd is %s\n",temchar);
-	int len=strlen(temchar);
-	for(j=0;j<3;j++)
-		*(index+j)=*(check_str(temchar)+j);
 //	for(i=0;i<3;i++)
 //		printf("index[%d]: %d \n",i,index[i]);
 	j=0;
 	for(i=index[0]+1;i<index[1];i++)
-		*(cmd_t+j++)=*(temchar+i);
+		*(cmd_t+j++)=*(cmd+i);
 	j=0;
 	for(i=index[1]+1;i<index[2];i++)
-		*(angle+j++)=*(temchar+i);
+		*(angle+j++)=*(cmd+i);
 	j=0;
-
 	for(i=index[2]+1;i<len;i++)
-		*(vel+j++)=*(temchar+i);
-
+		*(vel+j++)=*(cmd+i);
 	if(len>5)
 		{
 //		move_cmd* m_cmd=get_ll_shmid(MOVE_CMD_KEY,MOVE_CMD_SIZE);
@@ -84,9 +88,11 @@ void read_cmd(char* cmd)
                pthread_mutex_unlock(&m_cmd->lock);
 		shmdt(m_cmd);
 		}
+	return 0;
 //	printf("cmd_type %d\n",m_cmd.cmd_type);
 //	printf("cmd_angle %d\n",m_cmd.angle);
 //	printf("cmd_vel %d\n",m_cmd.vel);
+last:	return 1;
 }
 ////////////////////////////////////////////////////
 void* get_ctrl_cmd_addr()
@@ -532,17 +538,17 @@ int init_ctrl_cmd()
 int ctrl_cmd_shmid = shmget(CTRL_CMD_KEY,CTRL_CMD_SIZE,IPC_CREAT|0666);
     if(ctrl_cmd_shmid == -1)
     {
-        perror("failed to shmget move_ll\n");
+        perror("failed to shmget ctrl_cmd_mem\n");
         return -1;
     }
 	return 0;
 }
 int init_move_cmd()
 {
-int move_cmd_shmid = shmget(MOVE_CMD_KEY,CTRL_CMD_SIZE,IPC_CREAT|0666);
+int move_cmd_shmid = shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT|0666);
     if(move_cmd_shmid == -1)
     {
-        perror("failed to shmget move_ll\n");
+        perror("failed to shmget move_cmd_mem\n");
         return -1;
     }
 	return 0;

@@ -57,8 +57,5 @@
 #define HELP_CODE 0xfffffff0
 #define ERROR_CODE 0xf0f0f0f0
 
-#define CTRL_CMD_SIZE sizeof(Ctrl_Cmd)
-#define CMD_INFO_SIZE sizeof(Cmd_Info)
-#define MOVE_CMD_SIZE sizeof(move_cmd)
 #define MAX_CMD_LENGTH 40
 /////////////////////////////////////////////
