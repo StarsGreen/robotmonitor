@@ -27,6 +27,7 @@ extern int destroy_mlist(void);
 extern int init_mlist();
 extern int init_slist();
 extern void* get_ll_shmid(key_t key,int size);
+extern void *get_move_cmd_addr();
 pid_t monitor_pro_pid,socket_pro_pid,cmd_pro_pid,sensor_pro_pid;
 int main_err;
 //////////////////////////////////////////////
@@ -54,8 +55,11 @@ struct M_LinkList* m_gp=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE
 pthread_mutex_init(&m_gp->move_ll_lock,NULL);
 struct S_LinkList* s_gp=(struct S_LinkList*)get_ll_shmid(SOCK_LL_KEY,S_NODE_SIZE);
 pthread_mutex_init(&s_gp->sock_ll_lock,NULL);
+move_cmd* m_cmd=get_move_cmd_addr();
+pthread_mutex_init(&m_cmd->lock,NULL);
 shmdt(m_gp);
 shmdt(s_gp);
+shmdt(m_cmd);
 }
 ///////////////////////////////////////////
 void sig_proceed(int signo)

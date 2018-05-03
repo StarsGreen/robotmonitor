@@ -160,7 +160,7 @@ return ACCEL_RANGE*data/32768;
 ////////////////////////////////////////////
 float yl_read(int fd)
 {
-short data=get_data(fd,ACCEL_YOUT_H)+10;
+short data=get_data(fd,ACCEL_YOUT_H)+100;
 if(data&0x8000)
   {
         data=data&0x7fff;

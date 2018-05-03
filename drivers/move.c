@@ -60,7 +60,7 @@ printf("move up left ,angle %d ,vel %d\n",angle,vel);
 
 void move_direct_stop(void)
 {
-printf("move direct stop\n");
+//printf("move direct stop\n");
 }
 /////////////////////////////////////////////
 void move_init(void)

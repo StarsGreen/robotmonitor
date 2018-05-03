@@ -13,7 +13,6 @@
 extern void* get_ll_shmid(key_t key,int size);
 extern Cmd_Info cmd_info;
 /////////////////////////////////////////////////
-
 void* get_move_cmd_addr()
 {
 int move_cmd_shmid = shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT|0666);
