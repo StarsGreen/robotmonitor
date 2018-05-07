@@ -200,7 +200,7 @@ void init_dist_sensor(void)
 ////////////////////////////////////////////
 float dist_read(void)
 {
-//	init_dist_sensor();
+	init_dist_sensor();
 // 低高低是发射声波的信号，通过4号一脚发出
 	digitalWrite(4, LOW);
 	digitalWrite(4, HIGH);

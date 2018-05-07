@@ -22,6 +22,7 @@ while(1)
 	pthread_testcancel();
 //        while(ctrl_cmd.move_ctrl_func==MOVE_CTRL_DISABLE)
   //              pthread_testcancel();
+	usleep(100000);
 	move_cmd* m_cmd=get_move_cmd_addr();
 	pthread_mutex_lock(&m_cmd->lock);
 //	move(m_cmd->cmd_type,m_cmd->angle,m_cmd->vel);

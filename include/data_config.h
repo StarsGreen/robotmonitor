@@ -54,10 +54,10 @@
 #define MAX_NODE_NUM 200
 
 
-#define MOVE_LL_KEY 0X0001
-#define SOCK_LL_KEY 0X0002
-#define CTRL_CMD_KEY 0X0003
-#define MOVE_CMD_KEY 0X0004
+#define MOVE_LL_KEY 1004
+#define SOCK_LL_KEY 1001
+#define CTRL_CMD_KEY 1002
+#define MOVE_CMD_KEY 1003
 
 #define MOVE_LL_SIZE sizeof(mll)
 #define SOCK_LL_SIZE sizeof(sll)

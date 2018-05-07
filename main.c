@@ -22,12 +22,15 @@ int cancel_all_process();
 void sig_proceed(int signo);
 void sys_init();
 void init_syslock();
+void init_share_mem();
 extern int destroy_slist(void);
 extern int destroy_mlist(void);
 extern int init_mlist();
 extern int init_slist();
 extern void* get_ll_shmid(key_t key,int size);
 extern void *get_move_cmd_addr();
+extern void* get_ctrl_cmd_addr();
+extern void* move_direct_stop(void);
 pid_t monitor_pro_pid,socket_pro_pid,cmd_pro_pid,sensor_pro_pid;
 int main_err;
 //////////////////////////////////////////////
@@ -45,8 +48,8 @@ void sys_init()
 {
 	init_slist();
 	init_mlist();
+	init_share_mem();
 	init_syslock();
-//	init_share_memory();
 }
 //////////////////////////////////////////
 void init_syslock()
@@ -61,6 +64,18 @@ shmdt(m_gp);
 shmdt(s_gp);
 shmdt(m_cmd);
 }
+////////////////////////////////////////////
+void init_share_mem()
+{
+shmdt(get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE));
+shmdt(get_ll_shmid(SOCK_LL_KEY,S_NODE_SIZE));
+move_cmd* m_cmd=get_move_cmd_addr();
+memset(m_cmd,0,sizeof(move_cmd));
+shmdt(m_cmd);
+Ctrl_Pointer c_ptr=get_ctrl_cmd_addr();
+memset(c_ptr,0,sizeof(Ctrl_Cmd));
+shmdt(c_ptr);
+}
 ///////////////////////////////////////////
 void sig_proceed(int signo)
 {
@@ -68,12 +83,17 @@ if(signo==SIGINT)
 	cancel_all_process();
 destroy_mlist();
 destroy_slist();
-struct M_LinkList* m_gp=(struct M_LinkList*)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
-struct S_LinkList* s_gp=(struct S_LinkList*)get_ll_shmid(SOCK_LL_KEY,SOCK_LL_SIZE);
+struct M_LinkList* m_gp=get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
+struct S_LinkList* s_gp=get_ll_shmid(SOCK_LL_KEY,SOCK_LL_SIZE);
+move_cmd* m_cmd=get_move_cmd_addr();
 pthread_mutex_destroy(&m_gp->move_ll_lock);
 pthread_mutex_destroy(&s_gp->sock_ll_lock);
+pthread_mutex_destroy(&m_cmd->lock);
 shmctl(shmget(MOVE_LL_KEY,MOVE_LL_SIZE,IPC_CREAT|0666),IPC_RMID, NULL);
 shmctl(shmget(SOCK_LL_KEY,SOCK_LL_SIZE,IPC_CREAT|0666), IPC_RMID, NULL); 
+shmctl(shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT|0666),IPC_RMID,NULL);
+shmctl(shmget(CTRL_CMD_KEY,CTRL_CMD_SIZE,IPC_CREAT|0666),IPC_RMID,NULL);
+move_direct_stop();
 exit(1);
 }
 ///////////////////////////////////////////

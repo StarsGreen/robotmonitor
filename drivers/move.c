@@ -4,7 +4,39 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#include <wiringPi.h>
+#include <softPwm.h>
 #include "cmd.h"
+#define ENA 3
+#define ENB 25
+#define IN1 21
+#define IN2 22
+#define IN3 23
+#define IN4 24
+#define BASE_REV 20
+#define LOW_REV 16
+#define HIGH_REV 20
+#define leftwheel_clockwise(vel) do {\
+digitalWrite(IN1,HIGH);\
+digitalWrite(IN2,LOW);\
+softPwmWrite(ENA,vel);\
+}while(0)
+#define leftwheel_anti_clockwise(vel) do{\
+digitalWrite(IN1,LOW);\
+digitalWrite(IN2,HIGH);\
+softPwmWrite(ENA,vel);\
+}while(0)
+#define rightwheel_clockwise(vel) do{\
+digitalWrite(IN3,HIGH);\
+digitalWrite(IN4,LOW);\
+softPwmWrite(ENB,vel);\
+}while(0)
+#define rightwheel_anti_clockwise(vel) do{\
+digitalWrite(IN3,LOW);\
+digitalWrite(IN4,HIGH);\
+softPwmWrite(ENB,vel);\
+}while(0)
+////////////////////////////////////////////////////
 struct move_interface
 {
         void(*move_direct_right)(int angle,int vel);
@@ -18,53 +50,101 @@ struct move_interface
 	void(*move_direct_stop)(void);
 }move_action;
 ////////////////////////////////////////////////
+
+////////////////////////////////////////////////
 void move_direct_up(int angle,int vel)
 {
-printf("move direct up ,angle %d ,vel %d\n",angle,vel);
+int ang=angle-6*45;
+//printf("move direct up ,angle %d ,vel %d\n",angle,vel);
+leftwheel_clockwise((int)(BASE_REV+HIGH_REV*ang/45*vel));
+rightwheel_clockwise((int)(BASE_REV+LOW_REV*ang/45*vel));
 }
 
 void move_up_right(int angle,int vel)
 {
-printf("move up right ,angle %d ,vel %d\n",angle,vel);
+int ang=angle-7*45;
+//printf("move up right ,angle %d ,vel %d\n",angle,vel);
+leftwheel_clockwise((int)(BASE_REV+HIGH_REV*ang/45*vel));
+rightwheel_clockwise((int)(BASE_REV+LOW_REV*ang/45*vel));
 }
 
 void move_direct_right(int angle,int vel)
 {
-printf("move direct right ,angle %d ,vel %d\n",angle,vel);
+//printf("move direct right ,angle %d ,vel %d\n",angle,vel);
+int ang=angle;
+rightwheel_anti_clockwise((int)(BASE_REV+HIGH_REV*(ang+45)/45*vel));
+leftwheel_anti_clockwise((int)(BASE_REV+LOW_REV*(ang+45)/45*vel));
 }
 
 void move_down_right(int angle,int vel)
 {
-printf("move down right ,angle %d ,vel %d\n",angle,vel);
+//printf("move down right ,angle %d ,vel %d\n",angle,vel);
+int ang=angle-1*45;
+leftwheel_clockwise((int)(BASE_REV+HIGH_REV*(ang+45)/45*vel));
+rightwheel_clockwise((int)(BASE_REV+LOW_REV*(ang+45)/45*vel));
 }
 
 void move_direct_down(int angle,int vel)
 {
-printf("move direct down ,angle %d ,vel %d\n",angle,vel);
+//printf("move direct down ,angle %d ,vel %d\n",angle,vel);
+int ang=angle-2*45;
+leftwheel_clockwise((int)(BASE_REV+HIGH_REV*(ang+45)/45*vel));
+rightwheel_clockwise((int)(BASE_REV+LOW_REV*(ang+45)/45*vel));
+
 }
 
 void move_down_left(int angle,int vel)
 {
-printf("move down left ,angle %d ,vel %d\n",angle,vel);
+//printf("move down left ,angle %d ,vel %d\n",angle,vel);
+int ang=angle-3*45;
+rightwheel_clockwise((int)(BASE_REV+HIGH_REV*(ang+45)/45*vel));
+leftwheel_clockwise((int)(BASE_REV+LOW_REV*(ang+45)/45*vel));
+
 }
 
 void move_direct_left(int angle,int vel)
 {
-printf("move direct left ,angle %d ,vel %d\n",angle,vel);
+//printf("move direct left ,angle %d ,vel %d\n",angle,vel);
+int ang=angle-4*45;
+rightwheel_clockwise((int)(BASE_REV+HIGH_REV*(ang+45)/45*vel));
+leftwheel_clockwise((int)(BASE_REV+LOW_REV*(ang+45)/45*vel));
+
 }
 
 void move_up_left(int angle,int vel)
 {
-printf("move up left ,angle %d ,vel %d\n",angle,vel);
+//printf("move up left ,angle %d ,vel %d\n",angle,vel);
+int ang=angle-5*45;
+rightwheel_clockwise((int)(BASE_REV+HIGH_REV*ang/45*vel));
+leftwheel_clockwise((int)(BASE_REV+LOW_REV*ang/45*vel));
 }
 
 void move_direct_stop(void)
 {
 //printf("move direct stop\n");
 }
-/////////////////////////////////////////////
+////////////////////////////////////////////
+void setup_pin()
+{
+pinMode(ENA,OUTPUT);
+pinMode(IN1,OUTPUT);
+pinMode(IN2,OUTPUT);
+pinMode(IN3,OUTPUT);
+pinMode(IN4,OUTPUT);
+pinMode(ENB,OUTPUT);
+//digitalWrite(ENA, LOW);
+softPwmCreate(ENB,LOW,100);
+softPwmCreate(ENA,LOW,100);
+digitalWrite(IN1, LOW);
+digitalWrite(IN2, LOW);
+digitalWrite(IN3, LOW);
+digitalWrite(IN4, LOW);
+//digitalWrite(ENB, LOW);
+}
+////////////////////////////////////////////
 void move_init(void)
 {
+	setup_pin();
 	move_action.move_direct_up=move_direct_up;
 	move_action.move_up_right=move_up_right;
 	move_action.move_direct_right=move_direct_right;

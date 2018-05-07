@@ -41,7 +41,7 @@ int *check_str(char* str)
 		{
 		index[j]=i;
 		}
-	if(index[0]==0&&index[1]==2&&index[2]==len-2)
+	if(index[0]==0&&index[1]==2&&index[2]==6)
 	return index;
 	else
 	{
@@ -56,9 +56,14 @@ int read_cmd(char* cmd)
 	int index[3],i,j;
 	int *p;
 	int len=strlen(cmd);
+//	int len=9;
 	p=check_str(cmd);
 	if(p!=NULL)
-	memcpy(index,p,3);
+	{
+	index[0]=p[0];
+	index[1]=p[1];
+	index[2]=p[2];
+	}
 	else goto last;
 	char cmd_t[2],vel[2],angle[3];
 	memset(angle,0,sizeof(angle));
@@ -85,12 +90,12 @@ int read_cmd(char* cmd)
 		m_cmd->angle=atoi(angle);
 		m_cmd->vel=atoi(vel);
                pthread_mutex_unlock(&m_cmd->lock);
+      printf("cmd_type: %d\n",m_cmd->cmd_type);
+      printf("cmd_angle: %d\n",m_cmd->angle);
+      printf("cmd_vel: %d\n",m_cmd->vel);
 		shmdt(m_cmd);
 		}
 	return 0;
-//	printf("cmd_type %d\n",m_cmd.cmd_type);
-//	printf("cmd_angle %d\n",m_cmd.angle);
-//	printf("cmd_vel %d\n",m_cmd.vel);
 last:	return 1;
 }
 ////////////////////////////////////////////////////

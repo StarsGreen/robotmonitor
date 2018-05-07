@@ -215,8 +215,8 @@ void* info_recv_thread(void* s)
 		memset(buffer,0,sizeof(buffer));
 //                while(cp->info_send_func==INFO_SEND_DISABLE)
 //		read_enable=0;
-		int len = recv(conn, buffer,9,0);
-		printf("the recv msg is:%s",buffer);
+		int len = recv(conn, buffer,8,0);
+//		printf("the recv msg is:%s",buffer);
 		if(len>0)
 			{
 			if(strcmp(buffer,"exit")==0)
