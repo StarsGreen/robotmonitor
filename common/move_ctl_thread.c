@@ -25,9 +25,9 @@ while(1)
 	usleep(100000);
 	move_cmd* m_cmd=get_move_cmd_addr();
 	pthread_mutex_lock(&m_cmd->lock);
-//	move(m_cmd->cmd_type,m_cmd->angle,m_cmd->vel);
-printf("cmd_type is %d,cmd_angle is %d,cmd_vel is %d\n",m_cmd->cmd_type,
-m_cmd->angle,m_cmd->vel);
+	move(m_cmd->cmd_type,m_cmd->angle,m_cmd->vel);
+//printf("cmd_type is %d,cmd_angle is %d,cmd_vel is %d\n",m_cmd->cmd_type,
+//m_cmd->angle,m_cmd->vel);
 	pthread_mutex_unlock(&m_cmd->lock);
 	shmdt(m_cmd);
 	}

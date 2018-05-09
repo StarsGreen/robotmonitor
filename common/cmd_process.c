@@ -63,7 +63,7 @@ void* cmd_process()
 	init_cmd();
 while(1)
   {
-/*	printf("\n-->");
+	printf("\n-->");
 	cmd_length=input(input_cmd);
 	printf("\n the input is %s\n",input_cmd);
 	if(cmd_length==0)goto last;
@@ -83,7 +83,7 @@ while(1)
 	excute_cmd(code);
 
     }
-*/
+
 last:
 	do{
 //	get_move_info();

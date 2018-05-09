@@ -201,7 +201,7 @@ while(1)
 	start = t1.tv_sec * 1000000 + t1.tv_usec; // 开始时刻
 	stop = t2.tv_sec * 1000000 + t2.tv_usec;  // 结束时刻计算距离
 	dt=(float)(stop - start) / 1000000;
-	if(M_info_pointer!=NULL){
+   if(M_info_pointer!=NULL){
 M_info.vel_info.xl_vel=M_info_pointer->vel_info.xl_vel+
 M_info.accel_info.xl_accel*dt;
 
@@ -210,6 +210,15 @@ M_info.accel_info.yl_accel*dt;
 
 M_info.vel_info.zl_vel=M_info_pointer->vel_info.zl_vel+
 M_info.accel_info.zl_accel*dt;
+
+M_info.jour_info.xa=M_info_pointer->jour_info.xa+
+M_info.vel_info.xa_vel*dt;
+
+M_info.jour_info.ya=M_info_pointer->jour_info.ya+
+M_info.vel_info.ya_vel*dt;
+
+M_info.jour_info.za=M_info_pointer->jour_info.za+
+M_info.vel_info.za_vel*dt;
 
 M_info.jour_info.xl=kalman_filter(M_info_pointer->jour_info.xl,
 M_info_pointer->accel_info.xl_accel,

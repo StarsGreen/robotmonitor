@@ -16,6 +16,7 @@
 #include <semaphore.h>
 #include <signal.h>
 #include <sys/wait.h>
+#include<wiringPi.h>
 //int sig_init(); 
 int create_all_process();
 int cancel_all_process();
@@ -50,6 +51,7 @@ void sys_init()
 	init_mlist();
 	init_share_mem();
 	init_syslock();
+	wiringPiSetup();
 }
 //////////////////////////////////////////
 void init_syslock()

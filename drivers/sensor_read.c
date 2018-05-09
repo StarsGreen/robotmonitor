@@ -232,7 +232,9 @@ dis = (float)(stop - start) / 1000000 * 340 / 2 * 100; //单位换算成cm
 	return dis;
 }
 //////////////////////////////////////////
+/*
 void init_interface_pin()
 {
 wiringPiSetup();
 }
+*/
