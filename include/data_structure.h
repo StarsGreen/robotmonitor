@@ -20,7 +20,7 @@ struct Cmd
 {
         int cmd_code;
         void (*func)(void);
-	int  (*fun_parms)(void*);
+	void  (*fun_parms)(void*);
         char* func_name;
 };
 typedef struct cmd_info

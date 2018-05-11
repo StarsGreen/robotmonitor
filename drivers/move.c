@@ -169,7 +169,7 @@ digitalWrite(IN4,LOW);
 //printf("moving has been stopped\n");
 return 0;
 }
-void led_show(int rate)
+int led_show(int rate)
 {
 int led_rate=20*rate;
 led_show(led_rate);

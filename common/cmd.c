@@ -222,11 +222,12 @@ printf("the all function is off\n");
         shmdt(ctrl_cmd);
 }
 /////////////////////////////////////////////////
-void set_led_rate(int parms)
+void set_led_rate(int* parms)
 {
+	int rate=(*parms);
         move_cmd* m_cmd=get_move_cmd_addr();
         pthread_mutex_lock(&m_cmd->lock);
-        m_cmd->led_rate=parms;
+        m_cmd->led_rate=rate;
         pthread_mutex_unlock(&m_cmd->lock);
         shmdt(m_cmd);
 }
