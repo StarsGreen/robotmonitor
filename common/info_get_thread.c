@@ -189,10 +189,15 @@ while(1)
 		M_info.vel_info.xa_vel=xa_read(fd);
 		M_info.vel_info.ya_vel=ya_read(fd);
 		M_info.vel_info.za_vel=za_read(fd);
+
 		M_info.accel_info.xl_accel=xl_read(fd)-gra_x;
 		M_info.accel_info.yl_accel=yl_read(fd)-gra_y;
 		M_info.accel_info.zl_accel=zl_read(fd)-gra_z;
-	    }
+/*
+		M_info.accel_info.xl_accel=xl_read(fd);
+		M_info.accel_info.yl_accel=yl_read(fd);
+		M_info.accel_info.zl_accel=zl_read(fd);
+*/	    }
 	else
 	    {
 	num++;
@@ -212,28 +217,22 @@ while(1)
    if(M_info_pointer!=NULL){
 M_info.vel_info.xl_vel=M_info_pointer->vel_info.xl_vel+
 M_info.accel_info.xl_accel*dt;
-
 M_info.vel_info.yl_vel=M_info_pointer->vel_info.yl_vel+
 M_info.accel_info.yl_accel*dt;
-
 M_info.vel_info.zl_vel=M_info_pointer->vel_info.zl_vel+
 M_info.accel_info.zl_accel*dt;
 
 M_info.jour_info.xa=M_info_pointer->jour_info.xa+
 M_info.vel_info.xa_vel*dt;
-
 M_info.jour_info.ya=M_info_pointer->jour_info.ya+
 M_info.vel_info.ya_vel*dt;
-
 M_info.jour_info.za=M_info_pointer->jour_info.za+
 M_info.vel_info.za_vel*dt;
 
 M_info.pos_info.pitch=M_info_pointer->pos_info.pitch+
 M_info.vel_info.ya_vel*dt;
-
 M_info.pos_info.yaw=M_info_pointer->pos_info.yaw+
 M_info.vel_info.za_vel*dt;
-
 M_info.pos_info.roll=M_info_pointer->pos_info.roll+
 M_info.vel_info.xa_vel*dt;
 

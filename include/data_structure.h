@@ -20,6 +20,7 @@ struct Cmd
 {
         int cmd_code;
         void (*func)(void);
+	int  (*fun_parms)(void*);
         char* func_name;
 };
 typedef struct cmd_info
@@ -34,6 +35,7 @@ typedef struct move_cmd_struct
 	int cmd_type;
 	int angle;
 	int vel;
+	int led_rate;
 pthread_mutex_t lock;
 }move_cmd;
 ///////////////////////////////////

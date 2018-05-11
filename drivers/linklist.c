@@ -113,6 +113,10 @@ int mlist_add(M_Node node)
 	pointer->pos_info.roll=node.pos_info.roll;
 	pointer->pos_info.yaw=node.pos_info.yaw;
 
+	pointer->gra_cpt.gra_x=node.gra_cpt.gra_x;
+	pointer->gra_cpt.gra_y=node.gra_cpt.gra_y;
+	pointer->gra_cpt.gra_z=node.gra_cpt.gra_z;
+
 	pointer->jour_info.xa=node.jour_info.xa;
 	pointer->jour_info.ya=node.jour_info.ya;
 	pointer->jour_info.za=node.jour_info.za;

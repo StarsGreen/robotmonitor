@@ -11,7 +11,7 @@
 extern void move(short cmd_type,short angle,short vel);
 extern void move_init(void);
 extern void* get_move_cmd_addr(void);
-
+extern int led_show(int rate);
 void* move_ctl_thread(void)
 {
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
@@ -25,6 +25,7 @@ while(1)
 	usleep(100000);
 	move_cmd* m_cmd=get_move_cmd_addr();
 	pthread_mutex_lock(&m_cmd->lock);
+	led_show(m_cmd->led_rate);
 	move(m_cmd->cmd_type,m_cmd->angle,m_cmd->vel);
 //printf("cmd_type is %d,cmd_angle is %d,cmd_vel is %d\n",m_cmd->cmd_type,
 //m_cmd->angle,m_cmd->vel);

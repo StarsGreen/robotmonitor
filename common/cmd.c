@@ -221,6 +221,15 @@ ctrl_cmd->move_ctrl_func=0;
 printf("the all function is off\n");
         shmdt(ctrl_cmd);
 }
+/////////////////////////////////////////////////
+void set_led_rate(int parms)
+{
+        move_cmd* m_cmd=get_move_cmd_addr();
+        pthread_mutex_lock(&m_cmd->lock);
+        m_cmd->led_rate=parms;
+        pthread_mutex_unlock(&m_cmd->lock);
+        shmdt(m_cmd);
+}
 ///////////////////printf the move info ////////////
 void print_move_info(M_Pointer mp,int flag)
 {
@@ -455,7 +464,57 @@ mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
 shmdt(p);
 shmdt(tail);
 }
-
+//////////////////////////////////////////////
+void move_up()
+{
+	move_cmd* m_cmd=get_move_cmd_addr();
+	pthread_mutex_lock(&m_cmd->lock);
+	m_cmd->cmd_type=MOVE_DIRECT_UP;
+	m_cmd->angle=270;
+	m_cmd->vel=1;
+	pthread_mutex_unlock(&m_cmd->lock);
+	shmdt(m_cmd);
+}
+void move_right()
+{
+	move_cmd* m_cmd=get_move_cmd_addr();
+	pthread_mutex_lock(&m_cmd->lock);
+	m_cmd->cmd_type=MOVE_DIRECT_RIGHT;
+	m_cmd->angle=0;
+	m_cmd->vel=1;
+	pthread_mutex_unlock(&m_cmd->lock);
+	shmdt(m_cmd);
+}
+void move_down()
+{
+	move_cmd* m_cmd=get_move_cmd_addr();
+	pthread_mutex_lock(&m_cmd->lock);
+	m_cmd->cmd_type=MOVE_DIRECT_DOWN;
+	m_cmd->angle=90;
+	m_cmd->vel=1;
+	pthread_mutex_unlock(&m_cmd->lock);
+	shmdt(m_cmd);
+}
+void move_left()
+{
+	move_cmd* m_cmd=get_move_cmd_addr();
+	pthread_mutex_lock(&m_cmd->lock);
+	m_cmd->cmd_type=MOVE_DIRECT_LEFT;
+	m_cmd->angle=180;
+	m_cmd->vel=1;
+	pthread_mutex_unlock(&m_cmd->lock);
+	shmdt(m_cmd);
+}
+void move_stop()
+{
+	move_cmd* m_cmd=get_move_cmd_addr();
+	pthread_mutex_lock(&m_cmd->lock);
+	m_cmd->cmd_type=MOVE_DIRECT_STOP;
+	m_cmd->angle=0;
+	m_cmd->vel=0;
+	pthread_mutex_unlock(&m_cmd->lock);
+	shmdt(m_cmd);
+}
 ////////////get ctrl cmd info/////////////////////
 void get_ctrl_cmd_info()
 {
@@ -547,9 +606,12 @@ unsigned int get_input_cmd(char*input_cmd)
 	else if(strncasecmp(str[1],"infosend",8)==0)cmd_code=cmd_code|(3<<12);
 	else if(strncasecmp(str[1],"move",4)==0)cmd_code=cmd_code|(4<<12);
 	else if(strncasecmp(str[1],"all",3)==0)cmd_code=cmd_code|(15<<12);
+	else if(strncasecmp(str[1],"led",3)==0)cmd_code=cmd_code|(6<<12);
 
 	if(strncasecmp(str[2],"on",2)==0)cmd_code=cmd_code|(1<<4);
 	else if(strncasecmp(str[2],"off",3)==0)cmd_code=cmd_code|(0<<4);
+	else if(atoi(str[2])>=0&&atoi(str[2])<=10)
+	cmd_code=(cmd_code|(atoi(str[2])<<4))|1;
 	else goto last;
 	}
 	else
@@ -567,8 +629,12 @@ unsigned int get_input_cmd(char*input_cmd)
 	else if(strncasecmp(str[1],"ctrlinfo",4)==0)cmd_code=0xffffffe0;
 	else goto last;
 	}
-	else
-	if(strncasecmp(str[0],"help",4)==0)cmd_code=0xfffffff0;
+	else if(strncasecmp(str[0],"w",1)==0)cmd_code=0x20000010;
+	else if(strncasecmp(str[0],"d",1)==0)cmd_code=0x20000020;
+	else if(strncasecmp(str[0],"s",1)==0)cmd_code=0x20000030;
+	else if(strncasecmp(str[0],"a",1)==0)cmd_code=0x20000040;
+	else if(strncasecmp(str[0],"q",1)==0)cmd_code=0x200000f0;
+	else if(strncasecmp(str[0],"help",4)==0)cmd_code=0xfffffff0;
 	else goto last;
 
 	for(i=0;i<5;i++)
@@ -583,11 +649,22 @@ last:	return ERROR_CODE;
 /////////////////////////////
 int excute_cmd(unsigned int code)
 {
-int i;
+int i,cmd_code,parms;
 printf("\n the excute code is %x\n",code);
 if(code==ERROR_CODE)goto last;
+int attr=code|0x0000000f;
+if(attr!=0)
+{
+cmd_code=code&0xfffff000;
+parms=code&0x00000ff0;
+goto search_by_parms;
+}
 for(i=0;i<cmd_info.cmd_num;i++)
 	if(cmd_info.cmd[i].cmd_code==code)cmd_info.cmd[i].func();
+return 0;
+search_by_parms:
+for(i=0;i<cmd_info.cmd_num;i++)
+        if(cmd_info.cmd[i].cmd_code==cmd_code)cmd_info.cmd[i].fun_parms(&parms);
 return 0;
 last:
 	do{
@@ -728,6 +805,32 @@ void init_info_cmd()
 	cmd_info.cmd[21].func=get_gra_cpt_info;
 	cmd_info.cmd[21].func_name="get gra component info";
 	cmd_info.cmd_num++;
+
+	cmd_info.cmd[22].cmd_code=MOVE_UP;
+	cmd_info.cmd[22].func=move_up;
+	cmd_info.cmd[22].func_name="move up";
+	cmd_info.cmd_num++;
+	cmd_info.cmd[23].cmd_code=MOVE_RIGHT;
+	cmd_info.cmd[23].func=move_right;
+	cmd_info.cmd[23].func_name="move right";
+	cmd_info.cmd_num++;
+	cmd_info.cmd[24].cmd_code=MOVE_DOWN;
+	cmd_info.cmd[24].func=move_down;
+	cmd_info.cmd[24].func_name="move down";
+	cmd_info.cmd_num++;
+	cmd_info.cmd[25].cmd_code=MOVE_LEFT;
+	cmd_info.cmd[25].func=move_left;
+	cmd_info.cmd[25].func_name="move left";
+	cmd_info.cmd_num++;
+	cmd_info.cmd[26].cmd_code=MOVE_STOP;
+	cmd_info.cmd[26].func=move_stop;
+	cmd_info.cmd[26].func_name="move stop";
+	cmd_info.cmd_num++;
+
+        cmd_info.cmd[27].cmd_code=SET_LED_RATE;
+        cmd_info.cmd[27].fun_parms=set_led_rate;
+        cmd_info.cmd[27].func_name="set_led_rate";
+        cmd_info.cmd_num++;
 
 }
 ////////////////////////////////////////////////

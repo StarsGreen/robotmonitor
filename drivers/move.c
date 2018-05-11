@@ -13,9 +13,13 @@
 #define IN2 22
 #define IN3 23
 #define IN4 24
+#define LED 29
 #define BASE_REV 15
 #define LOW_REV 16
 #define HIGH_REV 20
+#define led_light(rate) do{\
+softPwmWrite(LED,rate);\
+}while(0)
 #define leftwheel_clockwise(vel) do {\
 digitalWrite(IN1,HIGH);\
 digitalWrite(IN2,LOW);\
@@ -73,8 +77,8 @@ int move_up_right(int angle,int vel)
 int ang=angle-7*45;
 if(vel==0)goto last;
 //printf("move up right ,angle %d ,vel %d\n",angle,vel);
-leftwheel_clockwise((int)(BASE_REV*vel+HIGH_REV*ang/45*vel));
-rightwheel_clockwise((int)(BASE_REV*vel+LOW_REV*ang/45*vel));
+leftwheel_clockwise((int)(BASE_REV*vel+HIGH_REV*(ang+45)/45*vel));
+rightwheel_clockwise((int)(BASE_REV*vel+LOW_REV*(ang+45)/45*vel));
 return 0;
 last:move_stop;return 1;
 
@@ -115,10 +119,10 @@ last:move_stop;return 1;
 int move_direct_down(int angle,int vel)
 {
 int ang=angle-2*45;
-printf("move direct down ,angle %d ,vel %d\n",angle,vel);
+//printf("move direct down ,angle %d ,vel %d\n",angle,vel);
 if(vel==0)goto last;
-leftwheel_anti_clockwise((int)(BASE_REV*vel+HIGH_REV*(ang+45)/45*vel));
-rightwheel_anti_clockwise((int)(BASE_REV*vel+LOW_REV*(ang+45)/45*vel));
+leftwheel_anti_clockwise((int)(BASE_REV*vel+HIGH_REV*(ang)/45*vel));
+rightwheel_anti_clockwise((int)(BASE_REV*vel+LOW_REV*(ang)/45*vel));
 return 0;
 last:move_stop;return 1;
 }
@@ -137,7 +141,7 @@ last:move_stop;return 1;
 int move_direct_left(int angle,int vel)
 {
 int ang=45-(angle-4*45);
-printf("move direct left ,angle %d ,vel %d,ang %d\n",angle,vel,ang);
+//printf("move direct left ,angle %d ,vel %d,ang %d\n",angle,vel,ang);
 if(vel==0)goto last;
 rightwheel_clockwise((int)(BASE_REV*vel+HIGH_REV*(ang+45)/45*vel));
 leftwheel_clockwise((int)(BASE_REV*vel+LOW_REV*(ang+45)/45*vel));
@@ -165,6 +169,12 @@ digitalWrite(IN4,LOW);
 //printf("moving has been stopped\n");
 return 0;
 }
+void led_show(int rate)
+{
+int led_rate=20*rate;
+led_show(led_rate);
+return 0;
+}
 ////////////////////////////////////////////
 void setup_pin()
 {
@@ -177,6 +187,7 @@ pinMode(IN4,OUTPUT);
 //digitalWrite(ENA, LOW);
 softPwmCreate(ENB,LOW,100);
 softPwmCreate(ENA,LOW,100);
+softPwmCreate(LED,LOW,100);
 digitalWrite(IN1, HIGH);
 digitalWrite(IN2, HIGH);
 digitalWrite(IN3, HIGH);
