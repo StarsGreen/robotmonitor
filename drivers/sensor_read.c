@@ -111,7 +111,7 @@ else
 float ya_read(int fd)
 {
 
-short data=get_data(fd,GYRO_YOUT_H)+50;
+short data=get_data(fd,GYRO_YOUT_H);
 if(data&0x8000)
   {
 	data=data&0x7fff;
@@ -127,14 +127,14 @@ return GYRO_RANGE*data/32768;
 ////////////////////////////////////////////
 float za_read(int fd)
 {
-short data=get_data(fd,GYRO_ZOUT_H)+80;
+short data=get_data(fd,GYRO_ZOUT_H);
 if(data&0x8000)
   {
         data=data&0x7fff;
         if(data>25000)data=0;
         return -GYRO_RANGE*data/32768;
   }
-else 
+else
   {
         if(data>25000)data=0;
 return GYRO_RANGE*data/32768;
@@ -143,7 +143,7 @@ return GYRO_RANGE*data/32768;
 ////////////////////////////////////////////
 float xl_read(int fd)
 {
-short data=get_data(fd,ACCEL_XOUT_H)-350;
+short data=get_data(fd,ACCEL_XOUT_H);
 if(data&0x8000)
   {
         data=data&0x7fff;
@@ -160,7 +160,7 @@ return ACCEL_RANGE*data/32768;
 ////////////////////////////////////////////
 float yl_read(int fd)
 {
-short data=get_data(fd,ACCEL_YOUT_H)+100;
+short data=get_data(fd,ACCEL_YOUT_H);
 if(data&0x8000)
   {
         data=data&0x7fff;
@@ -177,17 +177,17 @@ return ACCEL_RANGE*data/32768;
 ////////////////////////////////////////////
 float zl_read(int fd)
 {
-short data=get_data(fd,ACCEL_ZOUT_H)-700;
+short data=get_data(fd,ACCEL_ZOUT_H);
 if(data&0x8000)
   {
         data=data&0x7fff;
         if(data>25000)data=0;
-        return -ACCEL_RANGE*data/32768+9.8;
+        return -ACCEL_RANGE*data/32768;
   }
 else
   {
         if(data>25000)data=0;
- return ACCEL_RANGE*data/32768-9.8;
+ return ACCEL_RANGE*data/32768;
   }
 }
 //////////////////////////////////////////////

@@ -64,11 +64,27 @@ struct journey
 	float yl;
 	float zl;
 }jour_info;
+struct posture
+{
+	float roll;
+	float pitch;
+	float yaw;
+}pos_info;
+
+struct gra_component
+{
+	float gra_x;
+	float gra_y;
+	float gra_z;
+}gra_cpt;
+
 typedef struct M_Node
 {
 	struct accel accel_info;
 	struct velocity vel_info;
 	struct journey jour_info;
+	struct posture pos_info;
+	struct gra_component gra_cpt;
 	float temper;
 	float dist;
 	int num;

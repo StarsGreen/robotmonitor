@@ -150,6 +150,9 @@ void* accel_get_thread(void)
 {
 	int num=0;
 	int fd;
+	static float gra_x=0;
+        static float gra_y=0;
+        static float gra_z=0;
 	mll_ptr p=NULL;
 	M_Pointer tail=NULL;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
@@ -158,6 +161,11 @@ void* accel_get_thread(void)
         pthread_cleanup_push(sensor_cleanup_handler,NULL);
 start:
 	fd=init_mpu6050();
+	gra_x=xl_read(fd);
+	gra_y=yl_read(fd);
+	gra_z=zl_read(fd);
+
+printf("\nthe initial gravity component is: %f|%f|%f\n",gra_x,gra_y,gra_z);
 while(1)
 	{
 		pthread_testcancel();
@@ -181,9 +189,9 @@ while(1)
 		M_info.vel_info.xa_vel=xa_read(fd);
 		M_info.vel_info.ya_vel=ya_read(fd);
 		M_info.vel_info.za_vel=za_read(fd);
-		M_info.accel_info.xl_accel=xl_read(fd);
-		M_info.accel_info.yl_accel=yl_read(fd);
-		M_info.accel_info.zl_accel=zl_read(fd);
+		M_info.accel_info.xl_accel=xl_read(fd)-gra_x;
+		M_info.accel_info.yl_accel=yl_read(fd)-gra_y;
+		M_info.accel_info.zl_accel=zl_read(fd)-gra_z;
 	    }
 	else
 	    {
@@ -219,6 +227,19 @@ M_info.vel_info.ya_vel*dt;
 
 M_info.jour_info.za=M_info_pointer->jour_info.za+
 M_info.vel_info.za_vel*dt;
+
+M_info.pos_info.pitch=M_info_pointer->pos_info.pitch+
+M_info.vel_info.ya_vel*dt;
+
+M_info.pos_info.yaw=M_info_pointer->pos_info.yaw+
+M_info.vel_info.za_vel*dt;
+
+M_info.pos_info.roll=M_info_pointer->pos_info.roll+
+M_info.vel_info.xa_vel*dt;
+
+M_info.gra_cpt.gra_x=gra_x;
+M_info.gra_cpt.gra_y=gra_y;
+M_info.gra_cpt.gra_z=gra_z;
 
 M_info.jour_info.xl=kalman_filter(M_info_pointer->jour_info.xl,
 M_info_pointer->accel_info.xl_accel,

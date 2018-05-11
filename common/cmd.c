@@ -230,9 +230,11 @@ printf("--------------move info ----------------\n");
 printf("\nmove_ll num is :%d\n",mp->num);
 if(flag==0||flag==1)goto accel;
 if(flag==2)goto vel;
-if(flag==3)goto journey;
-if(flag==4)goto temper;
-if(flag==5)goto dist;
+if(flag==3)goto pos;
+if(flag==4)goto journey;
+if(flag==5)goto temper;
+if(flag==6)goto dist;
+if(flag==7)goto gra_cpt;
 
 accel:
 printf("accel info :\n");
@@ -270,6 +272,16 @@ gcvt((double)(mp->vel_info.zl_vel),5,ptr);
 printf("|          |       zl_vel      |  %s  |\n",ptr);
 if(flag==2)goto last;
 
+pos:
+printf("pos info :\n");
+gcvt((double)(mp->pos_info.roll),5,ptr);
+printf("|          |       roll      |  %s  |\n",ptr);
+gcvt((double)(mp->pos_info.pitch),5,ptr);
+printf("|          |       pitch     |  %s  |\n",ptr);
+gcvt((double)(mp->pos_info.yaw),5,ptr);
+printf("|          |       yaw       |  %s  |\n",ptr);
+if(flag==3)goto last;
+
 
 journey:
 printf("journey info :\n");
@@ -286,19 +298,29 @@ gcvt((double)(mp->jour_info.yl),5,ptr);
 printf("|          |         yl        |  %s  |\n",ptr);
 gcvt((double)(mp->jour_info.zl),5,ptr);
 printf("|          |         zl        |  %s  |\n",ptr);
-if(flag==3)goto last;
+if(flag==4)goto last;
 
 temper:
 printf("temper info :\n");
 gcvt((double)(mp->temper),5,ptr);
 printf("|          |  env temperature  |  %s  |\n",ptr);
-if(flag==4)goto last;
+if(flag==5)goto last;
 
 dist:
 printf("dist info :\n");
 gcvt((double)(mp->dist),5,ptr);
 printf("|          |      distance     |  %s  |\n",ptr);
-if(flag==5)goto last;
+if(flag==6)goto last;
+
+gra_cpt:
+printf("gra_cpt info :\n");
+gcvt((double)(mp->gra_cpt.gra_x),5,ptr);
+printf("|          |      gra_x     |  %s  |\n",ptr);
+gcvt((double)(mp->gra_cpt.gra_y),5,ptr);
+printf("|          |      gra_y     |  %s  |\n",ptr);
+gcvt((double)(mp->gra_cpt.gra_z),5,ptr);
+printf("|          |      gra_z     |  %s  |\n",ptr);
+if(flag==7)goto last;
 
 last:
 printf("\n");
@@ -348,12 +370,13 @@ shmdt(p);
 shmdt(tail);
 
 }
-////////////////////printf the journey info///////////////////
-void get_journey_info()
+
+/////////////////printf the pos info//////////////////////
+void get_pos_info()
 {
 /*
         pthread_mutex_lock(&move_ll.move_ll_lock);
-	print_move_info(move_ll.M_Tail_pointer,3);
+	print_move_info(move_ll.M_Tail_pointer,2);
         pthread_mutex_unlock(&move_ll.move_ll_lock);
 */
 	mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
@@ -366,13 +389,30 @@ shmdt(tail);
 
 }
 ////////////////////printf the journey info///////////////////
+void get_journey_info()
+{
+/*
+        pthread_mutex_lock(&move_ll.move_ll_lock);
+	print_move_info(move_ll.M_Tail_pointer,3);
+        pthread_mutex_unlock(&move_ll.move_ll_lock);
+*/
+	mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
+	M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
+	pthread_mutex_lock(&p->move_ll_lock);
+	print_move_info(tail,4);
+        pthread_mutex_unlock(&p->move_ll_lock);
+shmdt(p);
+shmdt(tail);
+
+}
+////////////////////printf the journey info///////////////////
 void get_temper_info()
 {
 
 	mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
 	M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
 	pthread_mutex_lock(&p->move_ll_lock);
-	print_move_info(tail,4);
+	print_move_info(tail,5);
         pthread_mutex_unlock(&p->move_ll_lock);
 shmdt(p);
 shmdt(tail);
@@ -393,12 +433,29 @@ void get_dist_info()
 mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
 	M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
 	pthread_mutex_lock(&p->move_ll_lock);
-	print_move_info(tail,5);
+	print_move_info(tail,6);
         pthread_mutex_unlock(&p->move_ll_lock);
 shmdt(p);
 shmdt(tail);
 
 }
+////////////////////get gravity componnent info/////
+void get_gra_cpt_info()
+{
+/*
+        pthread_mutex_lock(&move_ll.move_ll_lock);
+	print_move_info(move_ll.M_Tail_pointer,5);
+        pthread_mutex_unlock(&move_ll.move_ll_lock);
+*/
+mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+	M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
+	pthread_mutex_lock(&p->move_ll_lock);
+	print_move_info(tail,7);
+        pthread_mutex_unlock(&p->move_ll_lock);
+shmdt(p);
+shmdt(tail);
+}
+
 ////////////get ctrl cmd info/////////////////////
 void get_ctrl_cmd_info()
 {
@@ -505,6 +562,8 @@ unsigned int get_input_cmd(char*input_cmd)
 	else if(strncasecmp(str[1],"journey",7)==0)cmd_code=cmd_code|(3<<12);
 	else if(strncasecmp(str[1],"temp",4)==0)cmd_code=cmd_code|(4<<12);
 	else if(strncasecmp(str[1],"dist",4)==0)cmd_code=cmd_code|(5<<12);
+	else if(strncasecmp(str[1],"pos",3)==0)cmd_code=cmd_code|(6<<12);
+	else if(strncasecmp(str[1],"gra_cpt",7)==0)cmd_code=cmd_code|(7<<12);
 	else if(strncasecmp(str[1],"ctrlinfo",4)==0)cmd_code=0xffffffe0;
 	else goto last;
 	}
@@ -659,6 +718,17 @@ void init_info_cmd()
 	cmd_info.cmd[19].func=set_all_func_off;
 	cmd_info.cmd[19].func_name="set all ctrl func off";
 	cmd_info.cmd_num++;
+
+	cmd_info.cmd[20].cmd_code=GET_MOVE_POS;
+	cmd_info.cmd[20].func=get_pos_info;
+	cmd_info.cmd[20].func_name="get move pos";
+	cmd_info.cmd_num++;
+
+	cmd_info.cmd[21].cmd_code=GET_GRA_CPT;
+	cmd_info.cmd[21].func=get_gra_cpt_info;
+	cmd_info.cmd[21].func_name="get gra component info";
+	cmd_info.cmd_num++;
+
 }
 ////////////////////////////////////////////////
 void init_cmd()

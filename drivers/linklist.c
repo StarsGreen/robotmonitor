@@ -100,18 +100,27 @@ int mlist_add(M_Node node)
 	pointer->accel_info.xl_accel=node.accel_info.xl_accel;
 	pointer->accel_info.yl_accel=node.accel_info.yl_accel;
 	pointer->accel_info.zl_accel=node.accel_info.zl_accel;
+
 	pointer->vel_info.xa_vel=node.vel_info.xa_vel;
 	pointer->vel_info.ya_vel=node.vel_info.ya_vel;
 	pointer->vel_info.za_vel=node.vel_info.za_vel;
+
 	pointer->vel_info.xl_vel=node.vel_info.xl_vel;
 	pointer->vel_info.yl_vel=node.vel_info.yl_vel;
 	pointer->vel_info.zl_vel=node.vel_info.zl_vel;
+
+	pointer->pos_info.pitch=node.pos_info.pitch;
+	pointer->pos_info.roll=node.pos_info.roll;
+	pointer->pos_info.yaw=node.pos_info.yaw;
+
 	pointer->jour_info.xa=node.jour_info.xa;
 	pointer->jour_info.ya=node.jour_info.ya;
 	pointer->jour_info.za=node.jour_info.za;
+
 	pointer->jour_info.xl=node.jour_info.xl;
 	pointer->jour_info.yl=node.jour_info.yl;
 	pointer->jour_info.zl=node.jour_info.zl;
+
 	pointer->temper=node.temper;
 	pointer->dist=node.dist;
 
