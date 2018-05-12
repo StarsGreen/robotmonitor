@@ -79,7 +79,7 @@ int init_mpu6050()
 	write_i2c(fd,PWR_MGMT_1, 0x00);	//解除休眠状态
 	write_i2c(fd,SMPLRT_DIV, 0x07);
 	write_i2c(fd,CONFIG, 0x06);
-	write_i2c(fd,GYRO_CONFIG, 0x18);
+	write_i2c(fd,GYRO_CONFIG, 0x00);
 	write_i2c(fd,ACCEL_CONFIG, 0x01);
 	return fd;
 }
@@ -150,7 +150,7 @@ if(data&0x8000)
         if(data>25000)data=0;
         return -ACCEL_RANGE*data/32768;
   }
-else 
+else
   {
   if(data>25000)data=0;
 return ACCEL_RANGE*data/32768;

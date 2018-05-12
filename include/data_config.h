@@ -30,7 +30,7 @@
 
 #define TEMP_OUT_H              0x41
 #define TEMP_OUT_L              0x42
-#define GYRO_RANGE      250
+#define GYRO_RANGE      	250
 #define GYRO_XOUT_H             0x43
 #define GYRO_XOUT_L             0x44
 #define GYRO_YOUT_H             0x45

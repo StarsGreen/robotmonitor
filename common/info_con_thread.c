@@ -29,13 +29,13 @@ static char buffer[ARRAY_SIZE];
 static void sock_cleanup_handler(void *arg)
 {
 	shmdt(cp);
+//	close(arg->conn);
       //  printf("Called clean-up handler\n");
       // cnt = 0;
-/*        if(close(*(int*)arg)==0)
+        if(close(*(int*)arg)==0)
         printf("socket is closed.\n");
         else
         printf("can not close the socket\n");
-*/
 }
 //////////////////////////////////////////////
 int recong_info(int a)
@@ -145,7 +145,7 @@ return code_msg;
 //////////////////////////////////////////////
 char* assemble_info(void)
 {
-	static char info[43];
+	static char info[113];
 
 	M_Pointer p=(M_Pointer)malloc(M_NODE_SIZE);
  	mll_ptr gp=get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
@@ -164,23 +164,63 @@ char* assemble_info(void)
 	info[7]='v';
 	memcpy(&info[8],code_info(value),6);
 ///////////////////////////////////////////////
-	value=(int)(p->jour_info.xl*10);
+	value=(int)p->accel_info.xl_accel*100;
 	info[14]='x';
 	memcpy(&info[15],code_info(value),6);
 ///////////////////////////////////////////////
-	value=(int)(p->jour_info.yl*10);
+	value=(int)p->accel_info.yl_accel*100;
 	info[21]='y';
 	memcpy(&info[22],code_info(value),6);
+///////////////////////////////////////////////
+	value=(int)p->accel_info.zl_accel*100;
+	info[28]='z';
+	memcpy(&info[29],code_info(value),6);
+///////////////////////////////////////////////
+	value=(int)(p->vel_info.xa_vel*100);
+	info[35]='l';
+	memcpy(&info[36],code_info(value),6);
+///////////////////////////////////////////////
+	value=(int)(p->vel_info.ya_vel*100);
+	info[42]='m';
+	memcpy(&info[43],code_info(value),6);
+///////////////////////////////////////////////
+        value=(int)(p->vel_info.za_vel*100);
+        info[49]='n';
+        memcpy(&info[50],code_info(value),6);
+//////////////////////////////////////////////
+	value=(int)(p->jour_info.xl*10);
+	info[56]='X';
+	memcpy(&info[57],code_info(value),6);
+//////////////////////////////////////////////
+	value=(int)(p->jour_info.yl*10);
+	info[63]='Y';
+	memcpy(&info[64],code_info(value),6);
+//////////////////////////////////////////////
+	value=(int)(p->jour_info.zl*10);
+	info[70]='Z';
+	memcpy(&info[71],code_info(value),6);
+////////////////////////////////////////////
+	value=(int)(p->pos_info.roll*10);
+	info[77]='R';
+        memcpy(&info[78],code_info(value),6);
+////////////////////////////////////////////
+        value=(int)(p->pos_info.pitch*10);
+        info[84]='P';
+        memcpy(&info[85],code_info(value),6);
+////////////////////////////////////////////
+        value=(int)(p->pos_info.yaw*10);
+        info[91]='Y';
+        memcpy(&info[92],code_info(value),6);
 //////////////////////////////////////////
 	value=(int)(p->temper*10);
-	info[28]='t';
-	memcpy(&info[29],code_info(value),6);
+	info[98]='t';
+	memcpy(&info[99],code_info(value),6);
 //////////////////////////////////////////
 	value=(int)(p->dist*10);
-	info[35]='d';
-	memcpy(&info[36],code_info(value),6);
+	info[105]='d';
+	memcpy(&info[106],code_info(value),6);
 ///////////////////////////////////////////
-	info[42]='\n';
+	info[112]='\n';
 //	memcpy(pointer,info,42);
 //	return info;
 //	printf("3\n");
@@ -205,7 +245,7 @@ void* info_recv_thread(void* s)
 	char* p;
 //	Ctrl_Pointer cp=get_ctrl_cmd_addr();
 //	int conn=*(int*)s;
-        pthread_cleanup_push(sock_cleanup_handler, &conn);
+        pthread_cleanup_push(sock_cleanup_handler,s);
 //	int optval;
 //	socklen_t optlen = sizeof(int);
 	while(1)
@@ -215,7 +255,7 @@ void* info_recv_thread(void* s)
 		memset(buffer,0,sizeof(buffer));
 //                while(cp->info_send_func==INFO_SEND_DISABLE)
 //		read_enable=0;
-		int len = recv(conn, buffer,8,0);
+		int len = recv(conn, buffer,10,0);
 //		printf("the recv msg is:%s",buffer);
 		if(len>0)
 			{

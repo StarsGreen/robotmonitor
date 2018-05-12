@@ -31,21 +31,23 @@ int move_cmd_shmid = shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT|0666);
 int *check_str(char* str)
 {
 	int i,j=0;
-	static int index[3];
-	char ch[3]={'t','a','v'};
+	static int index[4];
+	memset(index,0,4);
+	char ch[4]={'t','a','v','l'};
 	int len=strlen(str);
+printf("cmd length is %d\n",len);
 	if(len<6)goto last;
-	for(j=0;j<3;j++)
+	for(j=0;j<4;j++)
 	for(i=0;i<len;i++)
 		if(((*(str+i))==ch[j]))
 		{
 		index[j]=i;
 		}
-	if(index[0]==0&&index[1]==2&&index[2]==6)
+	if(index[0]==0&&index[1]==2&&index[2]==6&&index[3]==8)
 	return index;
 	else
 	{
-//	printf("recv wrong move cmd\n");
+	printf("recv wrong move cmd\n");
 	return NULL;
 	}
 last:return NULL;
@@ -53,7 +55,7 @@ last:return NULL;
 ///////////////////////////////////////////
 int read_cmd(char* cmd)
 {
-	int index[3],i,j;
+	int index[4],i,j;
 	int *p;
 	int len=strlen(cmd);
 //	int len=9;
@@ -63,12 +65,15 @@ int read_cmd(char* cmd)
 	index[0]=p[0];
 	index[1]=p[1];
 	index[2]=p[2];
+        index[3]=p[3];
+//printf("%d,%d,%d,%d\n",index[0],index[1],index[2],index[3]);
 	}
 	else goto last;
-	char cmd_t[2],vel[2],angle[3];
+	char cmd_t[2],vel[2],angle[3],light[2];
 	memset(angle,0,sizeof(angle));
 	memset(vel,0,sizeof(vel));
 	memset(cmd_t,0,sizeof(cmd_t));
+        memset(light,0,sizeof(light));
 //        printf("cmd is %s\n",temchar);
 //	for(i=0;i<3;i++)
 //		printf("index[%d]: %d \n",i,index[i]);
@@ -78,9 +83,13 @@ int read_cmd(char* cmd)
 	j=0;
 	for(i=index[1]+1;i<index[2];i++)
 		*(angle+j++)=*(cmd+i);
+//	printf("\n angle is %s\n",angle);
 	j=0;
-	for(i=index[2]+1;i<len;i++)
+	for(i=index[2]+1;i<index[3];i++)
 		*(vel+j++)=*(cmd+i);
+	j=0;
+	for(i=index[3]+1;i<len;i++)
+		*(light+j++)=*(cmd+i);
 	if(len>5)
 		{
 //		move_cmd* m_cmd=get_ll_shmid(MOVE_CMD_KEY,MOVE_CMD_SIZE);
@@ -89,10 +98,12 @@ int read_cmd(char* cmd)
 		m_cmd->cmd_type=atoi(cmd_t);
 		m_cmd->angle=atoi(angle);
 		m_cmd->vel=atoi(vel);
+                m_cmd->led_rate=atoi(light);
                pthread_mutex_unlock(&m_cmd->lock);
       printf("cmd_type: %d\n",m_cmd->cmd_type);
       printf("cmd_angle: %d\n",m_cmd->angle);
       printf("cmd_vel: %d\n",m_cmd->vel);
+      printf("cmd_light: %d\n",m_cmd->led_rate);
 		shmdt(m_cmd);
 		}
 	return 0;
@@ -222,9 +233,9 @@ printf("the all function is off\n");
         shmdt(ctrl_cmd);
 }
 /////////////////////////////////////////////////
-void set_led_rate(int* parms)
+void set_led_rate(void* parms)
 {
-	int rate=(*parms);
+	int rate=(*(int*)parms);
         move_cmd* m_cmd=get_move_cmd_addr();
         pthread_mutex_lock(&m_cmd->lock);
         m_cmd->led_rate=rate;
@@ -653,19 +664,21 @@ int excute_cmd(unsigned int code)
 int i,cmd_code,parms;
 printf("\n the excute code is %x\n",code);
 if(code==ERROR_CODE)goto last;
-int attr=code|0x0000000f;
+int attr=code&0x0000000f;
 if(attr!=0)
 {
 cmd_code=code&0xfffff000;
-parms=code&0x00000ff0;
+parms=(code&0x00000ff0)>>4;
 goto search_by_parms;
 }
 for(i=0;i<cmd_info.cmd_num;i++)
 	if(cmd_info.cmd[i].cmd_code==code)cmd_info.cmd[i].func();
 return 0;
 search_by_parms:
+//printf("\nhas parms!\n");
 for(i=0;i<cmd_info.cmd_num;i++)
-        if(cmd_info.cmd[i].cmd_code==cmd_code)cmd_info.cmd[i].fun_parms(&parms);
+   if(cmd_info.cmd[i].cmd_code==cmd_code&&cmd_info.cmd[i].fun_parms!=NULL)
+	cmd_info.cmd[i].fun_parms(&parms);
 return 0;
 last:
 	do{
