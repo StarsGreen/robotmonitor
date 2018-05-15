@@ -228,7 +228,7 @@ float dist_read(void)
 	start = t1.tv_sec * 1000000 + t1.tv_usec; // 开始时刻
 	stop = t2.tv_sec * 1000000 + t2.tv_usec;  // 结束时刻计算距离
 	float dis=0;
-dis = (float)(stop - start) / 1000000 * 340 / 2 * 100; //单位换算成cm
+dis = (float)(stop - start)/1000000*340/2*100; //单位换算成cm
 	return dis;
 }
 //////////////////////////////////////////

@@ -41,7 +41,7 @@ static void sock_cleanup_handler(void *arg)
 int recong_info(int a)
 {
 int flag=0;
-if(a>-20000&&a<=-10000)flag=10;
+if(a>-100000&&a<=-10000)flag=10;
 if(a>-10000&&a<=-1000)flag=9;
 if(a>-1000&&a<=-100)flag=8;
 if(a>-100&&a<=-10)flag=7;
@@ -50,7 +50,7 @@ if(a>=0&&a<10)flag=1;
 if(a>=10&&a<100)flag=2;
 if(a>=100&&a<1000)flag=3;
 if(a>=1000&&a<10000)flag=4;
-if(a>=10000&&a<20000)flag=5;
+if(a>=10000&&a<100000)flag=5;
 return flag;
 }
 //////////////////////////////////////////////
@@ -164,16 +164,19 @@ char* assemble_info(void)
 	info[7]='v';
 	memcpy(&info[8],code_info(value),6);
 ///////////////////////////////////////////////
-	value=(int)p->accel_info.xl_accel*100;
+	value=(int)(p->accel_info.xl_accel*1000);
 	info[14]='x';
+//	printf("value xl is %d\n",value);
 	memcpy(&info[15],code_info(value),6);
 ///////////////////////////////////////////////
-	value=(int)p->accel_info.yl_accel*100;
+	value=(int)(p->accel_info.yl_accel*1000);
 	info[21]='y';
+//	printf("value yl is %d\n",value);
 	memcpy(&info[22],code_info(value),6);
 ///////////////////////////////////////////////
-	value=(int)p->accel_info.zl_accel*100;
+	value=(int)(p->accel_info.zl_accel*1000);
 	info[28]='z';
+//	printf("value zl is %d\n",value);
 	memcpy(&info[29],code_info(value),6);
 ///////////////////////////////////////////////
 	value=(int)(p->vel_info.xa_vel*100);
@@ -188,35 +191,35 @@ char* assemble_info(void)
         info[49]='n';
         memcpy(&info[50],code_info(value),6);
 //////////////////////////////////////////////
-	value=(int)(p->jour_info.xl*10);
+	value=(int)(p->jour_info.xl*100);
 	info[56]='X';
 	memcpy(&info[57],code_info(value),6);
 //////////////////////////////////////////////
-	value=(int)(p->jour_info.yl*10);
+	value=(int)(p->jour_info.yl*100);
 	info[63]='Y';
 	memcpy(&info[64],code_info(value),6);
 //////////////////////////////////////////////
-	value=(int)(p->jour_info.zl*10);
+	value=(int)(p->jour_info.zl*100);
 	info[70]='Z';
 	memcpy(&info[71],code_info(value),6);
 ////////////////////////////////////////////
-	value=(int)(p->pos_info.roll*10);
+	value=(int)(p->pos_info.roll*100);
 	info[77]='R';
         memcpy(&info[78],code_info(value),6);
 ////////////////////////////////////////////
-        value=(int)(p->pos_info.pitch*10);
+        value=(int)(p->pos_info.pitch*100);
         info[84]='P';
         memcpy(&info[85],code_info(value),6);
 ////////////////////////////////////////////
-        value=(int)(p->pos_info.yaw*10);
+        value=(int)(p->pos_info.yaw*100);
         info[91]='Y';
         memcpy(&info[92],code_info(value),6);
 //////////////////////////////////////////
-	value=(int)(p->temper*10);
+	value=(int)(p->temper*1000);
 	info[98]='t';
 	memcpy(&info[99],code_info(value),6);
 //////////////////////////////////////////
-	value=(int)(p->dist*10);
+	value=(int)(p->dist*100);
 	info[105]='d';
 	memcpy(&info[106],code_info(value),6);
 ///////////////////////////////////////////
