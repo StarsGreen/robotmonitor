@@ -249,6 +249,7 @@ char* ptr=(char*)malloc(10);
 //printf("move info\n");
 printf("--------------move info ----------------\n");
 printf("\nmove_ll num is :%d\n",mp->num);
+printf("\nsensor sample time is :%6.5f\n",mp->sample_time);
 if(flag==0||flag==1)goto accel;
 if(flag==2)goto vel;
 if(flag==3)goto pos;

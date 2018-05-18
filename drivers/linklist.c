@@ -17,7 +17,7 @@ void* get_shm_addr(int size)
     int shmid0 = shmget(0,size,IPC_CREAT|0666);
     if(shmid0 == -1)
     {
-        perror("failed to shmget move_ll_node\n");
+        perror("failed to shmget move_ll_node when create new node\n");
         return NULL;
     }
     return (void*)shmat(shmid0,NULL,0);
@@ -127,6 +127,7 @@ int mlist_add(M_Node node)
 
 	pointer->temper=node.temper;
 	pointer->dist=node.dist;
+	pointer->sample_time=node.sample_time;
 
 	shmdt(mp);
 	shmdt(p);

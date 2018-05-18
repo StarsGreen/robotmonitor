@@ -44,7 +44,7 @@ float pya_conv=0.5;
 float pza_conv=0.5;
 const float Q_offset=0.5;
 const float R_offset=0.25;
-static float dt=0.1;
+static float dt=0;
 
 M_Node M_info;
 M_Pointer M_info_pointer;
@@ -54,11 +54,11 @@ M_Pointer M_info_pointer;
 ///////////////////////////////////////////////
 static void sensor_cleanup_handler(void *arg)
 {
-	sem_destroy(&sensor_start);
+//	sem_destroy(&sensor_start);
 
-	sem_destroy(&sensor_mid);
+//	sem_destroy(&sensor_mid);
 
-	sem_destroy(&sensor_stop);
+//	sem_destroy(&sensor_stop);
 }
 ////////////////////////////////////////////////
 void* temper_get_thread(void)
@@ -73,7 +73,7 @@ while(1)
 	{
 	start:
 		pthread_testcancel();
-		sem_wait(&sensor_start);
+//		sem_wait(&sensor_start);
 //		while(ctrl_cmd.info_get_func==INFO_GET_DISABLE)
 		value=temper_read();
 	if(value!=0)
@@ -92,12 +92,12 @@ while(1)
 		  }
 		goto start;
 		}
-		sem_post(&sensor_mid);
+//		sem_post(&sensor_mid);
 //printf("temper get finished!\n");
 //		pthread_testcancel();
 	}
 nothing:
-	sem_post(&sensor_mid);
+//	sem_post(&sensor_mid);
 	while(1)pthread_testcancel();
         pthread_cleanup_pop(0);
 }
@@ -115,8 +115,7 @@ while(1)
 	{
 	start: 
 		pthread_testcancel();
-
-		sem_wait(&sensor_mid);
+//		sem_wait(&sensor_mid);
 //		usleep(100000);
 		value=dist_read();
 //		printf("the dist is %6.3f\n",value);
@@ -136,12 +135,12 @@ while(1)
 		  }
 		goto start;
 		}
-		sem_post(&sensor_stop);
+//		sem_post(&sensor_stop);
 //printf("dist get finished!\n");
 //		pthread_testcancel();
 	}
 nothing:
-	sem_post(&sensor_stop);
+//	sem_post(&sensor_start);
 	while(1)pthread_testcancel();
         pthread_cleanup_pop(0);
 }
@@ -159,19 +158,32 @@ void* accel_get_thread(void)
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 //	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
         pthread_cleanup_push(sensor_cleanup_handler,NULL);
+        struct timeval t1,t2;  // 结构体，可以记录秒和微秒两部分值
+	memset(&t1,0,sizeof(t1));
+        memset(&t2,0,sizeof(t2));
+        gettimeofday(&t1, NULL);
+	memcpy(&t2,&t1,sizeof(t1));
 start:
 	fd=init_mpu6050();
 	gra_x=xl_read(fd);
 	gra_y=yl_read(fd);
 	gra_z=zl_read(fd);
-
-printf("\nthe initial gravity component is: %f|%f|%f\n",gra_x,gra_y,gra_z);
+//printf("\nthe initial gravity component is: %f|%f|%f\n",gra_x,gra_y,gra_z);
 while(1)
 	{
 		pthread_testcancel();
 
-		sem_wait(&sensor_stop);
+//		sem_wait(&sensor_stop);
 //		usleep(100000);
+//	struct timeval t1;  // 结构体，可以记录秒和微秒两部分值
+//	gettimeofday(&t1, NULL);
+	gettimeofday(&t1, NULL);
+	long start, stop;//换算为微秒
+	start = t2.tv_sec*1000000+t2.tv_usec; // 开始时刻
+	stop = t1.tv_sec*1000000+t1.tv_usec;  // 结束时刻计算距离
+	dt=(float)(stop - start)/1000000;
+	memcpy(&t2,&t1,sizeof(t1));
+
 	M_info_pointer=(M_Pointer)malloc(M_NODE_SIZE);
 	memset(M_info_pointer,0,M_NODE_SIZE);
 
@@ -182,8 +194,7 @@ while(1)
 //	shmdt(mp);
 //	shmdt(tail);
 	pthread_mutex_unlock(&p->move_ll_lock);
-	struct timeval t1;  // 结构体，可以记录秒和微秒两部分值
-	gettimeofday(&t1, NULL);
+	M_info.sample_time=dt;
 	if(fd!=-1)
 	    {
 		M_info.vel_info.xa_vel=xa_read(fd);
@@ -193,11 +204,7 @@ while(1)
 		M_info.accel_info.xl_accel=xl_read(fd)-gra_x;
 		M_info.accel_info.yl_accel=yl_read(fd)-gra_y;
 		M_info.accel_info.zl_accel=zl_read(fd)-gra_z;
-/*
-		M_info.accel_info.xl_accel=xl_read(fd);
-		M_info.accel_info.yl_accel=yl_read(fd);
-		M_info.accel_info.zl_accel=zl_read(fd);
-*/	    }
+	    }
 	else
 	    {
 	num++;
@@ -208,13 +215,8 @@ while(1)
 	      }
 	goto start;
      	    }
-	struct timeval t2;
-	gettimeofday(&t2, NULL);
-	long start, stop;//换算为微秒
-	start = t1.tv_sec * 1000000 + t1.tv_usec; // 开始时刻
-	stop = t2.tv_sec * 1000000 + t2.tv_usec;  // 结束时刻计算距离
-	dt=(float)(stop - start) / 1000000;
    if(M_info_pointer!=NULL){
+
 M_info.vel_info.xl_vel=M_info_pointer->vel_info.xl_vel+
 M_info.accel_info.xl_accel*dt;
 M_info.vel_info.yl_vel=M_info_pointer->vel_info.yl_vel+
@@ -229,12 +231,12 @@ M_info.vel_info.ya_vel*dt;
 M_info.jour_info.za=M_info_pointer->jour_info.za+
 M_info.vel_info.za_vel*dt;
 
+M_info.pos_info.roll=M_info_pointer->pos_info.roll+
+M_info.vel_info.xa_vel*dt;
 M_info.pos_info.pitch=M_info_pointer->pos_info.pitch+
 M_info.vel_info.ya_vel*dt;
 M_info.pos_info.yaw=M_info_pointer->pos_info.yaw+
 M_info.vel_info.za_vel*dt;
-M_info.pos_info.roll=M_info_pointer->pos_info.roll+
-M_info.vel_info.xa_vel*dt;
 
 M_info.gra_cpt.gra_x=gra_x;
 M_info.gra_cpt.gra_y=gra_y;
@@ -255,26 +257,14 @@ M_info_pointer->accel_info.zl_accel,
 M_info.accel_info.zl_accel,
 dt,&pzl_conv,Q_offset,R_offset);
 		}
-		mlist_add(M_info);
+	mlist_add(M_info);
 //		get_move_info();
-
 if(p->count==MAX_NODE_NUM)
     {
-/*
-//M_Pointer tem_p=malloc(M_NODE_SIZE);
-M_Pointer head=shmat(p->Head_shmid,NULL,0);
-//M_Pointer mp0=shmat(head->next_shmid,NULL,0);
-//M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
-//memcpy(tem_p,tail,M_NODE_SIZE);
-p->Tail_shmid=head->next_shmid;
-p->count=0;*/
 rebuild_mlist();
 mlist_add(M_info);
-//shmdt(head);
-//shmdt(mp0);
-//free(tem_p);
     }
-	sem_post(&sensor_start);
+//	sem_post(&sensor_start);
 //printf("accel get finished!\n");
 	free(M_info_pointer);
 	shmdt(p);
@@ -282,7 +272,7 @@ mlist_add(M_info);
 //		pthread_testcancel();
 	}
 nothing:
-	sem_post(&sensor_start);
+//	sem_post(&sensor_start);
 	free(M_info_pointer);
 	shmdt(tail);
 	shmdt(p);

@@ -97,30 +97,31 @@ float xa_read(int fd)
 short data=get_data(fd,GYRO_XOUT_H);
 if(data&0x8000)
   {
-	data=data&0x7fff;
-	if(data>25000)data=0;
+	data=~(data-1);
+//	if(data>25000)data=0;
+        if(data<500)data=0;
 	return -GYRO_RANGE*data/32768;
   }
 else
    {
-        if(data>25000)data=0;
+        if(data<500)data=0;
  return GYRO_RANGE*data/32768;
     }
 }
 ////////////////////////////////////////////
 float ya_read(int fd)
 {
-
 short data=get_data(fd,GYRO_YOUT_H);
 if(data&0x8000)
   {
-	data=data&0x7fff;
-	if(data>25000)data=0;
+        data=~(data-1);
+//      if(data>25000)data=0;
+        if(data<500)data=0;
 	return -GYRO_RANGE*data/32768;
   }
 else 
   {
-if(data>25000)data=0;
+if(data<500)data=0;
 return GYRO_RANGE*data/32768;
   }
 }
@@ -130,13 +131,14 @@ float za_read(int fd)
 short data=get_data(fd,GYRO_ZOUT_H);
 if(data&0x8000)
   {
-        data=data&0x7fff;
-        if(data>25000)data=0;
+        data=~(data-1);
+//      if(data>25000)data=0;
+        if(data<500)data=0;
         return -GYRO_RANGE*data/32768;
   }
 else
   {
-        if(data>25000)data=0;
+        if(data<500)data=0;
 return GYRO_RANGE*data/32768;
   }
 }
@@ -146,13 +148,14 @@ float xl_read(int fd)
 short data=get_data(fd,ACCEL_XOUT_H);
 if(data&0x8000)
   {
-        data=data&0x7fff;
-        if(data>25000)data=0;
+        data=~(data-1);
+//      if(data>25000)data=0;
+        if(data<500)data=0;
         return -ACCEL_RANGE*data/32768;
   }
 else
   {
-  if(data>25000)data=0;
+  if(data<500)data=0;
 return ACCEL_RANGE*data/32768;
    }
 }
@@ -163,13 +166,14 @@ float yl_read(int fd)
 short data=get_data(fd,ACCEL_YOUT_H);
 if(data&0x8000)
   {
-        data=data&0x7fff;
-        if(data>25000)data=0;
+        data=~(data-1);
+//      if(data>25000)data=0;
+        if(data<500)data=0;
         return -ACCEL_RANGE*data/32768;
   }
 else 
   {
-        if(data>25000)data=0;
+        if(data<500)data=0;
 return ACCEL_RANGE*data/32768;
   }
 }
@@ -180,13 +184,14 @@ float zl_read(int fd)
 short data=get_data(fd,ACCEL_ZOUT_H);
 if(data&0x8000)
   {
-        data=data&0x7fff;
-        if(data>25000)data=0;
+        data=~(data-1);
+//      if(data>25000)data=0;
+        if(data<500)data=0;
         return -ACCEL_RANGE*data/32768;
   }
 else
   {
-        if(data>25000)data=0;
+        if(data<500)data=0;
  return ACCEL_RANGE*data/32768;
   }
 }

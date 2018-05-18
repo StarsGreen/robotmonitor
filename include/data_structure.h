@@ -90,6 +90,7 @@ typedef struct M_Node
 	float temper;
 	float dist;
 	int num;
+	float sample_time;
 //	struct M_Node* next;
 //	struct M_Node* prev;
 	int prev_shmid;
