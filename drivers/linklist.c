@@ -45,7 +45,7 @@ mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
     int shmid0 = shmget(0,M_NODE_SIZE,IPC_CREAT|0666);
     if(shmid0 == -1)
     {
-        perror("failed to shmget move_ll_node\n");
+        perror("failed to shmget move_ll_node when create head pointer\n");
         return -1;
     }
         M_Pointer pointer = (M_Pointer)shmat(shmid0,NULL,0);
@@ -68,11 +68,11 @@ mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
 //////////////////////////////////////
 int mlist_add(M_Node node)
 {
-	mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+    mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
     int shmid0 = shmget(0,M_NODE_SIZE,IPC_CREAT|0666);
     if(shmid0 == -1)
     {
-        perror("failed to shmget move_ll_node\n");
+        perror("failed to shmget move_ll_node when add node\n");
         return -1;
     }
         M_Pointer pointer = (M_Pointer)shmat(shmid0,NULL,0);
@@ -80,22 +80,8 @@ int mlist_add(M_Node node)
 	memset(pointer,0,M_NODE_SIZE);
 //	pointer->next=NULL;
         pointer->next_shmid=0;
+        pointer->prev_shmid=0;
 //	shmat(move_ll_shmid,NULL,0);
-        pthread_mutex_lock(&p->move_ll_lock);
-
-	M_Pointer mp=shmat(p->Tail_shmid,NULL,0);
-	mp->next_shmid=shmid0;
-	pointer->prev_shmid=p->Tail_shmid;
-	p->Tail_shmid=shmid0;
-
-	pointer->num=p->count+1;
-	p->count++;
-
-/*	pointer->prev=move_ll.M_Tail_pointer;
-	move_ll.M_Tail_pointer->next=pointer;
-	move_ll.M_Tail_pointer=pointer;
-	pointer->num=++move_ll.count+1;;
-*/       pthread_mutex_unlock(&p->move_ll_lock);
 
 	pointer->accel_info.xl_accel=node.accel_info.xl_accel;
 	pointer->accel_info.yl_accel=node.accel_info.yl_accel;
@@ -128,6 +114,16 @@ int mlist_add(M_Node node)
 	pointer->temper=node.temper;
 	pointer->dist=node.dist;
 	pointer->sample_time=node.sample_time;
+
+
+        pthread_mutex_lock(&p->move_ll_lock);
+	M_Pointer mp=shmat(p->Tail_shmid,NULL,0);
+	mp->next_shmid=shmid0;
+	pointer->prev_shmid=p->Tail_shmid;
+	p->Tail_shmid=shmid0;
+	pointer->num=p->count+1;
+	p->count++;
+        pthread_mutex_unlock(&p->move_ll_lock);
 
 	shmdt(mp);
 	shmdt(p);
@@ -176,6 +172,7 @@ while(head->next!=NULL)
 /////////////////////////////////////////////
 int rebuild_mlist()
 {
+int num=0;
     mll_ptr p=( mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
     M_Pointer pointer = (M_Pointer)shmat(p->Tail_shmid,NULL,0);
     while(pointer->prev_shmid!=0)
@@ -183,11 +180,13 @@ int rebuild_mlist()
         M_Pointer mp = (M_Pointer)shmat(pointer->prev_shmid,NULL,0);
 	shmctl(mp->next_shmid,IPC_RMID,NULL);
 	pointer=mp;
+//	printf("destroy shm %d",num++);
    }
    p->Tail_shmid= p->Head_shmid;
    p->count=0;
    pointer->next_shmid=0;
    pointer->prev_shmid=0;
+   shmdt(pointer);
    shmdt(p);
    return 0;
 }
@@ -195,7 +194,7 @@ int rebuild_mlist()
 //销毁链表
 int destroy_mlist()
 {
-mll_ptr p=( mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+    mll_ptr p=( mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
     M_Pointer pointer = (M_Pointer)shmat(p->Head_shmid,NULL,0);
     if(pointer==NULL)return -1;
     while(pointer->next_shmid!=0)

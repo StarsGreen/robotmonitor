@@ -212,6 +212,7 @@ float dist_read(void)
 	delayMicroseconds(10);
 	digitalWrite(4, LOW);
 // 通过5号引脚接收信号，判断超声波是否发出
+
 	while(1){
 	if (digitalRead(5) == 1)
 // 如果是1，即高电平，表示超声波已发出
@@ -233,7 +234,7 @@ float dist_read(void)
 	start = t1.tv_sec * 1000000 + t1.tv_usec; // 开始时刻
 	stop = t2.tv_sec * 1000000 + t2.tv_usec;  // 结束时刻计算距离
 	float dis=0;
-dis = (float)(stop - start)/1000000*340/2*100; //单位换算成cm
+	dis = (float)(stop - start)/1000000*340/2*100; //单位换算成cm
 	return dis;
 }
 //////////////////////////////////////////

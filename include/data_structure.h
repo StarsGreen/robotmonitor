@@ -95,6 +95,7 @@ typedef struct M_Node
 //	struct M_Node* prev;
 	int prev_shmid;
 	int next_shmid;
+//	pthread_mutex_t node_lock;
 }M_Node;
 typedef struct M_Node* M_Pointer;
 typedef struct M_LinkList

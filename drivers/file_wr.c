@@ -27,23 +27,26 @@ int read_file_to_buff(char* filename,unsigned char* file_buff)
 }
 /////////////////////////////////////////////////////
 ////////////////////////////////////////////////
-int read_buff_to_file(char* filename,unsigned char* file_buff)
+int read_buff_to_file(char* filename,unsigned char* file_buff,unsigned int buff_size)
 {
 
 	struct stat file_info;
-        stat(filename,&file_info);
+//        stat(filename,&file_info);
 
-	int file_size=file_info.st_size;
+//	int file_size=file_info.st_size;
 //        printf("the file is %d byte",file_size);
         FILE* fp;
-        fp=fopen(filename,"r");
+        fp=fopen(filename,"wb+");
         if(fp==NULL)
 	{
-        printf("file is not exist");
+        printf("file is not exist and can not be created");
 	exit(1);
 	}
-	fread(file_buff,1,file_size,fp);
+	fwrite(file_buff,1,buff_size,fp);
 	fclose(fp);
+
+        stat(filename,&file_info);
+        int file_size=file_info.st_size;
 
 	return file_size;
 }

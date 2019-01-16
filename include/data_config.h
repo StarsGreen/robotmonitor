@@ -6,7 +6,7 @@
 
 #define    MAXLINE        1024*1024
 #define    PORT         51000
-#define    BROADCAST_IP "224.0.0.100"
+#define    BROADCAST_IP "224.0.1.100"
 #define    AIMED_IP     "192.168.1.12"
 #define    BACKLOG      4
 #define    FILENAME     "video.jpg"

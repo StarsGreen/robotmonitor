@@ -48,7 +48,7 @@ void *video_get_thread()
 	int i, ret;
 //	time_t timep;
 //	time (&timep);
-//	struct timeval tv;  
+//	struct timeval tv;
   // 打开设备
 	int fd;
 	fd = open(CAMERA_DEVICE, O_RDWR, 0);

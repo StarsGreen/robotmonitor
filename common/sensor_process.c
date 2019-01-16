@@ -18,6 +18,7 @@ extern void *temper_get_thread(void);
 extern void *dist_get_thread(void);
 extern void *accel_get_thread(void);
 //extern void init_interface_pin(void);
+//extern void *sensor_data_get_thread(void);
 
 int sensor_err;
 pthread_t temper_thread,accel_thread,dist_thread;
@@ -50,6 +51,7 @@ int cancel_sensor_thread()
 //////////////////////////////////////////////////
 int create_sensor_thread()
 {
+
 	sensor_err = pthread_create(&accel_thread, NULL, (void*)accel_get_thread, 
 	NULL);
         if (sensor_err != 0) {
@@ -58,7 +60,7 @@ int create_sensor_thread()
                 exit(1);
                 }
 
-	sensor_err = pthread_create(&dist_thread, NULL, (void*)temper_get_thread,
+	sensor_err = pthread_create(&temper_thread, NULL, (void*)temper_get_thread,
 	 NULL);
         if (sensor_err != 0) {
                 fprintf(stderr, "can't create temper get thread: %s\n",
@@ -66,8 +68,8 @@ int create_sensor_thread()
                 exit(1);
                 }
 
-        sensor_err = pthread_create(&temper_thread, NULL, (void*)dist_get_thread, 
-	NULL);
+	sensor_err = pthread_create(&dist_thread, NULL,
+		(void*)dist_get_thread,NULL);
         if (sensor_err != 0) {
                 fprintf(stderr, "can't create dist get thread: %s\n",
                 strerror(sensor_err));

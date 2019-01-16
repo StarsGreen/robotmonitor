@@ -25,11 +25,12 @@ extern float xl_read(int fd);
 extern float yl_read(int fd);
 extern float zl_read(int fd);
 extern int init_mpu6050();
-extern void init_dist_sensor();
-extern void get_move_info();
+//extern void init_dist_sensor();
+//extern void get_move_info();
 
 extern float kalman_filter(float last_result,float last_value,float cur_value,
 float time,float* p_next,float Q_offset,float R_offset);
+extern float slide_filter(float cur_value,float last_value);
 extern void mlist_add(M_Node node);
 extern void mlist_clear(void);
 extern void* get_ll_shmid(key_t key,int size);
@@ -60,6 +61,7 @@ static void sensor_cleanup_handler(void *arg)
 
 //	sem_destroy(&sensor_stop);
 }
+
 ////////////////////////////////////////////////
 void* temper_get_thread(void)
 {
@@ -74,12 +76,15 @@ while(1)
 	start:
 		pthread_testcancel();
 //		sem_wait(&sensor_start);
-//		while(ctrl_cmd.info_get_func==INFO_GET_DISABLE)
+//		while(ctrl_cmd.info_get_func==INFO_GET_DISABLE);
+                usleep(50000);
 		value=temper_read();
 	if(value!=0)
 		{
 		M_info.temper=value;
+
 //		printf("the temper is %6.3f\n",value);
+  value=0;
 		}
 	else
 		{
@@ -110,18 +115,20 @@ void* dist_get_thread(void)
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 //	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
         pthread_cleanup_push(sensor_cleanup_handler, NULL);
-	init_dist_sensor();
+//	init_dist_sensor();
 while(1)
 	{
-	start: 
+	start:
 		pthread_testcancel();
 //		sem_wait(&sensor_mid);
-//		usleep(100000);
+		usleep(50000);
 		value=dist_read();
 //		printf("the dist is %6.3f\n",value);
+
 		if(value>0)
 		{
 		M_info.dist=value;
+  value=0;
 //		printf("the dist is %6.3f\n",value);
 		}
 		else
@@ -171,8 +178,8 @@ start:
 //printf("\nthe initial gravity component is: %f|%f|%f\n",gra_x,gra_y,gra_z);
 while(1)
 	{
-		pthread_testcancel();
-
+	pthread_testcancel();
+	usleep(50000);
 //		sem_wait(&sensor_stop);
 //		usleep(100000);
 //	struct timeval t1;  // 结构体，可以记录秒和微秒两部分值
@@ -191,19 +198,25 @@ while(1)
 	tail=shmat(p->Tail_shmid,NULL,0);
 	pthread_mutex_lock(&p->move_ll_lock);
 	memcpy(M_info_pointer,tail,M_NODE_SIZE);
-//	shmdt(mp);
-//	shmdt(tail);
 	pthread_mutex_unlock(&p->move_ll_lock);
+
 	M_info.sample_time=dt;
+
 	if(fd!=-1)
 	    {
-		M_info.vel_info.xa_vel=xa_read(fd);
-		M_info.vel_info.ya_vel=ya_read(fd);
-		M_info.vel_info.za_vel=za_read(fd);
+	M_info.vel_info.xa_vel=slide_filter(xa_read(fd),
+	M_info_pointer->vel_info.xa_vel);
+	M_info.vel_info.ya_vel=slide_filter(ya_read(fd),
+	M_info_pointer->vel_info.ya_vel);
+	M_info.vel_info.za_vel=slide_filter(za_read(fd),
+	M_info_pointer->vel_info.za_vel);
 
-		M_info.accel_info.xl_accel=xl_read(fd)-gra_x;
-		M_info.accel_info.yl_accel=yl_read(fd)-gra_y;
-		M_info.accel_info.zl_accel=zl_read(fd)-gra_z;
+	M_info.accel_info.xl_accel=slide_filter(xl_read(fd)-gra_x,
+	M_info_pointer->accel_info.xl_accel);
+	M_info.accel_info.yl_accel=slide_filter(yl_read(fd)-gra_y,
+        M_info_pointer->accel_info.yl_accel);
+	M_info.accel_info.zl_accel=slide_filter(zl_read(fd)-gra_z,
+        M_info_pointer->accel_info.zl_accel);
 	    }
 	else
 	    {
@@ -263,16 +276,12 @@ if(p->count==MAX_NODE_NUM)
     {
 rebuild_mlist();
 mlist_add(M_info);
+//printf("another 200 node\n");
     }
-//	sem_post(&sensor_start);
-//printf("accel get finished!\n");
 	free(M_info_pointer);
 	shmdt(p);
-	shmdt(tail);
-//		pthread_testcancel();
-	}
+	shmdt(tail);	}
 nothing:
-//	sem_post(&sensor_start);
 	free(M_info_pointer);
 	shmdt(tail);
 	shmdt(p);
