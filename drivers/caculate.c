@@ -10,11 +10,12 @@
 //#include "include.h"
 #include <signal.h>
 #include <math.h>
+#include <data_structure.h>
 ///////////////////////////////////////////////
 
 /////////////////////////////////////////////////
 
-
+/*
 float kalman_filter(float last_result,float last_value,float cur_value,
 float time,float* p_next,float Q_offset,float R_offset)
 {
@@ -28,6 +29,7 @@ float time,float* p_next,float Q_offset,float R_offset)
 	result=pos_best;
 return result;
 }
+*/
 ///////////////////////////////////////////////
 float slide_filter(float cur_value,float last_value)
 {
@@ -63,80 +65,54 @@ pos_info* p_info)
         float vx, vy, vz;
         float ex, ey, ez;
         float pitch=0,roll=0,yaw=0;
-        // 测量正常化
 
+        // 测量正常化
         norm = sqrt(ax*ax + ay*ay + az*az);
 
-        ax = ax / norm;                   //单位化
-
+        //单位化
+        ax = ax / norm;
         ay = ay / norm;
-
         az = az / norm;
 
         // 估计方向的重力
-
         vx = 2*(q1*q3 - q0*q2);
-
         vy = 2*(q0*q1 + q2*q3);
-
         vz = q0*q0 - q1*q1 - q2*q2 + q3*q3;
 
         // 错误的领域和方向传感器测量参考方向之间的交叉乘积的总和
-
         ex = (ay*vz - az*vy);
-
         ey = (az*vx - ax*vz);
-
         ez = (ax*vy - ay*vx);
 
         // 积分误差比例积分增益
-
         exInt = exInt + ex*Ki;
-
         eyInt = eyInt + ey*Ki;
-
         ezInt = ezInt + ez*Ki;
 
         // 调整后的陀螺仪测量
-
         gx = gx + Kp*ex + exInt;
-
         gy = gy + Kp*ey + eyInt;
-
         gz = gz + Kp*ez + ezInt;
 
         // 整合四元数率和正常化
-
         q0 = q0 + (-q1*gx - q2*gy - q3*gz)*halfT;
-
         q1 = q1 + (q0*gx + q2*gz - q3*gy)*halfT;
-
         q2 = q2 + (q0*gy - q1*gz + q3*gx)*halfT;
-
         q3 = q3 + (q0*gz + q1*gy - q2*gx)*halfT;
 
         // 正常化四元
-
         norm = sqrt(q0*q0 + q1*q1 + q2*q2 + q3*q3);
-
         q0 = q0 / norm;
-
         q1 = q1 / norm;
-
         q2 = q2 / norm;
-
         q3 = q3 / norm;
 
-        pitch  = asin(-2 * q1 * q3 + 2 * q0* q2)* 57.3; // pitch ,转换为度数
-
+        pitch  = asin(-2 * q1 * q3 + 2 * q0* q2)* 57.3; // pitch
         roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 57.3; // rollv
-
-        yaw = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.3;  //此处没有价值，注掉
+        yaw = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.3;
 
         p_info->pitch=pitch;
-
         p_info->roll=roll;
-
         p_info->yaw=yaw;
 }
 ///////////////////////////////////////////////////
@@ -155,20 +131,50 @@ typedef struct
  float now_kg;
 }kalman_params;
 
-static kalman_params k_params={0,0,0,0,0,0,0,0,0};
+kalman_params k_params[6];
 ///////////////////////////////////////////////////
-void init_kalman_params(kalman_params* kp)
+int init_kalman_params()
 {
-  kp->last_value=0;
+  extern motion_node m_node;
+
+  kp->last_value=m_node.accel_info.xl_accel;
   kp->last_var=0.02;
   kp->last_kg=0;
+  kp++;
+
+  kp->last_value=m_node.accel_info.yl_accel;
+  kp->last_var=0.02;
+  kp->last_kg=0;
+  kp++;
+
+  kp->last_value=m_node.accel_info.zl_accel;
+  kp->last_var=0.02;
+  kp->last_kg=0;
+  kp++;
+
+  kp->last_value=m_node.vel_info.xa_vel;
+  kp->last_var=0.02;
+  kp->last_kg=0;
+  kp++;
+
+  kp->last_value=m_node.vel_info.ya_vel;
+  kp->last_var=0.02;
+  kp->last_kg=0;
+  kp++;
+
+  kp->last_value=m_node.vel_info.za_vel;
+  kp->last_var=0.02;
+  kp->last_kg=0;
+
+  return 0;
+
 }
 
-float f_order_kalman_filter(float last_result,float last_value,float cur_value)
+int kalman_filter(float last_result,float last_value,float cur_value)
 {
 
 
 
 
-
+  return 0;
 }

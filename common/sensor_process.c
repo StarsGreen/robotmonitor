@@ -17,11 +17,12 @@
 extern void *temper_get_thread(void);
 extern void *dist_get_thread(void);
 extern void *accel_get_thread(void);
+extern void *collect_info_thread(void);
 //extern void init_interface_pin(void);
 //extern void *sensor_data_get_thread(void);
 
 int sensor_err;
-pthread_t temper_thread,accel_thread,dist_thread;
+pthread_t temper_thread,accel_thread,dist_thread,collect_thread;
 sem_t sensor_start,sensor_mid,sensor_stop;
 ////////////////////////////////////////////
 int cancel_sensor_thread()
@@ -46,6 +47,14 @@ int cancel_sensor_thread()
 		if(pthread_join(dist_thread,NULL)==0);
 		printf("cancel dist get thread successfully\n");
 		}
+
+	if(pthread_cancel(collect_thread)!=0)
+		printf("cancel collect thread failed!!!!!!\n");
+	else{
+		if(pthread_join(collect_thread,NULL)==0)
+		printf("cancel collect_thread successfully\n");
+		}
+
 	return 0;
 }
 //////////////////////////////////////////////////
@@ -75,6 +84,15 @@ int create_sensor_thread()
                 strerror(sensor_err));
 		exit(1);
 			}
+
+	sensor_err = pthread_create(&collect_thread, NULL,
+		(void*)collect_info_thread,NULL);
+        if (sensor_err != 0) {
+                fprintf(stderr, "can't create collect info thread: %s\n",
+                strerror(sensor_err));
+		exit(1);
+			}
+
 	return 0;
 }
 ///////////////////////////////////////////

@@ -31,10 +31,13 @@ extern int init_mpu6050();
 extern float kalman_filter(float last_result,float last_value,float cur_value,
 float time,float* p_next,float Q_offset,float R_offset);
 extern float slide_filter(float cur_value,float last_value);
-extern void mlist_add(M_Node node);
-extern void mlist_clear(void);
-extern void* get_ll_shmid(key_t key,int size);
-extern int rebuild_mlist();
+//extern void mlist_add(M_Node node);
+//extern void mlist_clear(void);
+//extern void* get_ll_shmid(key_t key,int size);
+//extern int rebuild_mlist();
+
+extern int mlist_add_node( node);
+extern int mlist_clear(void);
 extern sem_t sensor_start,sensor_mid,sensor_stop;
 
 float pxl_conv=0.5;
@@ -47,8 +50,12 @@ const float Q_offset=0.5;
 const float R_offset=0.25;
 static float dt=0;
 
+
 M_Node M_info;
 M_Pointer M_info_pointer;
+
+motion_node m_node;
+int data_state=0;//show the snesor data state is ready or not
 //extern int cond;
 //extern pthread_mutex_t thread_mutex;
 //extern pthread_cond_t thread_cond;
@@ -82,9 +89,9 @@ while(1)
 	if(value!=0)
 		{
 		M_info.temper=value;
-
+                m_node.temper=value;
 //		printf("the temper is %6.3f\n",value);
-  value=0;
+                value=0;
 		}
 	else
 		{
@@ -128,7 +135,8 @@ while(1)
 		if(value>0)
 		{
 		M_info.dist=value;
-  value=0;
+                m_node.dist=value;
+                value=0;
 //		printf("the dist is %6.3f\n",value);
 		}
 		else
@@ -154,28 +162,55 @@ nothing:
 //////////////////////////////////////////////
 void* accel_get_thread(void)
 {
-	int num=0;
+//	int num=0;
 	int fd;
-	static float gra_x=0;
-        static float gra_y=0;
-        static float gra_z=0;
-	mll_ptr p=NULL;
-	M_Pointer tail=NULL;
+/*	float gra_x=0;
+        float gra_y=0;
+        float gra_z=0;
+	float xl_accel;
+	float yl_accel;
+	float zl_accel;
+*/
+        long start,stop,dt;//sensor sample time
+
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 //	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
         pthread_cleanup_push(sensor_cleanup_handler,NULL);
+
         struct timeval t1,t2;  // 结构体，可以记录秒和微秒两部分值
 	memset(&t1,0,sizeof(t1));
         memset(&t2,0,sizeof(t2));
-        gettimeofday(&t1, NULL);
-	memcpy(&t2,&t1,sizeof(t1));
-start:
+
 	fd=init_mpu6050();
-	gra_x=xl_read(fd);
-	gra_y=yl_read(fd);
-	gra_z=zl_read(fd);
+while(1)
+  {
+    pthread_testcancel();
+    usleep(50000);
+    gettimeofday(&t1, NULL);
+
+    m_node.accel_info.xl_accel=xl_read(fd);
+    m_node.accel_info.yl_accel=yl_read(fd);
+    m_node.accel_info.zl_accel=zl_read(fd);
+    m_node.accel_info.xa_vel=xa_read(fd);
+    m_node.accel_info.ya_vel=ya_read(fd);
+    m_node.accel_info.za_vel=za_read(fd);
+    if(!data_state)
+        data_state=1;
+
+    gettimeofday(&t2, NULL);
+
+    start = t2.tv_sec*1000000+t2.tv_usec; // 开始时刻
+    stop = t1.tv_sec*1000000+t1.tv_usec;  // 结束时刻计算距离
+    dt=(float)(stop - start)/1000000;
+
+    m_node.sample_time=dt;
+
+   }
+}
 //printf("\nthe initial gravity component is: %f|%f|%f\n",gra_x,gra_y,gra_z);
+/*
+{
 while(1)
 	{
 	pthread_testcancel();
@@ -260,6 +295,7 @@ M_info_pointer->accel_info.xl_accel,
 M_info.accel_info.xl_accel,
 dt,&pxl_conv,Q_offset,R_offset);
 
+
 M_info.jour_info.yl=kalman_filter(M_info_pointer->jour_info.yl,
 M_info_pointer->accel_info.yl_accel,
 M_info.accel_info.yl_accel,
@@ -287,7 +323,45 @@ nothing:
 	shmdt(p);
 	while(1)pthread_testcancel();
         pthread_cleanup_pop(0);
-}
+}*/
 ///////////////////////////////////////////////
+void* collect_info_thread(void)
+{
+        extern ml_ptr ml_p;
+	float xl_accel,y_accel,zl_accel;
+        float xa_vel,ya_vel,za_vel;
+	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
+	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
+//	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
+        pthread_cleanup_push(sensor_cleanup_handler, NULL);
+//	init_dist_sensor();
 
+	while(!data_state);
+
+        xl_accel=m_node.accel_info.xl_accel;
+        yl_accel=m_node.accel_info.yl_accel;
+        zl_accel=m_node.accel_info.zl_accel;
+        xa_vel=m_node.accel_info.xa_vel;
+        ya_vel=m_node.accel_info.ya_vel;
+        za_vel=m_node.accel_info.za_vel;
+        mlist_add_node(&m_node,ml_p);
+
+        init_kalman_params();
+while(1)
+  {
+	pthread_testcancel();
+	usleep(50000);
+
+        xl_accel=m_node.accel_info.xl_accel;
+        yl_accel=m_node.accel_info.yl_accel;
+        zl_accel=m_node.accel_info.zl_accel;
+        xa_vel=m_node.accel_info.xa_vel;
+        ya_vel=m_node.accel_info.ya_vel;
+        za_vel=m_node.accel_info.za_vel;
+
+
+
+  }
+        pthread_cleanup_pop(0);
+}
 ////////////////////////////////////////////////
