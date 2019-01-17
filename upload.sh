@@ -19,7 +19,7 @@ case $1 in
 	git add -A
 	cur_date=$(date)
 	git commit -m "$cur_date-----edition 1"
-	git remote add remoterobot https://github.com/StarsGreen/remoterobot.git
-	git push -u remoterobot master
+	git remote add robotmonitor https://github.com/StarsGreen/robotmonitor.git
+	git push -u robotmonitor master
 	;;
 esac
