@@ -161,8 +161,9 @@ void init_kalman_params(kalman_params* kp)
 {
   kp->last_value=0;
   kp->last_var=0.02;
-  kp->kg=0;
+  kp->last_kg=0;
 }
+
 float f_order_kalman_filter(float last_result,float last_value,float cur_value)
 {
 

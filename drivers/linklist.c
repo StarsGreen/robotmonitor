@@ -41,7 +41,7 @@ void* get_ll_shmid(key_t key,int size)
 ////////////////////////////////////
 int init_mlist()
 {
-mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
+    mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
     int shmid0 = shmget(0,M_NODE_SIZE,IPC_CREAT|0666);
     if(shmid0 == -1)
     {
@@ -548,3 +548,7 @@ int slist_delete(char* ip)
 	sock_ll.count--;
 */
 }
+//////////////////////////////////////////////////////
+//use linklist to store the sensor info
+//////////////////////////////////////////////////////
+// create_mlist
