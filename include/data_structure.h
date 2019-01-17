@@ -98,6 +98,7 @@ typedef struct M_Node
 //	pthread_mutex_t node_lock;
 }M_Node;
 typedef struct M_Node* M_Pointer;
+
 typedef struct M_LinkList
 {
 //M_Pointer M_Head_pointer;
@@ -108,6 +109,31 @@ int count;
 pthread_mutex_t move_ll_lock;
 }mll;
 typedef mll* mll_ptr;
+/////////////////////////////////////////////
+typedef struct motion_node
+{
+	struct accel accel_info;
+	struct velocity vel_info;
+	struct journey jour_info;
+	struct posture pos_info;
+	struct gra_component gra_cpt;
+	float temper;
+	float dist;
+	int num;
+	float sample_time;
+	struct motion_node* next;
+	struct motion_node* prev;
+}motion_node;
+
+typedef struct motion_node* mn_ptr; //motion node pointer
+
+typedef struct motion_linklist
+{
+  mn_ptr head_ptr;
+  mn_ptr tail_ptr;
+  int count;
+}motion_linklist;
+typedef motion_linklist* ml_ptr;//motion linklist pointer
 //////////////////////////////////////////////
 struct client_info
 {
