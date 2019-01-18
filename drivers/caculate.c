@@ -268,10 +268,10 @@ int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
 //////////////////////////////////////////////////////
 
-  last_value=last_node_ptr->vel_info.xa_vel;
-  cur_value=cur_node_ptr->vel_info.xa_vel;
+  last_value=last_node_ptr->vel_info.ya_vel;
+  cur_value=cur_node_ptr->vel_info.ya_vel;
 
-  /*4.this step is used to get xa value by kalman filter*/
+  /*5.this step is used to get ya value by kalman filter*/
 
   //estimate value 
   value_est=k_params->last_result+last_value*ST;
@@ -289,7 +289,33 @@ int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
   k_params->last_result=value_real;
   k_params->last_var=p_new;
-  result->jour_info.xa=value_real;
+  result->jour_info.ya=value_real;
+
+  k_params++;
+//////////////////////////////////////////////////////
+
+  last_value=last_node_ptr->vel_info.za_vel;
+  cur_value=cur_node_ptr->vel_info.za_vel;
+
+  /*6.this step is used to get ya value by kalman filter*/
+
+  //estimate value 
+  value_est=k_params->last_result+last_value*ST;
+  //estimate variance
+  p_est=k_params->last_var;
+  p_est=p_est+Q;
+  //caculate kalman gain
+  kg=p_est/(p_est+R);
+  //measure value
+  value_mes=k_params->last_result+cur_value*ST;
+  //real/best value
+  value_real=value_est+kg*(value_mes-value_est);
+  //fresh the variance
+  p_new=(1-kg)*p_est;
+
+  k_params->last_result=value_real;
+  k_params->last_var=p_new;
+  result->jour_info.za=value_real;
 
   return 0;
 }
