@@ -16,7 +16,7 @@
 //use linklist to store the sensor info
 //////////////////////////////////////////////////////
 
- ml_ptr ml_p;//define the linklist info structure
+ml_ptr ml_p;//define the linklist info structure
 
 /*init the linklist by creating a single node as a guard*/
 
@@ -53,10 +53,12 @@ int mlist_add_node(mn_ptr mn_p,ml_ptr ml_p)
 
   p->next=ptr;
   ptr->prev=p;
-  p->next=NULL;
+  ptr->next=NULL;
+  ptr->num=ml_p->count+1;
 
   ml_p->tail_ptr=ptr;
   ml_p->count++;
+
 
   return 0;
 }

@@ -40,23 +40,13 @@ else return last_value;
 }
 
 #define Kp 100.0f                // 比例增益支配率收敛到加速度计/磁强计
-
 #define Ki 0.002f                // 积分增益支配率的陀螺仪偏见的衔接
-
 #define halfT 0.001f             // 采样周期的一半
 
 float q0 = 1, q1 = 0, q2 = 0, q3 = 0;      // 四元数的元素，代表估计方向
-
 float exInt = 0, eyInt = 0, ezInt = 0;     // 按比例缩小积分误差
 
-float Yaw,Pitch,Roll;  //偏航角，俯仰角，翻滚角
-
-typedef struct
-{
-  float pitch;
-  float roll;
-  float yaw;
-}pos_info;
+//float Yaw,Pitch,Roll;  //偏航角，俯仰角，翻滚角
 
 void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az,
 pos_info* p_info)
@@ -117,72 +107,189 @@ pos_info* p_info)
 }
 ///////////////////////////////////////////////////
 #define Q 0.018f //measurement variance
-#define R 0.5F   //gauss variance
+#define R 0.5f   //gauss variance
+#define T 0.05f
 typedef struct
 {
- float last_value;
- float mid_value;
- float now_value;
- float last_var;
- float mid_var;
- float now_var;
- float last_kg;
- float mid_kg;
- float now_kg;
+ float last_result;//last valid value
+ float last_var;  //last valid variance
+// float last_kg;   //last gain
 }kalman_params;
 
 kalman_params k_params[6];
 ///////////////////////////////////////////////////
 int init_kalman_params()
 {
-  extern motion_node m_node;
+//  extern motion_node m_node;
+  extern ml_ptr ml_p;
+  mn_ptr mn_p=ml_p->tail_ptr;
 
-  kp->last_value=m_node.accel_info.xl_accel;
+  kp->last_result=mn_p->jour_info.xl;
   kp->last_var=0.02;
-  kp->last_kg=0;
+  //kp->last_kg=0;
   kp++;
 
-  kp->last_value=m_node.accel_info.yl_accel;
+  kp->last_result=mn_p->jour_info.yl;
   kp->last_var=0.02;
-  kp->last_kg=0;
+  //kp->last_kg=0;
   kp++;
 
-  kp->last_value=m_node.accel_info.zl_accel;
+  kp->last_result=mn_p->jour_info.zl;
   kp->last_var=0.02;
-  kp->last_kg=0;
+  //kp->last_kg=0;
   kp++;
 
-  kp->last_value=m_node.vel_info.xa_vel;
+  kp->last_result=mn_p->jour_info.xa;
   kp->last_var=0.02;
-  kp->last_kg=0;
+  //kp->last_kg=0;
   kp++;
 
-  kp->last_value=m_node.vel_info.ya_vel;
+  kp->last_result=mn_p->jour_info.ya;
   kp->last_var=0.02;
-  kp->last_kg=0;
+  //kp->last_kg=0;
   kp++;
 
-  kp->last_value=m_node.vel_info.za_vel;
+  kp->last_result=mn_p->jour_info.za;
   kp->last_var=0.02;
-  kp->last_kg=0;
+  //kp->last_kg=0;
 
   return 0;
 
 }
 
-int kalman_filter(float result,float last_value,float cur_value)
+int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 {
-	float result=0;
 
-	float pos_est=last_result+last_value*last_value*time;
-	float p_pos_est=*p_next+Q_offset;
-	float kg=p_pos_est/(p_pos_est+Q_offset);
-	float pos_mes=last_result+cur_value*cur_value*time;
-	float pos_best=last_result+kg*(pos_mes-pos_est);
-	*p_next=(1-kg)*p_pos_est;
-	result=pos_best;
+  float last_value=last_node_ptr->accel_info.xl_accel;
+  float cur_value=cur_node_ptr->accel_info.xl_accel;
 
+  /*1.this step is used to get xl value by kalman filter*/
 
+  //estimate value 
+  float value_est=k_params->last_result+0.5*last_value*last_value*ST;
+  //estimate variance
+  float p_est=k_params->last_var;
+  p_est=p_est+Q;
+  //caculate kalman gain
+  float kg=p_est/(p_est+R);
+  //measure value
+  float value_mes=k_params->last_result+0.5*cur_value*cur_value*ST;
+  //real/best value
+  float value_real=value_est+kg*(value_mes-value_est);
+  //fresh the variance
+  float p_new=(1-kg)*p_est;
+
+  k_params->last_result=value_real;
+  k_params->last_var=p_new;
+  result->jour_info.xl=value_real;
+
+  k_params++;
+
+////////////////////////////////////////////////////////
+  last_value=last_node_ptr->accel_info.yl_accel;
+  cur_value=cur_node_ptr->accel_info.yl_accel;
+
+  /*2.this step is used to get yl value by kalman filter*/
+
+  //estimate value 
+  value_est=k_params->last_result+0.5*last_value*last_value*ST;
+  //estimate variance
+  p_est=k_params->last_var;
+  p_est=p_est+Q;
+  //caculate kalman gain
+  kg=p_est/(p_est+R);
+  //measure value
+   value_mes=k_params->last_result+0.5*cur_value*cur_value*ST;
+  //real/best value
+  value_real=value_est+kg*(value_mes-value_est);
+  //fresh the variance
+  p_new=(1-kg)*p_est;
+
+  k_params->last_result=value_real;
+  k_params->last_var=p_new;
+  result->jour_info.yl=value_real;
+
+  k_params++;
+
+/////////////////////////////////////////////////////
+
+  last_value=last_node_ptr->accel_info.zl_accel;
+  cur_value=cur_node_ptr->accel_info.zl_accel;
+
+  /*3.this step is used to get zl value by kalman filter*/
+
+  //estimate value 
+  value_est=k_params->last_result+0.5*last_value*last_value*ST;
+  //estimate variance
+  p_est=k_params->last_var;
+  p_est=p_est+Q;
+  //caculate kalman gain
+  kg=p_est/(p_est+R);
+  //measure value
+  value_mes=k_params->last_result+0.5*cur_value*cur_value*ST;
+  //real/best value
+  value_real=value_est+kg*(value_mes-value_est);
+  //fresh the variance
+  p_new=(1-kg)*p_est;
+
+  k_params->last_result=value_real;
+  k_params->last_var=p_new;
+  result->jour_info.zl=value_real;
+
+  k_params++;
+
+//////////////////////////////////////////////////////
+
+  last_value=last_node_ptr->vel_info.xa_vel;
+  cur_value=cur_node_ptr->vel_info.xa_vel;
+
+  /*4.this step is used to get xa value by kalman filter*/
+
+  //estimate value 
+
+  value_est=k_params->last_result+last_value*ST;
+  //estimate variance
+  p_est=k_params->last_var;
+  p_est=p_est+Q;
+  //caculate kalman gain
+  kg=p_est/(p_est+R);
+  //measure value
+  value_mes=k_params->last_result+cur_value*ST;
+  //real/best value
+  value_real=value_est+kg*(value_mes-value_est);
+  //fresh the variance
+  p_new=(1-kg)*p_est;
+
+  k_params->last_result=value_real;
+  k_params->last_var=p_new;
+  result->jour_info.xa=value_real;
+
+  k_params++;
+
+//////////////////////////////////////////////////////
+
+  last_value=last_node_ptr->vel_info.xa_vel;
+  cur_value=cur_node_ptr->vel_info.xa_vel;
+
+  /*4.this step is used to get xa value by kalman filter*/
+
+  //estimate value 
+  value_est=k_params->last_result+last_value*ST;
+  //estimate variance
+  p_est=k_params->last_var;
+  p_est=p_est+Q;
+  //caculate kalman gain
+  kg=p_est/(p_est+R);
+  //measure value
+  value_mes=k_params->last_result+cur_value*ST;
+  //real/best value
+  value_real=value_est+kg*(value_mes-value_est);
+  //fresh the variance
+  p_new=(1-kg)*p_est;
+
+  k_params->last_result=value_real;
+  k_params->last_var=p_new;
+  result->jour_info.xa=value_real;
 
   return 0;
 }

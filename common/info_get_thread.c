@@ -378,17 +378,17 @@ while(1)
         m_node.vel_info.xa_vel=xa_vel;
         m_node.vel_info.ya_vel=ya_vel;
         m_node.vel_info.za_vel=za_vel;
+
      //caculate three axis vel info by accel info
         m_node.vel_info.xl_vel=mp->vel_info.xl_vel+xl_accel*ST;
         m_node.vel_info.yl_vel=mp->vel_info.yl_vel+yl_accel*ST;
         m_node.vel_info.zl_vel=mp->vel_info.zl_vel+zl_accel*ST;
 
      //use kalman filter to proceed journey info
-       
+        m_node.jour_info.xa=
 
 
   }
         pthread_cleanup_pop(0);
 }
 ////////////////////////////////////////////////
-v
