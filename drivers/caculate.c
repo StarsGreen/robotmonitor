@@ -170,9 +170,17 @@ int init_kalman_params()
 
 }
 
-int kalman_filter(float last_result,float last_value,float cur_value)
+int kalman_filter(float result,float last_value,float cur_value)
 {
+	float result=0;
 
+	float pos_est=last_result+last_value*last_value*time;
+	float p_pos_est=*p_next+Q_offset;
+	float kg=p_pos_est/(p_pos_est+Q_offset);
+	float pos_mes=last_result+cur_value*cur_value*time;
+	float pos_best=last_result+kg*(pos_mes-pos_est);
+	*p_next=(1-kg)*p_pos_est;
+	result=pos_best;
 
 
 

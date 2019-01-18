@@ -54,7 +54,7 @@ static float dt=0;
 M_Node M_info;
 M_Pointer M_info_pointer;
 
-motion_node m_node;
+motion_node m_node,temp_node;
 int data_state=0;//show the snesor data state is ready or not
 //extern int cond;
 //extern pthread_mutex_t thread_mutex;
@@ -89,7 +89,7 @@ while(1)
 	if(value!=0)
 		{
 		M_info.temper=value;
-                m_node.temper=value;
+                temp_node.temper=value;
 //		printf("the temper is %6.3f\n",value);
                 value=0;
 		}
@@ -135,7 +135,7 @@ while(1)
 		if(value>0)
 		{
 		M_info.dist=value;
-                m_node.dist=value;
+                temp_node.dist=value;
                 value=0;
 //		printf("the dist is %6.3f\n",value);
 		}
@@ -189,12 +189,12 @@ while(1)
     usleep(50000);
     gettimeofday(&t1, NULL);
 
-    m_node.accel_info.xl_accel=xl_read(fd);
-    m_node.accel_info.yl_accel=yl_read(fd);
-    m_node.accel_info.zl_accel=zl_read(fd);
-    m_node.accel_info.xa_vel=xa_read(fd);
-    m_node.accel_info.ya_vel=ya_read(fd);
-    m_node.accel_info.za_vel=za_read(fd);
+    temp_node.accel_info.xl_accel=xl_read(fd);
+    temp_node.accel_info.yl_accel=yl_read(fd);
+    temp_node.accel_info.zl_accel=zl_read(fd);
+    temp_node.accel_info.xa_vel=xa_read(fd);
+    temp_node.accel_info.ya_vel=ya_read(fd);
+    temp_node.accel_info.za_vel=za_read(fd);
     if(!data_state)
         data_state=1;
 
@@ -204,7 +204,7 @@ while(1)
     stop = t1.tv_sec*1000000+t1.tv_usec;  // 结束时刻计算距离
     dt=(float)(stop - start)/1000000;
 
-    m_node.sample_time=dt;
+    temp_node.sample_time=dt;
 
    }
 }
@@ -324,12 +324,15 @@ nothing:
 	while(1)pthread_testcancel();
         pthread_cleanup_pop(0);
 }*/
-///////////////////////////////////////////////
+//////////////////////////////////////////////
+#define ST 0.05f
+//////////////////////////////////////////////
 void* collect_info_thread(void)
 {
         extern ml_ptr ml_p;
-	float xl_accel,y_accel,zl_accel;
-        float xa_vel,ya_vel,za_vel;
+        mn_ptr mp;
+	float xl_accel,y_accel,zl_accel,last_xl,last_yl,last_zl;
+        float xa_vel,ya_vel,za_vel,last_xa,last_ya,last_za;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 //	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
@@ -337,31 +340,55 @@ void* collect_info_thread(void)
 //	init_dist_sensor();
 
 	while(!data_state);
-
-        xl_accel=m_node.accel_info.xl_accel;
-        yl_accel=m_node.accel_info.yl_accel;
-        zl_accel=m_node.accel_info.zl_accel;
-        xa_vel=m_node.accel_info.xa_vel;
-        ya_vel=m_node.accel_info.ya_vel;
-        za_vel=m_node.accel_info.za_vel;
-        mlist_add_node(&m_node,ml_p);
-
+        mlist_add_node(&temp_node,ml_p);//add the first node as a base to caculate
+//      mp=ml_p->tail_ptr
         init_kalman_params();
 while(1)
   {
 	pthread_testcancel();
 	usleep(50000);
 
-        xl_accel=m_node.accel_info.xl_accel;
-        yl_accel=m_node.accel_info.yl_accel;
-        zl_accel=m_node.accel_info.zl_accel;
-        xa_vel=m_node.accel_info.xa_vel;
-        ya_vel=m_node.accel_info.ya_vel;
-        za_vel=m_node.accel_info.za_vel;
+        xl_accel=temp_node.accel_info.xl_accel;
+        yl_accel=temp_node.accel_info.yl_accel;
+        zl_accel=temp_node.accel_info.zl_accel;
+        xa_vel=temp_node.vel_info.xa_vel;
+        ya_vel=temp_node.vel_info.ya_vel;
+        za_vel=temp_node.vel_info.za_vel;
 
+        mp=ml_p->tail_ptr;
+        last_xl=mp->accel_info.xl_accel;
+        last_yl=mp->accel_info.yl_accel;
+        last_zl=mp->accel_info.zl_accel;
+        last_xa=mp->vel_info.xa_vel;
+        last_ya=mp->vel_info.ya_vel;
+        last_za=mp->vel_info.za_vel;
+
+       //use slide filter to deal with oringinal sensor data
+        xl_accel=slide_filter(xl_accel,last_xl);
+        yl_accel=slide_filter(xl_accel,last_yl);
+        zl_accel=slide_filter(xl_accel,last_zl);
+        xa_vel=slide_filter(xl_accel,last_xa);
+        ya_vel=slide_filter(xl_accel,last_ya);
+        za_vel=slide_filter(xl_accel,last_za);
+
+      //use n_node to store sensor data after slide filter
+        m_node.accel_info.xl_accel=xl_accel;
+        m_node.accel_info.yl_accel=yl_accel;
+        m_node.accel_info.zl_accel=zl_accel;
+        m_node.vel_info.xa_vel=xa_vel;
+        m_node.vel_info.ya_vel=ya_vel;
+        m_node.vel_info.za_vel=za_vel;
+     //caculate three axis vel info by accel info
+        m_node.vel_info.xl_vel=mp->vel_info.xl_vel+xl_accel*ST;
+        m_node.vel_info.yl_vel=mp->vel_info.yl_vel+yl_accel*ST;
+        m_node.vel_info.zl_vel=mp->vel_info.zl_vel+zl_accel*ST;
+
+     //use kalman filter to proceed journey info
+       
 
 
   }
         pthread_cleanup_pop(0);
 }
 ////////////////////////////////////////////////
+v

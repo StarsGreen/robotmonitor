@@ -265,7 +265,7 @@ void* info_recv_thread(void* s)
 			if(strcmp(buffer,"exit")==0)
 				{
 				close(conn);
-				slist_delete(ip);
+//				slist_delete(ip);
 				raise(SIGINT);
 				break;
 				}
@@ -286,7 +286,7 @@ void* info_recv_thread(void* s)
 		else
 			{
 			close(conn);
-			slist_delete(ip);
+//			slist_delete(ip);
 			raise(SIGINT);
 			break;
 			}
@@ -323,7 +323,7 @@ void* info_send_thread(void* s)
 		if(send_flag==-1)
 		{
                         close(conn);
-                        slist_delete(ip);
+//                      slist_delete(ip);
 		//	free(ip);
                         raise(SIGINT);
 		}

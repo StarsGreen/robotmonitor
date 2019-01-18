@@ -47,9 +47,10 @@ int  main(int argc, char **argv)
 ///////////////////////////////////////////
 void sys_init()
 {
-	init_slist();
-	init_mlist();
-	init_share_mem();
+        extern ml_ptr ml_p;
+	//init_slist();
+	init_mlist(ml_p);
+	//init_share_mem();
 	init_syslock();
 	wiringPiSetup();
 }

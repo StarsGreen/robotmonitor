@@ -146,12 +146,12 @@ while(1)
 //			sock_info.sock_con_status=1;
 			ip=inet_ntoa(client_addr.sin_addr);
 			port=ntohs(client_addr.sin_port);
-			if(check_ip(ip)==1)goto sock_nothing;
+//			if(check_ip(ip)==1)goto sock_nothing;
 			if((socket_fork[num++]=fork())>0)
 				{
 				close(conn);
-			   if(num<=QUEUE)sock_add(ip,port);
-			   else printf("the conn is full");
+//			   if(num<=QUEUE)sock_add(ip,port);
+//			   else printf("the conn is full");
 	printf("\nclient %d IP is:%s,port is:%d  is connected\n",num,ip,port);
 				}
 			else
