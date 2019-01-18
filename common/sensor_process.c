@@ -110,7 +110,9 @@ int spro_sem_init()
 void signal_sensor_proceed(int signo)
 {
 if(signo==SIGINT)
-	cancel_sensor_thread();
+  cancel_sensor_thread();
+extern ml_ptr ml_p;
+destroy_mlist(ml_p);
 exit(1);
 }
 //////////////////////////////////////

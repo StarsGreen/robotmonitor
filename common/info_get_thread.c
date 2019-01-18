@@ -343,10 +343,14 @@ void* collect_info_thread(void)
         mlist_add_node(&temp_node,ml_p);//add the first node as a base to caculate
 //      mp=ml_p->tail_ptr
         init_kalman_params();
+
 while(1)
   {
 	pthread_testcancel();
 	usleep(50000);
+
+        mp=ml_p->tail_ptr;
+
 
         xl_accel=temp_node.accel_info.xl_accel;
         yl_accel=temp_node.accel_info.yl_accel;
@@ -355,7 +359,7 @@ while(1)
         ya_vel=temp_node.vel_info.ya_vel;
         za_vel=temp_node.vel_info.za_vel;
 
-        mp=ml_p->tail_ptr;
+//        mp=ml_p->tail_ptr;
         last_xl=mp->accel_info.xl_accel;
         last_yl=mp->accel_info.yl_accel;
         last_zl=mp->accel_info.zl_accel;
@@ -385,7 +389,12 @@ while(1)
         m_node.vel_info.zl_vel=mp->vel_info.zl_vel+zl_accel*ST;
 
      //use kalman filter to proceed journey info
-        m_node.jour_info.xa=
+
+        kalman_filter(&m_node,mp,&temp_node);
+
+    if(ml_p->count==MAX_NODE_NUM)
+        clear_mlist(ml_p);
+        mlist_add_node(&m_node,ml_p);
 
 
   }
