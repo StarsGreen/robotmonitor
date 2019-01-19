@@ -231,8 +231,8 @@ char* assemble_info(void)
 //	memcpy(pointer,info,42);
 //	return info;
 //	printf("3\n");
-	shmdt(gp);
-	shmdt(tail);
+//	shmdt(gp);
+//	shmdt(tail);
 	free(p);
 	return info;
 }

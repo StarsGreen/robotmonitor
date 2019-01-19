@@ -13,12 +13,12 @@
 //extern void* get_ll_shmid(key_t key,int size);
 extern Cmd_Info cmd_info;
 /////////////////////////////////////////////////
-/*
+
 void* get_move_cmd_addr()
 {
 int move_cmd_shmid = shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT|0666);
     if(move_cmd_shmid == -1)
-    {
+   {
         perror("failed to shmget move_cmd_addr\n");
         return NULL;
     }
@@ -27,7 +27,7 @@ int move_cmd_shmid = shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT|0666);
           return NULL;
     ptr= (void*)shmat(move_cmd_shmid,ptr,0);
     return ptr;
-}*/
+}
 ////////////////////////////////////////// 
 int *check_str(char* str)
 {
@@ -111,7 +111,7 @@ int read_cmd(char* cmd)
 last:	return 1;
 }
 ////////////////////////////////////////////////////
-/*
+
 void* get_ctrl_cmd_addr()
 {
 int ctrl_cmd_shmid = shmget(CTRL_CMD_KEY,CTRL_CMD_SIZE,IPC_CREAT|0666);
@@ -126,7 +126,7 @@ int ctrl_cmd_shmid = shmget(CTRL_CMD_KEY,CTRL_CMD_SIZE,IPC_CREAT|0666);
     ptr= (void*)shmat(ctrl_cmd_shmid,ptr,0);
     return ptr;
 }
-*/
+
 ///////////////////////////////////////////////////
 void set_video_get_on()
 {
@@ -154,7 +154,7 @@ void set_video_send_off()
 //////////////////////////////////////////////////
 void set_video_send_on()
 {
-       Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
+        Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
 	ctrl_cmd->video_send_func=1;
 	printf("the video send func is on\n");
         shmdt(ctrl_cmd);
@@ -163,7 +163,7 @@ void set_video_send_on()
 //////////////////////////////////////////////////
 void set_info_get_on()
 {
-       Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
+        Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
 	ctrl_cmd->info_get_func=1;
 	printf("the info get func is on\n");
         shmdt(ctrl_cmd);
@@ -180,7 +180,7 @@ void set_info_get_off()
 //////////////////////////////////////////////////
 void set_info_send_on()
 {
-       Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
+        Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
 	ctrl_cmd->info_send_func=1;
 	printf("the info send func is on\n");
        shmdt(ctrl_cmd);
@@ -197,7 +197,7 @@ void set_info_send_off()
 //////////////////////////////////////////////////
 void set_move_ctrl_on()
 {
-       Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
+        Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
 	ctrl_cmd->move_ctrl_func=1;
 	printf("the move ctrl func is on\n");
         shmdt(ctrl_cmd);
@@ -205,7 +205,7 @@ void set_move_ctrl_on()
 //////////////////////////////////////////////////
 void set_move_ctrl_off()
 {
-       Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
+        Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
 	ctrl_cmd->move_ctrl_func=0;
 	printf("the move ctrl func is off\n");
         shmdt(ctrl_cmd);
@@ -213,7 +213,7 @@ void set_move_ctrl_off()
 /////////////////////////////////////////////////
 void set_all_func_on()
 {
-       Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
+        Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
 	ctrl_cmd->video_get_func=1;
 	ctrl_cmd->video_send_func=1;
 	ctrl_cmd->info_get_func=1;
@@ -225,7 +225,7 @@ void set_all_func_on()
 /////////////////////////////////////////////////
 void set_all_func_off()
 {
- Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
+Ctrl_Pointer ctrl_cmd=get_ctrl_cmd_addr();
 ctrl_cmd->video_get_func=0;
 ctrl_cmd->video_send_func=0;
 ctrl_cmd->info_get_func=0;
@@ -245,9 +245,11 @@ void set_led_rate(void* parms)
         shmdt(m_cmd);
 }
 ///////////////////printf the move info ////////////
-void print_move_info(M_Pointer mp,int flag)
+void print_move_info(int flag)
 {
-char* ptr=(char*)malloc(10);
+extern ml_ptr ml_p;
+mn_ptr mp=ml_p->tail_ptr;
+char* ptr=NULL;
 //printf("move info\n");
 printf("--------------move info ----------------\n");
 printf("\nmove_ll num is :%d\n",mp->num);
@@ -353,131 +355,44 @@ printf("---------------move info---------------\n");
 /////////////////////////////////////////////////
 void get_move_info()
 {
-	mll_ptr p=get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
-	M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
-	pthread_mutex_lock(&p->move_ll_lock);
-	print_move_info(tail,0);
-        pthread_mutex_unlock(&p->move_ll_lock);
-	shmdt(p);
-	shmdt(tail);
+  print_move_info(0);
 }
 
 //////////////////printf the accel info/////////////////
 void get_accel_info()
 {
-/*        pthread_mutex_lock(&move_ll.move_ll_lock);
-	print_move_info(move_ll.M_Tail_pointer,1);
-        pthread_mutex_unlock(&move_ll.move_ll_lock);
-*/
-	mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
-	M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
-	pthread_mutex_lock(&p->move_ll_lock);
-	print_move_info(tail,1);
-        pthread_mutex_unlock(&p->move_ll_lock);
-shmdt(p);
-shmdt(tail);
+  print_move_info(1);
 }
 /////////////////printf the vel info//////////////////////
 void get_vel_info()
 {
-/*
-        pthread_mutex_lock(&move_ll.move_ll_lock);
-	print_move_info(move_ll.M_Tail_pointer,2);
-        pthread_mutex_unlock(&move_ll.move_ll_lock);
-*/
-	mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
-	M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
-	pthread_mutex_lock(&p->move_ll_lock);
-	print_move_info(tail,2);
-        pthread_mutex_unlock(&p->move_ll_lock);
-shmdt(p);
-shmdt(tail);
-
+  print_move_info(2);
 }
 
 /////////////////printf the pos info//////////////////////
 void get_pos_info()
 {
-/*
-        pthread_mutex_lock(&move_ll.move_ll_lock);
-	print_move_info(move_ll.M_Tail_pointer,2);
-        pthread_mutex_unlock(&move_ll.move_ll_lock);
-*/
-	mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
-	M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
-	pthread_mutex_lock(&p->move_ll_lock);
-	print_move_info(tail,3);
-        pthread_mutex_unlock(&p->move_ll_lock);
-shmdt(p);
-shmdt(tail);
-
+  print_move_info(3);
 }
 ////////////////////printf the journey info///////////////////
 void get_journey_info()
 {
-/*
-        pthread_mutex_lock(&move_ll.move_ll_lock);
-	print_move_info(move_ll.M_Tail_pointer,3);
-        pthread_mutex_unlock(&move_ll.move_ll_lock);
-*/
-	mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
-	M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
-	pthread_mutex_lock(&p->move_ll_lock);
-	print_move_info(tail,4);
-        pthread_mutex_unlock(&p->move_ll_lock);
-shmdt(p);
-shmdt(tail);
-
+  print_move_info(4);
 }
 ////////////////////printf the journey info///////////////////
 void get_temper_info()
 {
-
-	mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
-	M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
-	pthread_mutex_lock(&p->move_ll_lock);
-	print_move_info(tail,5);
-        pthread_mutex_unlock(&p->move_ll_lock);
-shmdt(p);
-shmdt(tail);
-/*
-        pthread_mutex_lock(&move_ll.move_ll_lock);
-	print_move_info(move_ll.M_Tail_pointer,4);
-        pthread_mutex_unlock(&move_ll.move_ll_lock);
-*/
+  print_move_info(5);
 }
 ////////////////////printf the journey info///////////////////
 void get_dist_info()
 {
-/*
-        pthread_mutex_lock(&move_ll.move_ll_lock);
-	print_move_info(move_ll.M_Tail_pointer,5);
-        pthread_mutex_unlock(&move_ll.move_ll_lock);
-*/
-mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
-	M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
-	pthread_mutex_lock(&p->move_ll_lock);
-	print_move_info(tail,6);
-        pthread_mutex_unlock(&p->move_ll_lock);
-shmdt(p);
-shmdt(tail);
-
+  print_move_info(6);
 }
 ////////////////////get gravity componnent info/////
 void get_gra_cpt_info()
 {
-/*
-        pthread_mutex_lock(&move_ll.move_ll_lock);
-	print_move_info(move_ll.M_Tail_pointer,5);
-        pthread_mutex_unlock(&move_ll.move_ll_lock);
-*/
-mll_ptr p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,M_NODE_SIZE);
-	M_Pointer tail=shmat(p->Tail_shmid,NULL,0);
-	pthread_mutex_lock(&p->move_ll_lock);
-	print_move_info(tail,7);
-        pthread_mutex_unlock(&p->move_ll_lock);
-shmdt(p);
-shmdt(tail);
+  print_move_info(7);
 }
 //////////////////////////////////////////////
 void move_up()
