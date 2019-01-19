@@ -17,21 +17,21 @@
 #include <signal.h>
 #include <sys/wait.h>
 #include<wiringPi.h>
-//int sig_init(); 
+//int sig_init();
 int create_all_process();
 int cancel_all_process();
 void sig_proceed(int signo);
 void sys_init();
 void init_syslock();
 void init_share_mem();
-extern int destroy_slist(void);
+//extern int destroy_slist(void);
 extern int destroy_mlist(void);
 extern int init_mlist();
-extern int init_slist();
-extern void* get_ll_shmid(key_t key,int size);
+//extern int init_slist();
+//extern void* get_ll_shmid(key_t key,int size);
 extern void *get_move_cmd_addr();
 extern void* get_ctrl_cmd_addr();
-extern void* move_direct_stop(void);
+extern int move_direct_stop(void);
 pid_t monitor_pro_pid,socket_pro_pid,cmd_pro_pid,sensor_pro_pid;
 int main_err;
 //////////////////////////////////////////////
@@ -50,8 +50,8 @@ void sys_init()
         extern ml_ptr ml_p;
 	//init_slist();
 	init_mlist(ml_p);
-	//init_share_mem();
-//	init_syslock();
+	init_share_mem();
+	init_syslock();
 	wiringPiSetup();
 }
 //////////////////////////////////////////
