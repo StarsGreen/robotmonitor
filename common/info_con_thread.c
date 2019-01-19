@@ -18,9 +18,9 @@
 #include <math.h>
 extern int read_cmd(char* cmd);
 //extern struct move_info M_info;
-extern void slist_delete(char* ip);
-extern void* get_ll_shmid(key_t key,int size);
-extern void* get_ctrl_cmd_addr();
+//extern void slist_delete(char* ip);
+//extern void* get_ll_shmid(key_t key,int size);
+//extern void* get_ctrl_cmd_addr();
 Ctrl_Pointer cp=NULL;
 
 //static int read_enable=0,read_status=0;
@@ -28,7 +28,7 @@ static char buffer[ARRAY_SIZE];
 /////////////////////////////////////////
 static void sock_cleanup_handler(void *arg)
 {
-	shmdt(cp);
+//	shmdt(cp);
 //	close(arg->conn);
       //  printf("Called clean-up handler\n");
       // cnt = 0;
@@ -146,11 +146,15 @@ return code_msg;
 char* assemble_info(void)
 {
 	static char info[113];
+        extern ml_ptr ml_p;
+        mn_ptr tail=ml_p->tail_ptr;
+	mn_ptr p=(mn_ptr)malloc(sizeof(motion_node));
 
-	M_Pointer p=(M_Pointer)malloc(M_NODE_SIZE);
- 	mll_ptr gp=get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
-	M_Pointer tail=(M_Pointer)shmat(gp->Tail_shmid,NULL,0);
-	memcpy(p,tail,M_NODE_SIZE);
+// 	mll_ptr gp=get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
+
+//	M_Pointer tail=(M_Pointer)shmat(gp->Tail_shmid,NULL,0);
+
+	memcpy(p,tail,sizeof(motion_node));
 
 	int value=(int)(sqrt((p->accel_info.xl_accel)*(p->accel_info.xl_accel)+
 	(p->accel_info.yl_accel)*(p->accel_info.yl_accel)+

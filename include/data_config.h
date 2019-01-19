@@ -66,3 +66,5 @@
 #define CMD_INFO_SIZE sizeof(Cmd_Info)
 #define MOVE_CMD_SIZE sizeof(move_cmd)
 
+
+#define ST 0.05f //sensor sample tima

@@ -10,9 +10,10 @@
 #include "cmd.h"
 #include "data_config.h"
 //extern char input_cmd[CMD_LENGTH];
-extern void* get_ll_shmid(key_t key,int size);
+//extern void* get_ll_shmid(key_t key,int size);
 extern Cmd_Info cmd_info;
 /////////////////////////////////////////////////
+/*
 void* get_move_cmd_addr()
 {
 int move_cmd_shmid = shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT|0666);
@@ -26,7 +27,7 @@ int move_cmd_shmid = shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT|0666);
           return NULL;
     ptr= (void*)shmat(move_cmd_shmid,ptr,0);
     return ptr;
-}
+}*/
 ////////////////////////////////////////// 
 int *check_str(char* str)
 {
@@ -110,6 +111,7 @@ int read_cmd(char* cmd)
 last:	return 1;
 }
 ////////////////////////////////////////////////////
+/*
 void* get_ctrl_cmd_addr()
 {
 int ctrl_cmd_shmid = shmget(CTRL_CMD_KEY,CTRL_CMD_SIZE,IPC_CREAT|0666);
@@ -124,7 +126,7 @@ int ctrl_cmd_shmid = shmget(CTRL_CMD_KEY,CTRL_CMD_SIZE,IPC_CREAT|0666);
     ptr= (void*)shmat(ctrl_cmd_shmid,ptr,0);
     return ptr;
 }
-
+*/
 ///////////////////////////////////////////////////
 void set_video_get_on()
 {

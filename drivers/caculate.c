@@ -10,7 +10,10 @@
 //#include "include.h"
 #include <signal.h>
 #include <math.h>
-#include <data_structure.h>
+
+#include "data_structure.h"
+#include "data_config.h"
+
 ///////////////////////////////////////////////
 
 /////////////////////////////////////////////////
@@ -48,8 +51,8 @@ float exInt = 0, eyInt = 0, ezInt = 0;     // 按比例缩小积分误差
 
 //float Yaw,Pitch,Roll;  //偏航角，俯仰角，翻滚角
 
-void IMUupdate(float gx, float gy, float gz, float ax, float ay, float az,
-pos_info* p_info)
+int mems_update(float gx, float gy, float gz, float ax, float ay, float az,
+posture_info* p_info)
 {
         float norm;
         float vx, vy, vz;
@@ -104,11 +107,13 @@ pos_info* p_info)
         p_info->pitch=pitch;
         p_info->roll=roll;
         p_info->yaw=yaw;
+
+  return 0;
 }
 ///////////////////////////////////////////////////
 #define Q 0.018f //measurement variance
 #define R 0.5f   //gauss variance
-#define T 0.05f
+
 typedef struct
 {
  float last_result;//last valid value
@@ -116,7 +121,7 @@ typedef struct
 // float last_kg;   //last gain
 }kalman_params;
 
-kalman_params k_params[6];
+kalman_params kalman_paramters[6];
 ///////////////////////////////////////////////////
 int init_kalman_params()
 {
@@ -124,34 +129,36 @@ int init_kalman_params()
   extern ml_ptr ml_p;
   mn_ptr mn_p=ml_p->tail_ptr;
 
-  kp->last_result=mn_p->jour_info.xl;
-  kp->last_var=0.02;
-  //kp->last_kg=0;
-  kp++;
+  kalman_params* k_params=kalman_paramters;
 
-  kp->last_result=mn_p->jour_info.yl;
-  kp->last_var=0.02;
-  //kp->last_kg=0;
-  kp++;
+  k_params->last_result=mn_p->jour_info.xl;
+  k_params->last_var=0.02;
+  //k_params->last_kg=0;
+  k_params++;
 
-  kp->last_result=mn_p->jour_info.zl;
-  kp->last_var=0.02;
-  //kp->last_kg=0;
-  kp++;
+  k_params->last_result=mn_p->jour_info.yl;
+  k_params->last_var=0.02;
+  //k_params->last_kg=0;
+  k_params++;
 
-  kp->last_result=mn_p->jour_info.xa;
-  kp->last_var=0.02;
-  //kp->last_kg=0;
-  kp++;
+  k_params->last_result=mn_p->jour_info.zl;
+  k_params->last_var=0.02;
+  //k_params->last_kg=0;
+  k_params++;
 
-  kp->last_result=mn_p->jour_info.ya;
-  kp->last_var=0.02;
-  //kp->last_kg=0;
-  kp++;
+  k_params->last_result=mn_p->jour_info.xa;
+  k_params->last_var=0.02;
+  //k_params->last_kg=0;
+  k_params++;
 
-  kp->last_result=mn_p->jour_info.za;
-  kp->last_var=0.02;
-  //kp->last_kg=0;
+  k_params->last_result=mn_p->jour_info.ya;
+  k_params->last_var=0.02;
+  //k_params->last_kg=0;
+  k_params++;
+
+  k_params->last_result=mn_p->jour_info.za;
+  k_params->last_var=0.02;
+  //k_params->last_kg=0;
 
   return 0;
 
@@ -159,6 +166,8 @@ int init_kalman_params()
 
 int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 {
+
+  kalman_params* k_params=kalman_paramters;
 
   float last_value=last_node_ptr->accel_info.xl_accel;
   float cur_value=cur_node_ptr->accel_info.xl_accel;

@@ -28,16 +28,17 @@ extern int init_mpu6050();
 //extern void init_dist_sensor();
 //extern void get_move_info();
 
-extern float kalman_filter(float last_result,float last_value,float cur_value,
-float time,float* p_next,float Q_offset,float R_offset);
+extern int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr);
+extern int init_kalman_params();
 extern float slide_filter(float cur_value,float last_value);
 //extern void mlist_add(M_Node node);
 //extern void mlist_clear(void);
 //extern void* get_ll_shmid(key_t key,int size);
 //extern int rebuild_mlist();
 
-extern int mlist_add_node( node);
-extern int mlist_clear(void);
+extern int mlist_add_node(mn_ptr mn_p,ml_ptr ml_p);
+extern int clear_mlist(ml_ptr ml_p);
+
 extern sem_t sensor_start,sensor_mid,sensor_stop;
 
 float pxl_conv=0.5;
@@ -192,9 +193,9 @@ while(1)
     temp_node.accel_info.xl_accel=xl_read(fd);
     temp_node.accel_info.yl_accel=yl_read(fd);
     temp_node.accel_info.zl_accel=zl_read(fd);
-    temp_node.accel_info.xa_vel=xa_read(fd);
-    temp_node.accel_info.ya_vel=ya_read(fd);
-    temp_node.accel_info.za_vel=za_read(fd);
+    temp_node.vel_info.xa_vel=xa_read(fd);
+    temp_node.vel_info.ya_vel=ya_read(fd);
+    temp_node.vel_info.za_vel=za_read(fd);
     if(!data_state)
         data_state=1;
 
@@ -207,131 +208,17 @@ while(1)
     temp_node.sample_time=dt;
 
    }
+  pthread_cleanup_pop(0);
 }
-//printf("\nthe initial gravity component is: %f|%f|%f\n",gra_x,gra_y,gra_z);
-/*
-{
-while(1)
-	{
-	pthread_testcancel();
-	usleep(50000);
-//		sem_wait(&sensor_stop);
-//		usleep(100000);
-//	struct timeval t1;  // 结构体，可以记录秒和微秒两部分值
-//	gettimeofday(&t1, NULL);
-	gettimeofday(&t1, NULL);
-	long start, stop;//换算为微秒
-	start = t2.tv_sec*1000000+t2.tv_usec; // 开始时刻
-	stop = t1.tv_sec*1000000+t1.tv_usec;  // 结束时刻计算距离
-	dt=(float)(stop - start)/1000000;
-	memcpy(&t2,&t1,sizeof(t1));
-
-	M_info_pointer=(M_Pointer)malloc(M_NODE_SIZE);
-	memset(M_info_pointer,0,M_NODE_SIZE);
-
-	p=(mll_ptr)get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
-	tail=shmat(p->Tail_shmid,NULL,0);
-	pthread_mutex_lock(&p->move_ll_lock);
-	memcpy(M_info_pointer,tail,M_NODE_SIZE);
-	pthread_mutex_unlock(&p->move_ll_lock);
-
-	M_info.sample_time=dt;
-
-	if(fd!=-1)
-	    {
-	M_info.vel_info.xa_vel=slide_filter(xa_read(fd),
-	M_info_pointer->vel_info.xa_vel);
-	M_info.vel_info.ya_vel=slide_filter(ya_read(fd),
-	M_info_pointer->vel_info.ya_vel);
-	M_info.vel_info.za_vel=slide_filter(za_read(fd),
-	M_info_pointer->vel_info.za_vel);
-
-	M_info.accel_info.xl_accel=slide_filter(xl_read(fd)-gra_x,
-	M_info_pointer->accel_info.xl_accel);
-	M_info.accel_info.yl_accel=slide_filter(yl_read(fd)-gra_y,
-        M_info_pointer->accel_info.yl_accel);
-	M_info.accel_info.zl_accel=slide_filter(zl_read(fd)-gra_z,
-        M_info_pointer->accel_info.zl_accel);
-	    }
-	else
-	    {
-	num++;
-	if(num==10)
-	      {
-	printf("the dev is not found\n");
-	goto nothing;
-	      }
-	goto start;
-     	    }
-   if(M_info_pointer!=NULL){
-
-M_info.vel_info.xl_vel=M_info_pointer->vel_info.xl_vel+
-M_info.accel_info.xl_accel*dt;
-M_info.vel_info.yl_vel=M_info_pointer->vel_info.yl_vel+
-M_info.accel_info.yl_accel*dt;
-M_info.vel_info.zl_vel=M_info_pointer->vel_info.zl_vel+
-M_info.accel_info.zl_accel*dt;
-
-M_info.jour_info.xa=M_info_pointer->jour_info.xa+
-M_info.vel_info.xa_vel*dt;
-M_info.jour_info.ya=M_info_pointer->jour_info.ya+
-M_info.vel_info.ya_vel*dt;
-M_info.jour_info.za=M_info_pointer->jour_info.za+
-M_info.vel_info.za_vel*dt;
-
-M_info.pos_info.roll=M_info_pointer->pos_info.roll+
-M_info.vel_info.xa_vel*dt;
-M_info.pos_info.pitch=M_info_pointer->pos_info.pitch+
-M_info.vel_info.ya_vel*dt;
-M_info.pos_info.yaw=M_info_pointer->pos_info.yaw+
-M_info.vel_info.za_vel*dt;
-
-M_info.gra_cpt.gra_x=gra_x;
-M_info.gra_cpt.gra_y=gra_y;
-M_info.gra_cpt.gra_z=gra_z;
-
-M_info.jour_info.xl=kalman_filter(M_info_pointer->jour_info.xl,
-M_info_pointer->accel_info.xl_accel,
-M_info.accel_info.xl_accel,
-dt,&pxl_conv,Q_offset,R_offset);
-
-
-M_info.jour_info.yl=kalman_filter(M_info_pointer->jour_info.yl,
-M_info_pointer->accel_info.yl_accel,
-M_info.accel_info.yl_accel,
-dt,&pyl_conv,Q_offset,R_offset);
-
-M_info.jour_info.zl=kalman_filter(M_info_pointer->jour_info.zl,
-M_info_pointer->accel_info.zl_accel,
-M_info.accel_info.zl_accel,
-dt,&pzl_conv,Q_offset,R_offset);
-		}
-	mlist_add(M_info);
-//		get_move_info();
-if(p->count==MAX_NODE_NUM)
-    {
-rebuild_mlist();
-mlist_add(M_info);
-//printf("another 200 node\n");
-    }
-	free(M_info_pointer);
-	shmdt(p);
-	shmdt(tail);	}
-nothing:
-	free(M_info_pointer);
-	shmdt(tail);
-	shmdt(p);
-	while(1)pthread_testcancel();
-        pthread_cleanup_pop(0);
-}*/
 //////////////////////////////////////////////
-#define ST 0.05f
+
+
 //////////////////////////////////////////////
 void* collect_info_thread(void)
 {
         extern ml_ptr ml_p;
         mn_ptr mp;
-	float xl_accel,y_accel,zl_accel,last_xl,last_yl,last_zl;
+	float xl_accel,yl_accel,zl_accel,last_xl,last_yl,last_zl;
         float xa_vel,ya_vel,za_vel,last_xa,last_ya,last_za;
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
@@ -350,7 +237,6 @@ while(1)
 	usleep(50000);
 
         mp=ml_p->tail_ptr;
-
 
         xl_accel=temp_node.accel_info.xl_accel;
         yl_accel=temp_node.accel_info.yl_accel;

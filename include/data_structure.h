@@ -39,13 +39,14 @@ typedef struct move_cmd_struct
 pthread_mutex_t lock;
 }move_cmd;
 ///////////////////////////////////
-struct accel
+typedef struct accel
 {
 	float xl_accel;
 	float yl_accel;
 	float zl_accel;
-}accel_info;
-struct velocity
+}acceleration_info;
+
+typedef struct velocity
 {
 	float xa_vel;
 	float ya_vel;
@@ -54,9 +55,9 @@ struct velocity
 	float xl_vel;
 	float yl_vel;
 	float zl_vel;
-}vel_info;
+}velocity_info;
 
-struct journey
+typedef struct journey
 {
 	float xa;
 	float ya;
@@ -65,20 +66,20 @@ struct journey
 	float xl;
 	float yl;
 	float zl;
-}jour_info;
-struct posture
+}journey_info;
+typedef struct posture
 {
 	float roll;
 	float pitch;
 	float yaw;
-}pos_info;
+}posture_info;
 
-struct gra_component
+typedef struct gra_component
 {
 	float gra_x;
 	float gra_y;
 	float gra_z;
-}gra_cpt;
+}gyro_info;
 
 typedef struct M_Node
 {

@@ -73,12 +73,12 @@ int destroy_mlist(ml_ptr ml_p)
   {
     temp=p;
     p=p->next;
-    free(temp)
+    free(temp);
   }
 
   ml_p->head_ptr=NULL;
   ml_p->tail_ptr=NULL;
-  ml_ptr->count=0;
+  ml_p->count=0;
 
   return 0;
 }
@@ -95,10 +95,11 @@ int clear_mlist(ml_ptr ml_p)
   {
     temp=p;
     p=p->next;
-    free(temp)
+    free(temp);
   }
+
   ml_p->tail_ptr= ml_p->head_ptr;
-  ml_ptr->count=0;
+  ml_p->count=0;
 
   return 0;
 }

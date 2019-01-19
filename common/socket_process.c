@@ -19,10 +19,10 @@
 
 //extern struct socket_info sock_info; 
 extern void read_cmd(char* cmd);
-extern int slist_add(Sock_Node sock_node);
-extern int init_slist(void);
-extern void* slist_search_ip(void* ip);
-extern void* get_ll_shmid(key_t key,int size);
+//extern int slist_add(Sock_Node sock_node);
+//extern int init_slist(void);
+//extern void* slist_search_ip(void* ip);
+//extern void* get_ll_shmid(key_t key,int size);
 //extern sem_t v_get,v_send;
 //extern void* video_send_thread(void);
 extern void* info_send_thread(void* s);
@@ -74,14 +74,17 @@ exit(1);
 }
 
 ////////////////////////////////////////////
+/*
 int check_ip(char* ip)
 {
 int status=0;
 if(slist_search_ip(ip)!=NULL)status=1;
 return status;
 }
+*/
 ////////////////////////////////////////////
 ///////////////////////////////////////////
+/*
 void sock_add(char* ip,int port)
 {
 Sock_Node S_info;
@@ -89,7 +92,7 @@ memset(&S_info,0,S_NODE_SIZE);
 memcpy(S_info.cli_info.ip,ip,15);
 S_info.cli_info.port=port;
 slist_add(S_info);
-}
+}*/
 //////////////////////////////////////////
 void handle_request(int conn,char* ip)
 {
@@ -131,7 +134,7 @@ static void handle_connect(int s_s)
 //	int cli_num=0;
 //	sock_info.data_trans_status=1;
 	int conn;
-	sll_ptr sll_p=get_ll_shmid(SOCK_LL_KEY,SOCK_LL_SIZE);
+//	sll_ptr sll_p=get_ll_shmid(SOCK_LL_KEY,SOCK_LL_SIZE);
 while(1)
 	{
 	printf("\nthe server is open\n");

@@ -12,7 +12,7 @@
 #include <sys/shm.h>
 //#include "global_data.h"
 #include <signal.h>
-
+#include "data_structure.h"
 
 extern void *temper_get_thread(void);
 extern void *dist_get_thread(void);
@@ -20,6 +20,7 @@ extern void *accel_get_thread(void);
 extern void *collect_info_thread(void);
 //extern void init_interface_pin(void);
 //extern void *sensor_data_get_thread(void);
+extern int destroy_mlist(ml_ptr ml_p);
 
 int sensor_err;
 pthread_t temper_thread,accel_thread,dist_thread,collect_thread;
