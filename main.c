@@ -25,8 +25,8 @@ void sys_init();
 void init_syslock();
 void init_share_mem();
 //extern int destroy_slist(void);
-extern int destroy_mlist(void);
-extern int init_mlist();
+extern int destroy_mlist(ml_ptr ml_p);
+extern int init_mlist(ml_ptr ml_p);
 //extern int init_slist();
 //extern void* get_ll_shmid(key_t key,int size);
 extern void *get_move_cmd_addr();
@@ -87,9 +87,11 @@ shmdt(c_ptr);
 ///////////////////////////////////////////
 void sig_proceed(int signo)
 {
+
 if(signo==SIGINT)
 	cancel_all_process();
-destroy_mlist();
+extern ml_ptr ml_p;
+destroy_mlist(ml_p);
 //destroy_slist();
 //struct M_LinkList* m_gp=get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
 //struct S_LinkList* s_gp=get_ll_shmid(SOCK_LL_KEY,SOCK_LL_SIZE);

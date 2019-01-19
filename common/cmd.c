@@ -249,7 +249,8 @@ void print_move_info(int flag)
 {
 extern ml_ptr ml_p;
 mn_ptr mp=ml_p->tail_ptr;
-char* ptr=NULL;
+char* ptr=(char*)malloc(10);
+memset(ptr,0,sizeof(10));
 //printf("move info\n");
 printf("--------------move info ----------------\n");
 printf("\nmove_ll num is :%d\n",mp->num);
@@ -347,6 +348,8 @@ printf("|          |      gra_y     |  %s  |\n",ptr);
 gcvt((double)(mp->gra_cpt.gra_z),5,ptr);
 printf("|          |      gra_z     |  %s  |\n",ptr);
 if(flag==7)goto last;
+
+free(ptr);
 
 last:
 printf("\n");

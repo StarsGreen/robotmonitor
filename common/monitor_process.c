@@ -17,7 +17,7 @@
 extern void *move_ctl_thread(void);
 extern void *video_get_thread(void);
 extern void *video_broadcast_thread(void);
-extern void get_move_info();
+//extern void get_move_info();
 int monitor_err;
 
 struct video_data v_data;

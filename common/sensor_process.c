@@ -20,7 +20,7 @@ extern void *accel_get_thread(void);
 extern void *collect_info_thread(void);
 //extern void init_interface_pin(void);
 //extern void *sensor_data_get_thread(void);
-extern int destroy_mlist(ml_ptr ml_p);
+//extern int destroy_mlist(ml_ptr ml_p);
 
 int sensor_err;
 pthread_t temper_thread,accel_thread,dist_thread,collect_thread;
@@ -112,8 +112,8 @@ void signal_sensor_proceed(int signo)
 {
 if(signo==SIGINT)
   cancel_sensor_thread();
-extern ml_ptr ml_p;
-destroy_mlist(ml_p);
+//extern ml_ptr ml_p;
+//destroy_mlist(ml_p);
 exit(1);
 }
 //////////////////////////////////////
