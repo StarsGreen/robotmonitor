@@ -15,9 +15,9 @@
 //陀螺仪采样率，典型值：0x07(125Hz)
 #define CONFIG          0x1A
 //低通滤波频率，典型值：0x06(5Hz)
-#define GYRO_CONFIG     0xe0
+#define GYRO_CONFIG     0xe0  //陀螺仪开启自检，量程为正负250deg/s
 //陀螺仪自检及测量范围，典型值：0x18(不自检，2000deg/s)
-#define ACCEL_CONFIG    0xe1
+#define ACCEL_CONFIG    0xe1//加速度计开启自检，量程为正负2gdeg/s
 //加速计自检、测量范围及高通滤波频率，典型值：0x01(不自检，2G，5Hz)
 #define ACCEL_RANGE     2*9.8
 

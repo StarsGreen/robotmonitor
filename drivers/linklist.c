@@ -15,8 +15,8 @@
 //////////////////////////////////////////////////////
 //use linklist to store the sensor info
 //////////////////////////////////////////////////////
-
-ml_ptr ml_p;//define the linklist info structure
+motion_linklist mllist;
+ml_ptr ml_p=&mllist;//define the linklist info structure
 
 /*init the linklist by creating a single node as a guard*/
 
@@ -29,6 +29,7 @@ int init_mlist(ml_ptr ml_p)
         exit(0);
     }
    memset(p_head,0,sizeof(motion_node));
+
    ml_p->head_ptr=p_head;
    ml_p->tail_ptr=p_head;
    ml_p->count=0;

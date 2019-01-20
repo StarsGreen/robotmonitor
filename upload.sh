@@ -18,7 +18,7 @@ case $1 in
 	git init
 	git add -A
 	cur_date=$(date)
-	git commit -m "$cur_date-----edition 1"
+	git commit -m "$cur_date-----edition 2.0"
 	git remote add robotmonitor https://github.com/StarsGreen/robotmonitor.git
 	git push -u robotmonitor master
 	;;

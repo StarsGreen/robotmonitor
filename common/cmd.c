@@ -245,10 +245,9 @@ void set_led_rate(void* parms)
         shmdt(m_cmd);
 }
 ///////////////////printf the move info ////////////
-void print_move_info(int flag)
+void print_move_info(mn_ptr mn_p,int flag)
 {
-extern ml_ptr ml_p;
-mn_ptr mp=ml_p->tail_ptr;
+mn_ptr mp=mn_p;
 char* ptr=(char*)malloc(10);
 memset(ptr,0,sizeof(10));
 //printf("move info\n");
@@ -358,44 +357,52 @@ printf("---------------move info---------------\n");
 /////////////////////////////////////////////////
 void get_move_info()
 {
-  print_move_info(0);
+  extern ml_ptr ml_p;
+  print_move_info(ml_p->tail_ptr,0);
 }
 
 //////////////////printf the accel info/////////////////
 void get_accel_info()
 {
-  print_move_info(1);
+  extern ml_ptr ml_p;
+  print_move_info(ml_p->tail_ptr,1);
 }
 /////////////////printf the vel info//////////////////////
 void get_vel_info()
 {
-  print_move_info(2);
+  extern ml_ptr ml_p;
+  print_move_info(ml_p->tail_ptr,2);
 }
 
 /////////////////printf the pos info//////////////////////
 void get_pos_info()
 {
-  print_move_info(3);
+  extern ml_ptr ml_p;
+  print_move_info(ml_p->tail_ptr,3);
 }
 ////////////////////printf the journey info///////////////////
 void get_journey_info()
 {
-  print_move_info(4);
+  extern ml_ptr ml_p;
+  print_move_info(ml_p->tail_ptr,4);
 }
 ////////////////////printf the journey info///////////////////
 void get_temper_info()
 {
-  print_move_info(5);
+  extern ml_ptr ml_p;
+  print_move_info(ml_p->tail_ptr,5);
 }
 ////////////////////printf the journey info///////////////////
 void get_dist_info()
 {
-  print_move_info(6);
+  extern ml_ptr ml_p;
+  print_move_info(ml_p->tail_ptr,6);
 }
 ////////////////////get gravity componnent info/////
 void get_gra_cpt_info()
 {
-  print_move_info(7);
+  extern ml_ptr ml_p;
+  print_move_info(ml_p->tail_ptr,7);
 }
 //////////////////////////////////////////////
 void move_up()

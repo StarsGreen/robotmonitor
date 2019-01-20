@@ -39,6 +39,8 @@ extern float slide_filter(float cur_value,float last_value);
 extern int mlist_add_node(mn_ptr mn_p,ml_ptr ml_p);
 extern int clear_mlist(ml_ptr ml_p);
 
+extern void print_move_info(mn_ptr mn_p,int flag);
+
 extern sem_t sensor_start,sensor_mid,sensor_stop;
 
 float pxl_conv=0.5;
@@ -89,7 +91,7 @@ while(1)
 		value=temper_read();
 	if(value!=0)
 		{
-		M_info.temper=value;
+//		M_info.temper=value;
                 temp_node.temper=value;
 //		printf("the temper is %6.3f\n",value);
                 value=0;
@@ -135,7 +137,7 @@ while(1)
 
 		if(value>0)
 		{
-		M_info.dist=value;
+//		M_info.dist=value;
                 temp_node.dist=value;
                 value=0;
 //		printf("the dist is %6.3f\n",value);
@@ -276,12 +278,12 @@ while(1)
 
      //use kalman filter to proceed journey info
 
-        kalman_filter(&m_node,mp,&temp_node);
+    kalman_filter(&m_node,mp,&temp_node);
 
     if(ml_p->count==MAX_NODE_NUM)
         clear_mlist(ml_p);
-        mlist_add_node(&m_node,ml_p);
-
+    mlist_add_node(&m_node,ml_p);
+    print_move_info(&temp_node,0);
 
   }
         pthread_cleanup_pop(0);

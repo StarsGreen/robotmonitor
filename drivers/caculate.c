@@ -44,14 +44,14 @@ else return last_value;
 
 #define Kp 100.0f                // 比例增益支配率收敛到加速度计/磁强计
 #define Ki 0.002f                // 积分增益支配率的陀螺仪偏见的衔接
-#define halfT 0.001f             // 采样周期的一半
+#define halfT (0.5*ST)             // 采样周期的一半
 
 float q0 = 1, q1 = 0, q2 = 0, q3 = 0;      // 四元数的元素，代表估计方向
 float exInt = 0, eyInt = 0, ezInt = 0;     // 按比例缩小积分误差
 
 //float Yaw,Pitch,Roll;  //偏航角，俯仰角，翻滚角
 
-int mems_update(float gx, float gy, float gz, float ax, float ay, float az,
+int mems_fusion(float gx, float gy, float gz, float ax, float ay, float az,
 posture_info* p_info)
 {
         float norm;
@@ -174,7 +174,7 @@ int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
   /*1.this step is used to get xl value by kalman filter*/
 
-  //estimate value 
+  //estimate value
   float value_est=k_params->last_result+0.5*last_value*last_value*ST;
   //estimate variance
   float p_est=k_params->last_var;
