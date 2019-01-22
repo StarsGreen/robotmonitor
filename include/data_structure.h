@@ -187,3 +187,13 @@ struct video_data
 	int send_status;
 };
 /////////////////////////////////////////////
+typedef struce sensor_offset
+{
+  float xl_accel_offset;
+  float yl_accel_offset;
+  float zl_accel_offset;
+  float xa_vel_offset;
+  float ya_vel_offset;
+  float za_vel_offset;
+  float sensor_zero_shift;
+}
