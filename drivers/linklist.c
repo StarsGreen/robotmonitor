@@ -48,6 +48,8 @@ int mlist_add_node(mn_ptr mn_p,ml_ptr ml_p)
         exit(0);
     }
 
+  memset(ptr,0,sizeof(motion_node));
+
   memcpy(ptr,mn_p,sizeof(motion_node));
 
   p=ml_p->tail_ptr;

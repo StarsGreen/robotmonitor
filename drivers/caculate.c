@@ -328,3 +328,38 @@ int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
   return 0;
 }
+///////////////////////////////////////
+/*由方程导出的函数在此，返回计算值*/
+float fun(float x,float ma,float mb,float mc)
+{
+ float func_x =3*pow(x,2)+2*x*(ma+mc-2*mb)-
+  pow((ma-mb),2)-pow((mc-mb),2)-pow(GRAVITY,2);
+  return func_x;
+}
+//////////////////////////////////////
+float diff_fun(float x,float ma,float mb,float mc)
+{
+ float func_x =6*x+2*(ma+mc-2*mb)
+ return func_x;
+}
+
+///////////////////////////////////////
+#define TOL 0.0001  //tolerance
+float solve_noliner_equation(float ma,float mb,float mc)
+{
+  unsigned int c_times = 0;
+  float c_result;
+  float p=0.04;
+  for (c_times = 1; c_times < 1000; c_times++)
+  {
+    c_result = p - fun(p,ma,mb,mc)/diff_fun(p,ma,mb,mc);
+    if (fabs(p - c_result) <TOL)
+      break;
+    p = c_result;
+    if (c_times == 999)
+    {
+       printf("计算方法失效！");
+       break;
+    }
+  }
+}

@@ -295,6 +295,7 @@ printf("|          |       xl_vel      |  %s  |\n",ptr);
 gcvt((double)(mp->vel_info.yl_vel),5,ptr);
 printf("|          |       yl_vel      |  %s  |\n",ptr);
 gcvt((double)(mp->vel_info.zl_vel),5,ptr);
+
 printf("|          |       zl_vel      |  %s  |\n",ptr);
 if(flag==2)goto last;
 

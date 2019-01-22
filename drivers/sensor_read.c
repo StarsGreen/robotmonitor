@@ -97,16 +97,10 @@ float xa_read(int fd)
 short data=get_data(fd,GYRO_XOUT_H);
 if(data&0x8000)
   {
-	data=~(data-1);
-//	if(data>25000)data=0;
-        if(data<500)data=0;
-	return -GYRO_RANGE*data/32768;
+  data=~(data-1);
+  data=-data;
   }
-else
-   {
-        if(data<500)data=0;
- return GYRO_RANGE*data/32768;
-    }
+return GYRO_RANGE*data/32768;
 }
 ////////////////////////////////////////////
 float ya_read(int fd)
@@ -114,16 +108,10 @@ float ya_read(int fd)
 short data=get_data(fd,GYRO_YOUT_H);
 if(data&0x8000)
   {
-        data=~(data-1);
-//      if(data>25000)data=0;
-        if(data<500)data=0;
-	return -GYRO_RANGE*data/32768;
+  data=~(data-1);
+  data=-data;
   }
-else 
-  {
-if(data<500)data=0;
 return GYRO_RANGE*data/32768;
-  }
 }
 ////////////////////////////////////////////
 float za_read(int fd)
@@ -131,16 +119,10 @@ float za_read(int fd)
 short data=get_data(fd,GYRO_ZOUT_H);
 if(data&0x8000)
   {
-        data=~(data-1);
-//      if(data>25000)data=0;
-        if(data<500)data=0;
-        return -GYRO_RANGE*data/32768;
+  data=~(data-1);
+  data=-data;
   }
-else
-  {
-        if(data<500)data=0;
 return GYRO_RANGE*data/32768;
-  }
 }
 ////////////////////////////////////////////
 float xl_read(int fd)
@@ -148,16 +130,10 @@ float xl_read(int fd)
 short data=get_data(fd,ACCEL_XOUT_H);
 if(data&0x8000)
   {
-        data=~(data-1);
-//      if(data>25000)data=0;
-        if(data<500)data=0;
-        return -ACCEL_RANGE*data/32768;
+  data=~(data-1);
+  data=-data;
   }
-else
-  {
-  if(data<500)data=0;
 return ACCEL_RANGE*data/32768;
-   }
 }
 
 ////////////////////////////////////////////
@@ -166,16 +142,10 @@ float yl_read(int fd)
 short data=get_data(fd,ACCEL_YOUT_H);
 if(data&0x8000)
   {
-        data=~(data-1);
-//      if(data>25000)data=0;
-        if(data<500)data=0;
-        return -ACCEL_RANGE*data/32768;
+  data=~(data-1);
+  data=-data;
   }
-else 
-  {
-        if(data<500)data=0;
 return ACCEL_RANGE*data/32768;
-  }
 }
 
 ////////////////////////////////////////////
@@ -184,16 +154,10 @@ float zl_read(int fd)
 short data=get_data(fd,ACCEL_ZOUT_H);
 if(data&0x8000)
   {
-        data=~(data-1);
-//      if(data>25000)data=0;
-        if(data<500)data=0;
-        return -ACCEL_RANGE*data/32768;
+  data=~(data-1);
+  data=-data;
   }
-else
-  {
-        if(data<500)data=0;
- return ACCEL_RANGE*data/32768;
-  }
+return ACCEL_RANGE*data/32768;
 }
 //////////////////////////////////////////////
 void init_dist_sensor(void)
