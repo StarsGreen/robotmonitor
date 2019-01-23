@@ -42,7 +42,7 @@ if(rate<0.3)
 else return last_value;
 }
 
-#define Kp 100.0f                // 比例增益支配率收敛到加速度计/磁强计
+#define Kp 10.0f                // 比例增益支配率收敛到加速度计/磁强计
 #define Ki 0.002f                // 积分增益支配率的陀螺仪偏见的衔接
 #define halfT (0.5*ST)             // 采样周期的一半
 
@@ -339,7 +339,7 @@ float fun(float x,float ma,float mb,float mc)
 //////////////////////////////////////
 float diff_fun(float x,float ma,float mb,float mc)
 {
- float func_x =6*x+2*(ma+mc-2*mb)
+ float func_x =6*x+2*(ma+mc-2*mb);
  return func_x;
 }
 
@@ -375,7 +375,25 @@ int sensor_check(motion_node* mn,sensor_offset* so)
   float gra_z=gra_y+mc-mb;
   float zero_offset=mb-gra_y;
 
+  so->gra_cpt_info.gra_x=gra_x;
+  so->gra_cpt_info.gra_y=gra_y;
+  so->gra_cpt_info.gra_z=gra_z;
 
+  so->xa_vel_offset=mn->vel_info.xa_vel;
+  so->ya_vel_offset=mn->vel_info.ya_vel;
+  so->za_vel_offset=mn->vel_info.za_vel;
 
+  so->sensor_zero_shift=zero_offset;
 
+  return 0;
+}
+
+//////////////////////////////////////////
+float get_real_value(float value,float offset)
+{
+  float zero_offset=offset;
+  if(value<0)
+    return value+zero_offset;
+  else
+    return value-zero_offset;
 }

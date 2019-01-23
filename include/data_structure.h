@@ -187,7 +187,7 @@ struct video_data
 	int send_status;
 };
 /////////////////////////////////////////////
-typedef struce sensor_offset
+typedef struct sensor_offset
 {
   gra_info gra_cpt_info;
   float xl_accel_offset;

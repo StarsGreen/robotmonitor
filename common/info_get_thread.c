@@ -33,6 +33,10 @@ extern int init_kalman_params();
 extern float slide_filter(float cur_value,float last_value);
 extern int mems_fusion(float gx, float gy, float gz, float ax, float ay, float az,
 posture_info* p_info);
+
+extern float get_real_value(float value,float offset);
+extern int sensor_check(motion_node* mn,sensor_offset* so);
+
 //extern void mlist_add(M_Node node);
 //extern void mlist_clear(void);
 //extern void* get_ll_shmid(key_t key,int size);
@@ -44,7 +48,7 @@ extern int clear_mlist(ml_ptr ml_p);
 extern void print_move_info(mn_ptr mn_p,int flag);
 
 extern sem_t sensor_start,sensor_mid,sensor_stop;
-
+/*
 float pxl_conv=0.5;
 float pyl_conv=0.5;
 float pzl_conv=0.5;
@@ -54,7 +58,7 @@ float pza_conv=0.5;
 const float Q_offset=0.5;
 const float R_offset=0.25;
 static float dt=0;
-
+*/
 sensor_offset sensor_off;
 
 M_Node M_info;
@@ -188,6 +192,7 @@ void* accel_get_thread(void)
 
 
 	fd=init_mpu6050();
+        memset(&sensor_off,0,sizeof(sensor_off));
 
         xa_vel_offset=xa_read(fd);
         ya_vel_offset=ya_read(fd);
@@ -195,6 +200,7 @@ void* accel_get_thread(void)
         xl_accel_offset=xl_read(fd);
         yl_accel_offset=yl_read(fd);
         zl_accel_offset=zl_read(fd);
+
 while(1)
   {
     pthread_testcancel();
@@ -207,18 +213,31 @@ while(1)
     temp_node.vel_info.ya_vel=ya_read(fd)-ya_vel_offset;
     temp_node.vel_info.za_vel=za_read(fd)-za_vel_offset;
 */
-    temp_node.accel_info.xl_accel=xl_read(fd);
-    temp_node.accel_info.yl_accel=yl_read(fd);
-    temp_node.accel_info.zl_accel=zl_read(fd);
-    temp_node.vel_info.xa_vel=xa_read(fd);
-    temp_node.vel_info.ya_vel=ya_read(fd);
-    temp_node.vel_info.za_vel=za_read(fd);
+    temp_node.accel_info.xl_accel=
+    get_real_value(xl_read(fd),sensor_off.sensor_zero_shift);
+//    -sensor_off.gra_cpt_info.gra_x;
 
+    temp_node.accel_info.yl_accel=
+    get_real_value(yl_read(fd),sensor_off.sensor_zero_shift);
+//    -sensor_off.gra_cpt_info.gra_y;
+
+    temp_node.accel_info.zl_accel=
+    get_real_value(zl_read(fd),sensor_off.sensor_zero_shift);
+//    -sensor_off.gra_cpt_info.gra_z;
+
+
+
+    temp_node.vel_info.xa_vel=xa_read(fd)-sensor_off.xl_accel_offset;
+    temp_node.vel_info.ya_vel=ya_read(fd)-sensor_off.yl_accel_offset;
+    temp_node.vel_info.za_vel=za_read(fd)-sensor_off.zl_accel_offset;
 
     if(!accel_state)
+    {
+      //self check to modify the loss
+      sensor_check(&temp_node,&sensor_off); 
       accel_state=1;
-
-   }
+    }
+  }
   pthread_cleanup_pop(0);
 }
 //////////////////////////////////////////////
@@ -250,9 +269,10 @@ void* collect_info_thread(void)
 //       printf("the last temper is %6.3f\n",temp_node.temper);
         memcpy(&m_node,&temp_node,sizeof(motion_node));
 
-        mlist_add_node(&m_node,ml_p);//add the first node as a base to caculate
-        print_move_info(ml_p->tail_ptr,0);
 
+       //add the first node as a base to caculate
+        mlist_add_node(&m_node,ml_p);
+        print_move_info(ml_p->tail_ptr,0);
 //      mp=ml_p->tail_ptr
         init_kalman_params();
 
