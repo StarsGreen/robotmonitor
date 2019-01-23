@@ -362,4 +362,20 @@ float solve_noliner_equation(float ma,float mb,float mc)
        break;
     }
   }
+  return c_result;
+}
+////////////////////////////////////////
+int sensor_check(motion_node* mn,sensor_offset* so)
+{
+  float ma=mn->accel_info.xl_accel;
+  float mb=mn->accel_info.yl_accel;
+  float mc=mn->accel_info.zl_accel;
+  float gra_y=solve_noliner_equation(ma,mb,mc);
+  float gra_x=gra_y+ma-mb;
+  float gra_z=gra_y+mc-mb;
+  float zero_offset=mb-gra_y;
+
+
+
+
 }

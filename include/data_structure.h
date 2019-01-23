@@ -79,7 +79,7 @@ typedef struct gra_component
 	float gra_x;
 	float gra_y;
 	float gra_z;
-}gyro_info;
+}gra_info;
 
 typedef struct M_Node
 {
@@ -189,6 +189,7 @@ struct video_data
 /////////////////////////////////////////////
 typedef struce sensor_offset
 {
+  gra_info gra_cpt_info;
   float xl_accel_offset;
   float yl_accel_offset;
   float zl_accel_offset;
@@ -196,4 +197,4 @@ typedef struce sensor_offset
   float ya_vel_offset;
   float za_vel_offset;
   float sensor_zero_shift;
-}
+}sensor_offset;

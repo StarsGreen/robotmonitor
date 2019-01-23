@@ -55,7 +55,7 @@ const float Q_offset=0.5;
 const float R_offset=0.25;
 static float dt=0;
 
-
+sensor_offset sensor_off;
 
 M_Node M_info;
 M_Pointer M_info_pointer;
