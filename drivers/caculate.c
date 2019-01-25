@@ -164,7 +164,7 @@ int init_kalman_params()
 
 }
 
-int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
+int kalman_filter(mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 {
 
   kalman_params* k_params=kalman_paramters;
@@ -190,7 +190,8 @@ int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
   k_params->last_result=value_real;
   k_params->last_var=p_new;
-  result->jour_info.xl=value_real;
+
+  cur_node_ptr->jour_info.xl=value_real;
 
   k_params++;
 
@@ -216,7 +217,7 @@ int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
   k_params->last_result=value_real;
   k_params->last_var=p_new;
-  result->jour_info.yl=value_real;
+  cur_node_ptr->jour_info.yl=value_real;
 
   k_params++;
 
@@ -243,7 +244,7 @@ int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
   k_params->last_result=value_real;
   k_params->last_var=p_new;
-  result->jour_info.zl=value_real;
+  cur_node_ptr->jour_info.zl=value_real;
 
   k_params++;
 
@@ -271,7 +272,7 @@ int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
   k_params->last_result=value_real;
   k_params->last_var=p_new;
-  result->jour_info.xa=value_real;
+  cur_node_ptr->jour_info.xa=value_real;
 
   k_params++;
 
@@ -298,7 +299,7 @@ int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
   k_params->last_result=value_real;
   k_params->last_var=p_new;
-  result->jour_info.ya=value_real;
+  cur_node_ptr->jour_info.ya=value_real;
 
   k_params++;
 //////////////////////////////////////////////////////
@@ -324,7 +325,7 @@ int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
   k_params->last_result=value_real;
   k_params->last_var=p_new;
-  result->jour_info.za=value_real;
+  cur_node_ptr->jour_info.za=value_real;
 
   return 0;
 }
@@ -332,8 +333,8 @@ int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 /*由方程导出的函数在此，返回计算值*/
 float fun(float x,float ma,float mb,float mc)
 {
- float func_x =3*pow(x,2)+2*x*(ma+mc-2*mb)-
-  pow((ma-mb),2)-pow((mc-mb),2)-pow(GRAVITY,2);
+ float func_x =3*pow(x,2)+2*x*(ma+mc-2*mb)+
+  pow((ma-mb),2)+pow((mc-mb),2)-pow(GRAVITY,2);
   return func_x;
 }
 //////////////////////////////////////
@@ -347,10 +348,11 @@ float diff_fun(float x,float ma,float mb,float mc)
 #define TOL 0.0001  //tolerance
 float solve_noliner_equation(float ma,float mb,float mc)
 {
+  printf("the ma is %6.5f,the mb is %6.5f,the mc is %6.5f\n",ma,mb,mc);
   unsigned int c_times = 0;
   float c_result;
   float p=0.04;
-  for (c_times = 1; c_times < 1000; c_times++)
+  for(c_times=1;c_times < 1000;c_times++)
   {
     c_result = p - fun(p,ma,mb,mc)/diff_fun(p,ma,mb,mc);
     if (fabs(p - c_result) <TOL)
@@ -362,14 +364,15 @@ float solve_noliner_equation(float ma,float mb,float mc)
        break;
     }
   }
+  printf("the sovelution is %6.5f\n",c_result);
   return c_result;
 }
 ////////////////////////////////////////
 int sensor_check(motion_node* mn,sensor_offset* so)
 {
-  float ma=mn->accel_info.xl_accel;
-  float mb=mn->accel_info.yl_accel;
-  float mc=mn->accel_info.zl_accel;
+  float ma=fabs(mn->accel_info.xl_accel);
+  float mb=fabs(mn->accel_info.yl_accel);
+  float mc=fabs(mn->accel_info.zl_accel);
   float gra_y=solve_noliner_equation(ma,mb,mc);
   float gra_x=gra_y+ma-mb;
   float gra_z=gra_y+mc-mb;

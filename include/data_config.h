@@ -67,5 +67,5 @@
 #define MOVE_CMD_SIZE sizeof(move_cmd)
 
 
-#define ST 0.05f //sensor sample tima
+#define ST 0.01f //sensor sample tima
 #define GRAVITY 9.80f

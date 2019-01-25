@@ -28,7 +28,7 @@ extern int init_mpu6050();
 //extern void init_dist_sensor();
 //extern void get_move_info();
 
-extern int kalman_filter(mn_ptr result,mn_ptr last_node_ptr,mn_ptr cur_node_ptr);
+extern int kalman_filter(mn_ptr last_node_ptr,mn_ptr cur_node_ptr);
 extern int init_kalman_params();
 extern float slide_filter(float cur_value,float last_value);
 extern int mems_fusion(float gx, float gy, float gz, float ax, float ay, float az,
@@ -178,12 +178,17 @@ void* accel_get_thread(void)
 {
 //	int num=0;
 	int fd;
+        int i=0,sample_freq=20;
+
 	float xa_vel_offset=0;
         float ya_vel_offset=0;
         float za_vel_offset=0;
 	float xl_accel_offset=0;
 	float yl_accel_offset=0;
 	float zl_accel_offset=0;
+       //used in loss test
+        motion_node t_node;
+
 
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
@@ -193,48 +198,65 @@ void* accel_get_thread(void)
 
 	fd=init_mpu6050();
         memset(&sensor_off,0,sizeof(sensor_off));
+      //first sample to get the loss bass;
+       for(i=0;i<sample_freq;i++)
+       {
+        xa_vel_offset+=xa_read(fd);
+        ya_vel_offset+=ya_read(fd);
+        za_vel_offset+=za_read(fd);
+        xl_accel_offset+=xl_read(fd);
+        yl_accel_offset+=yl_read(fd);
+        zl_accel_offset+=zl_read(fd);
+       }
+       t_node.accel_info.xl_accel=xl_accel_offset/sample_freq;
+       t_node.accel_info.yl_accel=yl_accel_offset/sample_freq;
+       t_node.accel_info.zl_accel=zl_accel_offset/sample_freq;
+       t_node.vel_info.xa_vel=xa_vel_offset/sample_freq;
+       t_node.vel_info.ya_vel=ya_vel_offset/sample_freq;
+       t_node.vel_info.za_vel=za_vel_offset/sample_freq;
 
-        xa_vel_offset=xa_read(fd);
-        ya_vel_offset=ya_read(fd);
-        za_vel_offset=za_read(fd);
-        xl_accel_offset=xl_read(fd);
-        yl_accel_offset=yl_read(fd);
-        zl_accel_offset=zl_read(fd);
-
+      sensor_check(&t_node,&sensor_off);
+      printf("gyro_x_offset:%6.5f,gyro__offset:%6.5f,gyro_z_offset:%6.5f\n",
+      sensor_off.xa_vel_offset,sensor_off.ya_vel_offset,sensor_off.za_vel_offset);
+      printf("gra_x:%6.5f,gra_y:%6.5f,gra_z:%6.5f,zero_offset:%6.5f\n",
+      sensor_off.gra_cpt_info.gra_x,
+      sensor_off.gra_cpt_info.gra_y,
+      sensor_off.gra_cpt_info.gra_z,
+      sensor_off.sensor_zero_shift);
 while(1)
   {
     pthread_testcancel();
-    usleep(50000);
+    usleep(5000);
 /*
-    temp_node.accel_info.xl_accel=xl_read(fd)-xl_accel_offset;
-    temp_node.accel_info.yl_accel=yl_read(fd)-yl_accel_offset;
-    temp_node.accel_info.zl_accel=zl_read(fd)-zl_accel_offset;
-    temp_node.vel_info.xa_vel=xa_read(fd)-xa_vel_offset;
-    temp_node.vel_info.ya_vel=ya_read(fd)-ya_vel_offset;
-    temp_node.vel_info.za_vel=za_read(fd)-za_vel_offset;
+    temp_node.accel_info.xl_accel=xl_read(fd);
+    temp_node.accel_info.yl_accel=yl_read(fd);
+    temp_node.accel_info.zl_accel=zl_read(fd);
+    temp_node.vel_info.xa_vel=xa_read(fd);
+    temp_node.vel_info.ya_vel=ya_read(fd);
+    temp_node.vel_info.za_vel=za_read(fd);
 */
+   printf("sensor_xl:%6.5f\n",xl_read(fd));
+   printf("sensor_yl:%6.5f\n",yl_read(fd));
+   printf("sensor_zl:%6.5f\n",zl_read(fd));
+
     temp_node.accel_info.xl_accel=
-    get_real_value(xl_read(fd),sensor_off.sensor_zero_shift);
-//    -sensor_off.gra_cpt_info.gra_x;
+    get_real_value(xl_read(fd),sensor_off.sensor_zero_shift)
+    -sensor_off.gra_cpt_info.gra_x;
 
     temp_node.accel_info.yl_accel=
-    get_real_value(yl_read(fd),sensor_off.sensor_zero_shift);
-//    -sensor_off.gra_cpt_info.gra_y;
+    get_real_value(yl_read(fd),sensor_off.sensor_zero_shift)
+    -sensor_off.gra_cpt_info.gra_y;
 
     temp_node.accel_info.zl_accel=
-    get_real_value(zl_read(fd),sensor_off.sensor_zero_shift);
-//    -sensor_off.gra_cpt_info.gra_z;
+    get_real_value(zl_read(fd),sensor_off.sensor_zero_shift)
+    -sensor_off.gra_cpt_info.gra_z;
 
-
-
-    temp_node.vel_info.xa_vel=xa_read(fd)-sensor_off.xl_accel_offset;
-    temp_node.vel_info.ya_vel=ya_read(fd)-sensor_off.yl_accel_offset;
-    temp_node.vel_info.za_vel=za_read(fd)-sensor_off.zl_accel_offset;
+    temp_node.vel_info.xa_vel=xa_read(fd)-sensor_off.xa_vel_offset;
+    temp_node.vel_info.ya_vel=ya_read(fd)-sensor_off.ya_vel_offset;
+    temp_node.vel_info.za_vel=za_read(fd)-sensor_off.za_vel_offset;
 
     if(!accel_state)
     {
-      //self check to modify the loss
-      sensor_check(&temp_node,&sensor_off); 
       accel_state=1;
     }
   }
@@ -253,6 +275,8 @@ void* collect_info_thread(void)
         float temper,dist,last_temper,last_dist;
         long start,stop;
         float dt;//sensor sample time
+
+//        motion_node t_node;
 
         struct timeval t1,t2;  // 结构体，可以记录秒和微秒两部分值
 	memset(&t1,0,sizeof(t1));
@@ -283,7 +307,7 @@ while(1)
         gettimeofday(&t1, NULL);
 
 
-	usleep(50000);
+	usleep(10000);
  //       temp_node.sample_time=0.05f;
 
         memcpy(&m_node,&temp_node,sizeof(motion_node));
@@ -323,19 +347,36 @@ while(1)
         temper=slide_filter(temper,last_temper);
         dist=slide_filter(dist,last_dist);
 
-    //posture info fusion
-   mems_fusion(xa_vel,ya_vel,za_vel,xl_accel,yl_accel,zl_accel,
-   &m_node.pos_info);
 //    mems_fusion(0,0,9.8,0,0,0,
 //    &m_node.pos_info);
 
       //use n_node to store sensor data after slide filter
-        m_node.accel_info.xl_accel=xl_accel;
-        m_node.accel_info.yl_accel=yl_accel;
-        m_node.accel_info.zl_accel=zl_accel;
         m_node.vel_info.xa_vel=xa_vel;
         m_node.vel_info.ya_vel=ya_vel;
         m_node.vel_info.za_vel=za_vel;
+
+     //posture info fusion
+
+        mems_fusion(xa_vel,ya_vel,za_vel,
+        xl_accel+sensor_off.gra_cpt_info.gra_x,
+        yl_accel+sensor_off.gra_cpt_info.gra_y,
+        zl_accel+sensor_off.gra_cpt_info.gra_z,
+        &m_node.pos_info);
+
+/*
+        mems_fusion(xa_vel,ya_vel,za_vel,xl_accel,yl_accel,zl_accel,
+        &m_node.pos_info);
+*/
+
+        m_node.accel_info.xl_accel=xl_accel;
+        m_node.accel_info.yl_accel=yl_accel;
+        m_node.accel_info.zl_accel=zl_accel;
+
+/*
+        m_node.accel_info.xl_accel=xl_accel-sensor_off.gra_cpt_info.gra_x;
+        m_node.accel_info.yl_accel=yl_accel-sensor_off.gra_cpt_info.gra_y;
+        m_node.accel_info.zl_accel=zl_accel-sensor_off.gra_cpt_info.gra_z;
+*/
         m_node.temper=temper;
         m_node.dist=dist;
 
@@ -346,24 +387,25 @@ while(1)
        start = t1.tv_sec*1000000+t1.tv_usec;  // 结束时刻计算距离
        dt=(float)(stop - start)/1000000;
 
-       temp_node.sample_time=dt;
+       m_node.sample_time=dt;
 //       printf("the start time is %6.5f\n",start);
  //      printf("the stop time is %6.5f\n",stop);
 
 //       printf("the time is %6.5f\n",dt);
      //caculate three axis vel info by accel info
-        m_node.vel_info.xl_vel=mp->vel_info.xl_vel+xl_accel*ST;
-        m_node.vel_info.yl_vel=mp->vel_info.yl_vel+yl_accel*ST;
-        m_node.vel_info.zl_vel=mp->vel_info.zl_vel+zl_accel*ST;
+        m_node.vel_info.xl_vel=m_node.accel_info.xl_accel*ST;
+        m_node.vel_info.yl_vel=m_node.accel_info.yl_accel*ST;
+        m_node.vel_info.zl_vel=m_node.accel_info.zl_accel*ST;
 
      //use kalman filter to proceed journey info
 
-    kalman_filter(&m_node,mp,&temp_node);
+       kalman_filter(mp,&m_node);
 
     if(ml_p->count==MAX_NODE_NUM)
         clear_mlist(ml_p);
     mlist_add_node(&m_node,ml_p);
-    print_move_info(ml_p->tail_ptr,0);
+    if(ml_p->count%10==1)
+      print_move_info(ml_p->tail_ptr,0);
 
   }
         pthread_cleanup_pop(0);
