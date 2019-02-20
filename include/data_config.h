@@ -69,3 +69,9 @@
 
 #define ST 0.01f //sensor sample tima
 #define GRAVITY 9.80f
+
+#define  ACCEL_MAX_LIMITS 2.0f
+#define  ACCEL_MIN_LIMITS 0.0f
+
+#define  ANGLE_MAX_LIMITS 45.0f
+#define  ANGLE_MIN_LIMITS 0.1f

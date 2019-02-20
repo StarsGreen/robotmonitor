@@ -395,8 +395,17 @@ int sensor_check(motion_node* mn,sensor_offset* so)
 float get_real_value(float value,float offset)
 {
   float zero_offset=offset;
+  float rtn_value;
   if(value<0)
-    return value+zero_offset;
+    rtn_value=value+zero_offset;
   else
-    return value-zero_offset;
+    rtn_value=value-zero_offset;
+  return rtn_value;
+}
+//////////////////////////////////////////
+float range_limit(float value,float min_range,float max_range)
+{
+if(fabs(value) > max_range || fabs(value) < min_range)
+  return 0;
+return value;
 }

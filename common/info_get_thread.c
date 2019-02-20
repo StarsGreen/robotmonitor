@@ -35,6 +35,8 @@ extern int mems_fusion(float gx, float gy, float gz, float ax, float ay, float a
 posture_info* p_info);
 
 extern float get_real_value(float value,float offset);
+extern float range_limit(float value,float min_range,float max_range);
+
 extern int sensor_check(motion_node* mn,sensor_offset* so);
 
 //extern void mlist_add(M_Node node);
@@ -46,6 +48,9 @@ extern int mlist_add_node(mn_ptr mn_p,ml_ptr ml_p);
 extern int clear_mlist(ml_ptr ml_p);
 
 extern void print_move_info(mn_ptr mn_p,int flag);
+extern int read_value_to_file(mn_ptr ptr,char* filename);
+
+
 
 extern sem_t sensor_start,sensor_mid,sensor_stop;
 /*
@@ -235,25 +240,30 @@ while(1)
     temp_node.vel_info.ya_vel=ya_read(fd);
     temp_node.vel_info.za_vel=za_read(fd);
 */
-   printf("sensor_xl:%6.5f\n",xl_read(fd));
-   printf("sensor_yl:%6.5f\n",yl_read(fd));
-   printf("sensor_zl:%6.5f\n",zl_read(fd));
+//   printf("sensor_xl:%6.5f\n",xl_read(fd));
+//   printf("sensor_yl:%6.5f\n",yl_read(fd));
+ //  printf("sensor_zl:%6.5f\n",zl_read(fd));
 
     temp_node.accel_info.xl_accel=
-    get_real_value(xl_read(fd),sensor_off.sensor_zero_shift)
-    -sensor_off.gra_cpt_info.gra_x;
+   range_limit((get_real_value(xl_read(fd),sensor_off.sensor_zero_shift)
+    -sensor_off.gra_cpt_info.gra_x),ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
 
     temp_node.accel_info.yl_accel=
-    get_real_value(yl_read(fd),sensor_off.sensor_zero_shift)
-    -sensor_off.gra_cpt_info.gra_y;
+   range_limit((get_real_value(yl_read(fd),sensor_off.sensor_zero_shift)
+    -sensor_off.gra_cpt_info.gra_y),ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
 
     temp_node.accel_info.zl_accel=
-    get_real_value(zl_read(fd),sensor_off.sensor_zero_shift)
-    -sensor_off.gra_cpt_info.gra_z;
+    range_limit((get_real_value(zl_read(fd),sensor_off.sensor_zero_shift)
+    -sensor_off.gra_cpt_info.gra_z),ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
 
-    temp_node.vel_info.xa_vel=xa_read(fd)-sensor_off.xa_vel_offset;
-    temp_node.vel_info.ya_vel=ya_read(fd)-sensor_off.ya_vel_offset;
-    temp_node.vel_info.za_vel=za_read(fd)-sensor_off.za_vel_offset;
+    temp_node.vel_info.xa_vel=range_limit(
+    xa_read(fd)-sensor_off.xa_vel_offset,ANGLE_MIN_LIMITS,ANGLE_MAX_LIMITS);
+
+    temp_node.vel_info.ya_vel=range_limit(
+    ya_read(fd)-sensor_off.ya_vel_offset,ANGLE_MIN_LIMITS,ANGLE_MAX_LIMITS);
+
+    temp_node.vel_info.za_vel=range_limit(
+    za_read(fd)-sensor_off.za_vel_offset,ANGLE_MIN_LIMITS,ANGLE_MAX_LIMITS);
 
     if(!accel_state)
     {
@@ -270,11 +280,14 @@ void* collect_info_thread(void)
 {
         extern ml_ptr ml_p;
         mn_ptr mp;
-	float xl_accel,yl_accel,zl_accel,last_xl,last_yl,last_zl;
-        float xa_vel,ya_vel,za_vel,last_xa,last_ya,last_za;
-        float temper,dist,last_temper,last_dist;
-        long start,stop;
-        float dt;//sensor sample time
+  float xl_accel,yl_accel,zl_accel,last_xl_accel,last_yl_accel,last_zl_accel;
+  float last_xl,last_yl,last_zl;
+  float last_xl_vel,last_yl_vel,last_zl_vel;
+  float xa_vel,ya_vel,za_vel,last_xa_vel,last_ya_vel,last_za_vel;
+  float last_xa,last_ya,last_za;
+  float temper,dist,last_temper,last_dist;
+  long start,stop;
+  float dt;//sensor sample time
 
 //        motion_node t_node;
 
@@ -312,11 +325,12 @@ while(1)
 
         memcpy(&m_node,&temp_node,sizeof(motion_node));
 
-        mp=ml_p->tail_ptr;
+//        mp=ml_p->tail_ptr;
 
         xl_accel=m_node.accel_info.xl_accel;
         yl_accel=m_node.accel_info.yl_accel;
         zl_accel=m_node.accel_info.zl_accel;
+
         xa_vel=m_node.vel_info.xa_vel;
         ya_vel=m_node.vel_info.ya_vel;
         za_vel=m_node.vel_info.za_vel;
@@ -325,24 +339,39 @@ while(1)
         dist=m_node.dist;
 //      printf("the temper is %6.3f\n",temper);
 
-//      mp=ml_p->tail_ptr;
-        last_xl=mp->accel_info.xl_accel;
-        last_yl=mp->accel_info.yl_accel;
-        last_zl=mp->accel_info.zl_accel;
-        last_xa=mp->vel_info.xa_vel;
-        last_ya=mp->vel_info.ya_vel;
-        last_za=mp->vel_info.za_vel;
+        mp=ml_p->tail_ptr;
+        last_xl_accel=mp->accel_info.xl_accel;
+        last_yl_accel=mp->accel_info.yl_accel;
+        last_zl_accel=mp->accel_info.zl_accel;
+
+        last_xl_vel=mp->vel_info.xl_vel;
+        last_yl_vel=mp->vel_info.yl_vel;
+        last_zl_vel=mp->vel_info.zl_vel;
+
+        last_xl=mp->jour_info.xl;
+        last_yl=mp->jour_info.yl;
+        last_zl=mp->jour_info.zl;
+
+        last_xa_vel=mp->vel_info.xa_vel;
+        last_ya_vel=mp->vel_info.ya_vel;
+        last_za_vel=mp->vel_info.za_vel;
+
+        last_xa=mp->jour_info.xa;
+        last_ya=mp->jour_info.ya;
+        last_za=mp->jour_info.za;
+
 
         last_temper=mp->temper;
         last_dist=mp->dist;
 
        //use slide filter to deal with oringinal sensor data
-        xl_accel=slide_filter(xl_accel,last_xl);
-        yl_accel=slide_filter(yl_accel,last_yl);
-        zl_accel=slide_filter(zl_accel,last_zl);
-        xa_vel=slide_filter(xa_vel,last_xa);
-        ya_vel=slide_filter(ya_vel,last_ya);
-        za_vel=slide_filter(za_vel,last_za);
+        xl_accel=slide_filter(xl_accel,last_xl_accel);
+        yl_accel=slide_filter(yl_accel,last_yl_accel);
+        zl_accel=slide_filter(zl_accel,last_zl_accel);
+
+        xa_vel=slide_filter(xa_vel,last_xa_vel);
+        ya_vel=slide_filter(ya_vel,last_ya_vel);
+        za_vel=slide_filter(za_vel,last_za_vel);
 
         temper=slide_filter(temper,last_temper);
         dist=slide_filter(dist,last_dist);
@@ -393,13 +422,16 @@ while(1)
 
 //       printf("the time is %6.5f\n",dt);
      //caculate three axis vel info by accel info
-        m_node.vel_info.xl_vel=m_node.accel_info.xl_accel*ST;
-        m_node.vel_info.yl_vel=m_node.accel_info.yl_accel*ST;
-        m_node.vel_info.zl_vel=m_node.accel_info.zl_accel*ST;
+
+        m_node.vel_info.xl_vel=last_xl_vel+m_node.accel_info.xl_accel*ST;
+        m_node.vel_info.yl_vel=last_yl_vel+m_node.accel_info.yl_accel*ST;
+        m_node.vel_info.zl_vel=last_zl_vel+m_node.accel_info.zl_accel*ST;
 
      //use kalman filter to proceed journey info
 
        kalman_filter(mp,&m_node);
+
+       read_value_to_file(&m_node,"sensor_data");
 
     if(ml_p->count==MAX_NODE_NUM)
         clear_mlist(ml_p);
