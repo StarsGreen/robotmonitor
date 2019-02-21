@@ -74,4 +74,4 @@
 #define  ACCEL_MIN_LIMITS 0.0f
 
 #define  ANGLE_MAX_LIMITS 45.0f
-#define  ANGLE_MIN_LIMITS 0.1f
+#define  ANGLE_MIN_LIMITS 0.01f

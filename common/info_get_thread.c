@@ -240,9 +240,15 @@ while(1)
     temp_node.vel_info.ya_vel=ya_read(fd);
     temp_node.vel_info.za_vel=za_read(fd);
 */
-//   printf("sensor_xl:%6.5f\n",xl_read(fd));
-//   printf("sensor_yl:%6.5f\n",yl_read(fd));
- //  printf("sensor_zl:%6.5f\n",zl_read(fd));
+/*
+   printf("sensor_xl:%7.5f    ",xl_read(fd));
+   printf("sensor_yl:%7.5f    ",yl_read(fd));
+   printf("sensor_zl:%7.5f\n  ",zl_read(fd));
+
+   printf("sensor_xa:%7.5f    ",xa_read(fd));
+   printf("sensor_ya:%7.5f    ",ya_read(fd));
+   printf("sensor_za:%7.5f\n  ",za_read(fd));
+*/
 
     temp_node.accel_info.xl_accel=
    range_limit((get_real_value(xl_read(fd),sensor_off.sensor_zero_shift)
@@ -410,13 +416,6 @@ while(1)
         m_node.dist=dist;
 
 
-       gettimeofday(&t2, NULL);
-
-       stop = t2.tv_sec*1000000+t2.tv_usec; // 开始时刻
-       start = t1.tv_sec*1000000+t1.tv_usec;  // 结束时刻计算距离
-       dt=(float)(stop - start)/1000000;
-
-       m_node.sample_time=dt;
 //       printf("the start time is %6.5f\n",start);
  //      printf("the stop time is %6.5f\n",stop);
 
@@ -432,6 +431,14 @@ while(1)
        kalman_filter(mp,&m_node);
 
        read_value_to_file(&m_node,"sensor_data");
+
+       gettimeofday(&t2, NULL);
+
+       stop = t2.tv_sec*1000000+t2.tv_usec; // 开始时刻
+       start = t1.tv_sec*1000000+t1.tv_usec;  // 结束时刻计算距离
+       dt=(float)(stop - start)/1000000;
+
+       m_node.sample_time=dt;
 
     if(ml_p->count==MAX_NODE_NUM)
         clear_mlist(ml_p);

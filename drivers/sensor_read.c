@@ -94,44 +94,53 @@ short get_data(int fd,unsigned char REG_Address)
 float xa_read(int fd)
 {
 short data=get_data(fd,GYRO_XOUT_H);
+/*
 if(data&0x8000)
   {
   data=~(data-1);
   data=-data;
   }
+*/
 return GYRO_RANGE*data/32768;
 }
 ////////////////////////////////////////////
 float ya_read(int fd)
 {
 short data=get_data(fd,GYRO_YOUT_H);
+/*
 if(data&0x8000)
   {
   data=~(data-1);
   data=-data;
   }
+*/
 return GYRO_RANGE*data/32768;
 }
 ////////////////////////////////////////////
 float za_read(int fd)
 {
 short data=get_data(fd,GYRO_ZOUT_H);
+/*
 if(data&0x8000)
   {
   data=~(data-1);
   data=-data;
   }
+*/
 return GYRO_RANGE*data/32768;
 }
 ////////////////////////////////////////////
 float xl_read(int fd)
 {
 short data=get_data(fd,ACCEL_XOUT_H);
+/*
 if(data&0x8000)
   {
   data=~(data-1);
   data=-data;
   }
+*/
+//printf("xl_accel:%7.5f   \n", ACCEL_RANGE*data/32768);
 return ACCEL_RANGE*data/32768;
 }
 
@@ -139,11 +148,13 @@ return ACCEL_RANGE*data/32768;
 float yl_read(int fd)
 {
 short data=get_data(fd,ACCEL_YOUT_H);
+/*
 if(data&0x8000)
   {
   data=~(data-1);
   data=-data;
   }
+*/
 return ACCEL_RANGE*data/32768;
 }
 
@@ -151,11 +162,13 @@ return ACCEL_RANGE*data/32768;
 float zl_read(int fd)
 {
 short data=get_data(fd,ACCEL_ZOUT_H);
+/*
 if(data&0x8000)
   {
   data=~(data-1);
   data=-data;
   }
+*/
 return ACCEL_RANGE*data/32768;
 }
 //////////////////////////////////////////////

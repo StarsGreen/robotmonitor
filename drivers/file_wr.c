@@ -53,6 +53,36 @@ int read_buff_to_file(char* filename,unsigned char* file_buff,unsigned int buff_
 	return file_size;
 }
 ///////////////////////////////////////////////////////////
+int read_accel_to_file(mn_ptr ptr,char* filename)
+{
+      FILE* fp;
+        fp=fopen(filename,"ab+");
+        if(fp==NULL)
+        {
+        printf("file is not exist and can not be created");
+        exit(1);
+        }
+        fprintf(fp,"xl_accel: %7.5f   ",ptr->accel_info.xl_accel);
+        fprintf(fp,"yl_accel: %7.5f   ",ptr->accel_info.yl_accel);
+        fprintf(fp,"zl_accel: %7.5f\n",ptr->accel_info.zl_accel);
+return 0;
+}
+/////////////////////////////////////////////////////
+int read_angle_vel_to_file(mn_ptr ptr,char* filename)
+{
+        FILE* fp;
+        fp=fopen(filename,"ab+");
+        if(fp==NULL)
+        {
+        printf("file is not exist and can not be created");
+        exit(1);
+        }
+        fprintf(fp,"xa_vel: %7.5f   ",ptr->vel_info.xa_vel);
+        fprintf(fp,"ya_vel: %7.5f   ",ptr->vel_info.ya_vel);
+        fprintf(fp,"za_vel: %7.5f\n",ptr->vel_info.za_vel);
+return 0;
+}
+///////////////////////////////////////////////////////////////
 int read_value_to_file(mn_ptr ptr,char* filename)
 {
 	struct stat file_info;
@@ -84,10 +114,12 @@ int read_value_to_file(mn_ptr ptr,char* filename)
 
         fprintf(fp,"xa: %7.5f   ",ptr->jour_info.xa);
         fprintf(fp,"ya: %7.5f   ",ptr->jour_info.ya);
-        fprintf(fp,"za: %7.5f\n",ptr->jour_info.za);
+        fprintf(fp,"za: %7.5f\n\n",ptr->jour_info.za);
 
 	fclose(fp);
 
+read_accel_to_file(ptr,"accel_data");
+read_angle_vel_to_file(ptr,"angle_vel_data");
 
         stat(filename,&file_info);
         int file_size=file_info.st_size;

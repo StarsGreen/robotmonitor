@@ -1,6 +1,9 @@
 #!/bin/bash
 
 case $1 in
+	"0")
+        rm accel_data angle_vel_data sensor_data
+	;;
 	"1")
 	nmcli dev wifi connect "Pi_Wireless" password "ZZX123321"
 	echo "$1"

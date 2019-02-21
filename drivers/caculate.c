@@ -175,14 +175,14 @@ int kalman_filter(mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
   /*1.this step is used to get xl value by kalman filter*/
 
   //estimate value
-  float value_est=k_params->last_result+0.5*last_value*last_value*ST;
+  float value_est=k_params->last_result+0.5*last_value*ST*ST;
   //estimate variance
   float p_est=k_params->last_var;
   p_est=p_est+Q;
   //caculate kalman gain
   float kg=p_est/(p_est+R);
   //measure value
-  float value_mes=k_params->last_result+0.5*cur_value*cur_value*ST;
+  float value_mes=k_params->last_result+0.5*cur_value*ST*ST;
   //real/best value
   float value_real=value_est+kg*(value_mes-value_est);
   //fresh the variance
@@ -201,15 +201,15 @@ int kalman_filter(mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
   /*2.this step is used to get yl value by kalman filter*/
 
-  //estimate value 
-  value_est=k_params->last_result+0.5*last_value*last_value*ST;
+  //estimate value
+  value_est=k_params->last_result+0.5*last_value*ST*ST;
   //estimate variance
   p_est=k_params->last_var;
   p_est=p_est+Q;
   //caculate kalman gain
   kg=p_est/(p_est+R);
   //measure value
-   value_mes=k_params->last_result+0.5*cur_value*cur_value*ST;
+   value_mes=k_params->last_result+0.5*cur_value*ST*ST;
   //real/best value
   value_real=value_est+kg*(value_mes-value_est);
   //fresh the variance
@@ -229,14 +229,14 @@ int kalman_filter(mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
   /*3.this step is used to get zl value by kalman filter*/
 
   //estimate value 
-  value_est=k_params->last_result+0.5*last_value*last_value*ST;
+  value_est=k_params->last_result+0.5*last_value*ST*ST;
   //estimate variance
   p_est=k_params->last_var;
   p_est=p_est+Q;
   //caculate kalman gain
   kg=p_est/(p_est+R);
   //measure value
-  value_mes=k_params->last_result+0.5*cur_value*cur_value*ST;
+  value_mes=k_params->last_result+0.5*cur_value*ST*ST;
   //real/best value
   value_real=value_est+kg*(value_mes-value_est);
   //fresh the variance
