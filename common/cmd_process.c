@@ -61,7 +61,7 @@ void* cmd_process()
 	if(signal(SIGINT,signal_cmd_proceed)==SIG_ERR)
 		perror("cmd signal error");
 	init_cmd();
-//	while(1)
+	while(1);
 //        get_move_info();
 while(1)
   {

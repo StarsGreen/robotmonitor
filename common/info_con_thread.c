@@ -21,6 +21,9 @@ extern int read_cmd(char* cmd);
 //extern void slist_delete(char* ip);
 //extern void* get_ll_shmid(key_t key,int size);
 //extern void* get_ctrl_cmd_addr();
+extern void* get_shm_addr(key_t key,int size);
+
+
 Ctrl_Pointer cp=NULL;
 
 //static int read_enable=0,read_status=0;
@@ -146,8 +149,11 @@ return code_msg;
 char* assemble_info(void)
 {
 	static char info[113];
-        extern ml_ptr ml_p;
-        mn_ptr tail=ml_p->tail_ptr;
+
+//        extern ml_ptr ml_p;
+//        mn_ptr tail=ml_p->tail_ptr;
+        mn_ptr tail=(mn_ptr)get_shm_addr(MOVE_INFO_KEY,sizeof(motion_node));
+
 	mn_ptr p=(mn_ptr)malloc(sizeof(motion_node));
 
 // 	mll_ptr gp=get_ll_shmid(MOVE_LL_KEY,MOVE_LL_SIZE);
@@ -232,7 +238,8 @@ char* assemble_info(void)
 //	return info;
 //	printf("3\n");
 //	shmdt(gp);
-//	shmdt(tail);
+
+	shmdt(tail);
 	free(p);
 	return info;
 }

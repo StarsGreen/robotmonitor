@@ -58,6 +58,7 @@
 #define SOCK_LL_KEY 1001
 #define CTRL_CMD_KEY 1002
 #define MOVE_CMD_KEY 1003
+#define MOVE_INFO_KEY 1005
 
 #define MOVE_LL_SIZE sizeof(mll)
 #define SOCK_LL_SIZE sizeof(sll)
@@ -65,6 +66,7 @@
 #define CTRL_CMD_SIZE sizeof(Ctrl_Cmd)
 #define CMD_INFO_SIZE sizeof(Cmd_Info)
 #define MOVE_CMD_SIZE sizeof(move_cmd)
+#define MOVE_INFO_SIZE sizeof(motion_node)
 
 
 #define ST 0.01f //sensor sample tima
@@ -75,3 +77,4 @@
 
 #define  ANGLE_MAX_LIMITS 45.0f
 #define  ANGLE_MIN_LIMITS 0.01f
+

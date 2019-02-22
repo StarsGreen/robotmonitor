@@ -103,6 +103,8 @@ pthread_mutex_destroy(&m_cmd->lock);
 //shmctl(shmget(SOCK_LL_KEY,SOCK_LL_SIZE,IPC_CREAT|0666), IPC_RMID, NULL); 
 shmctl(shmget(MOVE_CMD_KEY,MOVE_CMD_SIZE,IPC_CREAT|0666),IPC_RMID,NULL);
 shmctl(shmget(CTRL_CMD_KEY,CTRL_CMD_SIZE,IPC_CREAT|0666),IPC_RMID,NULL);
+shmctl(shmget(MOVE_INFO_KEY,MOVE_INFO_SIZE,IPC_CREAT|0666),IPC_RMID,NULL);
+
 move_direct_stop();
 //printf("all func is off\n");
 exit(1);

@@ -10,7 +10,7 @@
 #include "cmd.h"
 #include "data_config.h"
 //extern char input_cmd[CMD_LENGTH];
-//extern void* get_ll_shmid(key_t key,int size);
+extern void* get_shm_addr(key_t key,int size);
 extern Cmd_Info cmd_info;
 /////////////////////////////////////////////////
 
@@ -358,52 +358,53 @@ printf("---------------move info---------------\n");
 /////////////////////////////////////////////////
 void get_move_info()
 {
-  extern ml_ptr ml_p;
-  print_move_info(ml_p->tail_ptr,0);
+  mn_ptr mp=(mn_ptr)get_shm_addr(MOVE_INFO_KEY,sizeof(motion_node));
+  print_move_info(mp,0);
 }
 
 //////////////////printf the accel info/////////////////
 void get_accel_info()
 {
-  extern ml_ptr ml_p;
-  print_move_info(ml_p->tail_ptr,1);
+
+  mn_ptr mp=(mn_ptr)get_shm_addr(MOVE_INFO_KEY,sizeof(motion_node));
+  print_move_info(mp,1);
 }
 /////////////////printf the vel info//////////////////////
 void get_vel_info()
 {
-  extern ml_ptr ml_p;
-  print_move_info(ml_p->tail_ptr,2);
+  mn_ptr mp=(mn_ptr)get_shm_addr(MOVE_INFO_KEY,sizeof(motion_node));
+  print_move_info(mp,2);
 }
 
 /////////////////printf the pos info//////////////////////
 void get_pos_info()
 {
-  extern ml_ptr ml_p;
-  print_move_info(ml_p->tail_ptr,3);
+  mn_ptr mp=(mn_ptr)get_shm_addr(MOVE_INFO_KEY,sizeof(motion_node));
+  print_move_info(mp,3);
 }
 ////////////////////printf the journey info///////////////////
 void get_journey_info()
 {
-  extern ml_ptr ml_p;
-  print_move_info(ml_p->tail_ptr,4);
+  mn_ptr mp=(mn_ptr)get_shm_addr(MOVE_INFO_KEY,sizeof(motion_node));
+  print_move_info(mp,4);
 }
 ////////////////////printf the journey info///////////////////
 void get_temper_info()
 {
-  extern ml_ptr ml_p;
-  print_move_info(ml_p->tail_ptr,5);
+  mn_ptr mp=(mn_ptr)get_shm_addr(MOVE_INFO_KEY,sizeof(motion_node));
+  print_move_info(mp,5);
 }
 ////////////////////printf the journey info///////////////////
 void get_dist_info()
 {
-  extern ml_ptr ml_p;
-  print_move_info(ml_p->tail_ptr,6);
+  mn_ptr mp=(mn_ptr)get_shm_addr(MOVE_INFO_KEY,sizeof(motion_node));
+  print_move_info(mp,6);
 }
 ////////////////////get gravity componnent info/////
 void get_gra_cpt_info()
 {
-  extern ml_ptr ml_p;
-  print_move_info(ml_p->tail_ptr,7);
+  mn_ptr mp=(mn_ptr)get_shm_addr(MOVE_INFO_KEY,sizeof(motion_node));
+  print_move_info(mp,7);
 }
 //////////////////////////////////////////////
 void move_up()

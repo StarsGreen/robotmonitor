@@ -49,7 +49,7 @@ extern int clear_mlist(ml_ptr ml_p);
 
 extern void print_move_info(mn_ptr mn_p,int flag);
 extern int read_value_to_file(mn_ptr ptr,char* filename);
-
+extern int store_moveinfo_to_shm(mn_ptr ptr);
 
 
 extern sem_t sensor_start,sensor_mid,sensor_stop;
@@ -443,6 +443,8 @@ while(1)
     if(ml_p->count==MAX_NODE_NUM)
         clear_mlist(ml_p);
     mlist_add_node(&m_node,ml_p);
+
+    store_moveinfo_to_shm(&m_node);
 
     if(ml_p->count%10==1)
       print_move_info(ml_p->tail_ptr,0);
