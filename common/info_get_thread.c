@@ -200,7 +200,6 @@ void* accel_get_thread(void)
 //	pthread_setcanceltype(PTHREAD_CANCEL_ASYNCHRONOUS,NULL);
         pthread_cleanup_push(sensor_cleanup_handler,NULL);
 
-
 	fd=init_mpu6050();
         memset(&sensor_off,0,sizeof(sensor_off));
       //first sample to get the loss bass;
@@ -221,6 +220,7 @@ void* accel_get_thread(void)
        t_node.vel_info.za_vel=za_vel_offset/sample_freq;
 
       sensor_check(&t_node,&sensor_off);
+
       printf("gyro_x_offset:%6.5f,gyro__offset:%6.5f,gyro_z_offset:%6.5f\n",
       sensor_off.xa_vel_offset,sensor_off.ya_vel_offset,sensor_off.za_vel_offset);
       printf("gra_x:%6.5f,gra_y:%6.5f,gra_z:%6.5f,zero_offset:%6.5f\n",
@@ -228,6 +228,11 @@ void* accel_get_thread(void)
       sensor_off.gra_cpt_info.gra_y,
       sensor_off.gra_cpt_info.gra_z,
       sensor_off.sensor_zero_shift);
+
+      temp_node.gra_cpt.gra_x=t_node.accel_info.zl_accel;
+      temp_node.gra_cpt.gra_y=t_node.accel_info.yl_accel;
+      temp_node.gra_cpt.gra_z=t_node.accel_info.zl_accel;
+
 while(1)
   {
     pthread_testcancel();
@@ -249,7 +254,7 @@ while(1)
    printf("sensor_ya:%7.5f    ",ya_read(fd));
    printf("sensor_za:%7.5f\n  ",za_read(fd));
 */
-
+/*
     temp_node.accel_info.xl_accel=
    range_limit((get_real_value(xl_read(fd),sensor_off.sensor_zero_shift)
     -sensor_off.gra_cpt_info.gra_x),ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
@@ -261,6 +266,18 @@ while(1)
     temp_node.accel_info.zl_accel=
     range_limit((get_real_value(zl_read(fd),sensor_off.sensor_zero_shift)
     -sensor_off.gra_cpt_info.gra_z),ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
+*/
+    temp_node.accel_info.xl_accel=
+   range_limit(xl_read(fd)-temp_node.gra_cpt.gra_x,
+   ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
+
+    temp_node.accel_info.yl_accel=
+   range_limit(yl_read(fd)-temp_node.gra_cpt.gra_y,
+   ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
+
+    temp_node.accel_info.zl_accel=
+   range_limit(zl_read(fd)-temp_node.gra_cpt.gra_z,
+   ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
 
     temp_node.vel_info.xa_vel=range_limit(
     xa_read(fd)-sensor_off.xa_vel_offset,ANGLE_MIN_LIMITS,ANGLE_MAX_LIMITS);

@@ -64,7 +64,7 @@ int read_accel_to_file(mn_ptr ptr,char* filename)
         }
         fprintf(fp,"xl_accel: %7.5f   ",ptr->accel_info.xl_accel);
         fprintf(fp,"yl_accel: %7.5f   ",ptr->accel_info.yl_accel);
-        fprintf(fp,"zl_accel: %7.5f\n",ptr->accel_info.zl_accel);
+        fprintf(fp,"zl_accel: %7.5f\n ",ptr->accel_info.zl_accel);
 return 0;
 }
 /////////////////////////////////////////////////////
@@ -118,8 +118,9 @@ int read_value_to_file(mn_ptr ptr,char* filename)
 
 	fclose(fp);
 
-read_accel_to_file(ptr,"accel_data");
-read_angle_vel_to_file(ptr,"angle_vel_data");
+       read_accel_to_file(ptr,"accel_data");
+
+       read_angle_vel_to_file(ptr,"angle_vel_data");
 
         stat(filename,&file_info);
         int file_size=file_info.st_size;

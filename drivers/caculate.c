@@ -171,18 +171,18 @@ int kalman_filter(mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
   float last_value=last_node_ptr->accel_info.xl_accel;
   float cur_value=cur_node_ptr->accel_info.xl_accel;
-
+  float last_vel=last_node_ptr->vel_info.xl_vel;
   /*1.this step is used to get xl value by kalman filter*/
 
   //estimate value
-  float value_est=k_params->last_result+0.5*last_value*ST*ST;
+  float value_est=k_params->last_result+last_vel*ST+0.5*last_value*ST*ST;
   //estimate variance
   float p_est=k_params->last_var;
   p_est=p_est+Q;
   //caculate kalman gain
   float kg=p_est/(p_est+R);
   //measure value
-  float value_mes=k_params->last_result+0.5*cur_value*ST*ST;
+  float value_mes=k_params->last_result+last_vel*ST+0.5*cur_value*ST*ST;
   //real/best value
   float value_real=value_est+kg*(value_mes-value_est);
   //fresh the variance
@@ -198,11 +198,12 @@ int kalman_filter(mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 ////////////////////////////////////////////////////////
   last_value=last_node_ptr->accel_info.yl_accel;
   cur_value=cur_node_ptr->accel_info.yl_accel;
-
+  last_vel=last_node_ptr->vel_info.yl_vel;
+ 
   /*2.this step is used to get yl value by kalman filter*/
 
   //estimate value
-  value_est=k_params->last_result+0.5*last_value*ST*ST;
+  value_est=k_params->last_result+last_vel*ST+0.5*last_value*ST*ST;
   //estimate variance
   p_est=k_params->last_var;
   p_est=p_est+Q;
@@ -225,18 +226,19 @@ int kalman_filter(mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
 
   last_value=last_node_ptr->accel_info.zl_accel;
   cur_value=cur_node_ptr->accel_info.zl_accel;
+  last_vel=last_node_ptr->vel_info.zl_vel;
 
   /*3.this step is used to get zl value by kalman filter*/
 
-  //estimate value 
-  value_est=k_params->last_result+0.5*last_value*ST*ST;
+  //estimate value
+  value_est=k_params->last_result+last_vel*ST+0.5*last_value*ST*ST;
   //estimate variance
   p_est=k_params->last_var;
   p_est=p_est+Q;
   //caculate kalman gain
   kg=p_est/(p_est+R);
   //measure value
-  value_mes=k_params->last_result+0.5*cur_value*ST*ST;
+  value_mes=k_params->last_result+last_vel*ST+0.5*cur_value*ST*ST;
   //real/best value
   value_real=value_est+kg*(value_mes-value_est);
   //fresh the variance
@@ -388,13 +390,14 @@ int sensor_check(motion_node* mn,sensor_offset* so)
 
   so->sensor_zero_shift=zero_offset;
 
+
   return 0;
 }
 
 //////////////////////////////////////////
 float get_real_value(float value,float offset)
 {
-  float zero_offset=offset;
+  float zero_offset=fabs(offset);
   float rtn_value;
   if(value<0)
     rtn_value=value+zero_offset;
