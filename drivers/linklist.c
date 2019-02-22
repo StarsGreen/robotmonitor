@@ -106,3 +106,29 @@ int clear_mlist(ml_ptr ml_p)
 
   return 0;
 }
+///////////////////////////////////////////////////////////
+/*
+share memory to store the recent move info
+*/
+void* get_shm_addr(key_t key,int size )
+{
+int move_cmd_shmid = shmget(key,size,IPC_CREAT|0666);
+    if(move_cmd_shmid == -1)
+   {
+        perror("failed to shmget move_cmd_addr\n");
+        return NULL;
+    }
+    void* ptr=NULL;
+    if (NULL !=  ptr)
+          return NULL;
+    ptr= (void*)shmat(move_cmd_shmid,ptr,0);
+    return ptr;
+}
+//////////////////////////////////////////////
+int store_moveinfo_to_shm(mn_ptr ptr)
+{
+  mn_ptr mp=(mn_ptr)get_shm_addr(MOVE_INFO_KEY,sizeof(motion_node));
+  memcpy(mp,ptr,sizeof(motion_node));
+  shmdt(mp);
+return 0;
+}

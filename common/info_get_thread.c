@@ -193,7 +193,7 @@ void* accel_get_thread(void)
 	float zl_accel_offset=0;
        //used in loss test
         motion_node t_node;
-
+//        extern ml_ptr ml_p;
 
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
@@ -443,10 +443,12 @@ while(1)
     if(ml_p->count==MAX_NODE_NUM)
         clear_mlist(ml_p);
     mlist_add_node(&m_node,ml_p);
+
     if(ml_p->count%10==1)
       print_move_info(ml_p->tail_ptr,0);
-
   }
         pthread_cleanup_pop(0);
 }
 ////////////////////////////////////////////////
+
+
