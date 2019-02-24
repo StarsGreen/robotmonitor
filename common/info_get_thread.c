@@ -215,6 +215,7 @@ void* accel_get_thread(void)
        t_node.accel_info.xl_accel=xl_accel_offset/sample_freq;
        t_node.accel_info.yl_accel=yl_accel_offset/sample_freq;
        t_node.accel_info.zl_accel=zl_accel_offset/sample_freq;
+
        t_node.vel_info.xa_vel=xa_vel_offset/sample_freq;
        t_node.vel_info.ya_vel=ya_vel_offset/sample_freq;
        t_node.vel_info.za_vel=za_vel_offset/sample_freq;
@@ -229,7 +230,7 @@ void* accel_get_thread(void)
       sensor_off.gra_cpt_info.gra_z,
       sensor_off.sensor_zero_shift);
 
-      temp_node.gra_cpt.gra_x=t_node.accel_info.zl_accel;
+      temp_node.gra_cpt.gra_x=t_node.accel_info.xl_accel;
       temp_node.gra_cpt.gra_y=t_node.accel_info.yl_accel;
       temp_node.gra_cpt.gra_z=t_node.accel_info.zl_accel;
 
@@ -241,32 +242,46 @@ while(1)
     temp_node.accel_info.xl_accel=xl_read(fd);
     temp_node.accel_info.yl_accel=yl_read(fd);
     temp_node.accel_info.zl_accel=zl_read(fd);
+*/
+/*
     temp_node.vel_info.xa_vel=xa_read(fd);
     temp_node.vel_info.ya_vel=ya_read(fd);
     temp_node.vel_info.za_vel=za_read(fd);
 */
-/*
+#if 1
+   #if SHOW_XL_ACCEL
    printf("sensor_xl:%7.5f    ",xl_read(fd));
+   #endif
+   #if SHOW_YL_ACCEL
    printf("sensor_yl:%7.5f    ",yl_read(fd));
+   #endif
+   #if SHOW_ZL_ACCEL
    printf("sensor_zl:%7.5f\n  ",zl_read(fd));
-
+   #endif
+   #if SHOW_XA_VEL
    printf("sensor_xa:%7.5f    ",xa_read(fd));
+   #endif
+   #if SHOW_YA_VEL
    printf("sensor_ya:%7.5f    ",ya_read(fd));
+   #endif
+   #if SHOW_ZA_VEL
    printf("sensor_za:%7.5f\n  ",za_read(fd));
-*/
-/*
+   #endif
+#endif
+
     temp_node.accel_info.xl_accel=
-   range_limit((get_real_value(xl_read(fd),sensor_off.sensor_zero_shift)
+   range_limit((get_real_value(xl_read(fd),sensor_off.xl_accel_offset)
     -sensor_off.gra_cpt_info.gra_x),ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
 
     temp_node.accel_info.yl_accel=
-   range_limit((get_real_value(yl_read(fd),sensor_off.sensor_zero_shift)
+   range_limit((get_real_value(yl_read(fd),sensor_off.yl_accel_offset)
     -sensor_off.gra_cpt_info.gra_y),ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
 
     temp_node.accel_info.zl_accel=
-    range_limit((get_real_value(zl_read(fd),sensor_off.sensor_zero_shift)
+    range_limit((get_real_value(zl_read(fd),sensor_off.zl_accel_offset)
     -sensor_off.gra_cpt_info.gra_z),ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
-*/
+
+/*
     temp_node.accel_info.xl_accel=
    range_limit(xl_read(fd)-temp_node.gra_cpt.gra_x,
    ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
@@ -278,7 +293,7 @@ while(1)
     temp_node.accel_info.zl_accel=
    range_limit(zl_read(fd)-temp_node.gra_cpt.gra_z,
    ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
-
+*/
     temp_node.vel_info.xa_vel=range_limit(
     xa_read(fd)-sensor_off.xa_vel_offset,ANGLE_MIN_LIMITS,ANGLE_MAX_LIMITS);
 
@@ -304,10 +319,10 @@ void* collect_info_thread(void)
         extern ml_ptr ml_p;
         mn_ptr mp;
   float xl_accel,yl_accel,zl_accel,last_xl_accel,last_yl_accel,last_zl_accel;
-  float last_xl,last_yl,last_zl;
+//  float last_xl,last_yl,last_zl;
   float last_xl_vel,last_yl_vel,last_zl_vel;
   float xa_vel,ya_vel,za_vel,last_xa_vel,last_ya_vel,last_za_vel;
-  float last_xa,last_ya,last_za;
+//  float last_xa,last_ya,last_za;
   float temper,dist,last_temper,last_dist;
   long start,stop;
   float dt;//sensor sample time
@@ -370,19 +385,19 @@ while(1)
         last_xl_vel=mp->vel_info.xl_vel;
         last_yl_vel=mp->vel_info.yl_vel;
         last_zl_vel=mp->vel_info.zl_vel;
-
+/*
         last_xl=mp->jour_info.xl;
         last_yl=mp->jour_info.yl;
         last_zl=mp->jour_info.zl;
-
+*/
         last_xa_vel=mp->vel_info.xa_vel;
         last_ya_vel=mp->vel_info.ya_vel;
         last_za_vel=mp->vel_info.za_vel;
-
+/*
         last_xa=mp->jour_info.xa;
         last_ya=mp->jour_info.ya;
         last_za=mp->jour_info.za;
-
+*/
 
         last_temper=mp->temper;
         last_dist=mp->dist;
@@ -391,6 +406,7 @@ while(1)
         xl_accel=slide_filter(xl_accel,last_xl_accel);
         yl_accel=slide_filter(yl_accel,last_yl_accel);
         zl_accel=slide_filter(zl_accel,last_zl_accel);
+
 
         xa_vel=slide_filter(xa_vel,last_xa_vel);
         ya_vel=slide_filter(ya_vel,last_ya_vel);
@@ -424,6 +440,26 @@ while(1)
         m_node.accel_info.yl_accel=yl_accel;
         m_node.accel_info.zl_accel=zl_accel;
 
+#if 1
+   #if SHOW_VALID_XL_ACCEL
+   printf("sensor_xl:%7.5f    ",m_node.accel_info.xl_accel);
+   #endif
+   #if SHOW_VALID_YL_ACCEL
+   printf("sensor_yl:%7.5f    ",m_node.accel_info.yl_accel);
+   #endif
+   #if SHOW_VALID_ZL_ACCEL
+   printf("sensor_zl:%7.5f\n  ",m_node.accel_info.zl_accel);
+   #endif
+   #if SHOW_VALID_XA_VEL
+   printf("sensor_xa:%7.5f    ",m_node.vel_info.xa_vel);
+   #endif
+   #if SHOW_VALID_YA_VEL
+   printf("sensor_ya:%7.5f    ",m_node.vel_info.ya_vel);
+   #endif
+   #if SHOW_VALID_ZA_VEL
+   printf("sensor_za:%7.5f\n  ",m_node.vel_info.za_vel);
+   #endif
+#endif
 /*
         m_node.accel_info.xl_accel=xl_accel-sensor_off.gra_cpt_info.gra_x;
         m_node.accel_info.yl_accel=yl_accel-sensor_off.gra_cpt_info.gra_y;
@@ -462,9 +498,10 @@ while(1)
     mlist_add_node(&m_node,ml_p);
 
     store_moveinfo_to_shm(&m_node);
-
+#if SHOW_VALID_MOVE_INFO
     if(ml_p->count%10==1)
       print_move_info(ml_p->tail_ptr,0);
+#endif
   }
         pthread_cleanup_pop(0);
 }

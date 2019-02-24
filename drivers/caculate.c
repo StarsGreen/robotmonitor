@@ -38,7 +38,7 @@ float slide_filter(float cur_value,float last_value)
 {
 float rate=fabs((cur_value-last_value)/last_value);
 if(rate<0.3)
-	return  0.6*cur_value+0.4*last_value;
+	return cur_value;
 else return last_value;
 }
 
@@ -387,6 +387,10 @@ int sensor_check(motion_node* mn,sensor_offset* so)
   so->xa_vel_offset=mn->vel_info.xa_vel;
   so->ya_vel_offset=mn->vel_info.ya_vel;
   so->za_vel_offset=mn->vel_info.za_vel;
+
+  so->xl_accel_offset=zero_offset*XL_ACCEL_FACTOR;
+  so->yl_accel_offset=zero_offset*YL_ACCEL_FACTOR;
+  so->zl_accel_offset=zero_offset*ZL_ACCEL_FACTOR;
 
   so->sensor_zero_shift=zero_offset;
 
