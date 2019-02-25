@@ -30,7 +30,7 @@ extern int init_mpu6050();
 
 extern int kalman_filter(mn_ptr last_node_ptr,mn_ptr cur_node_ptr);
 extern int init_kalman_params();
-extern float slide_filter(float cur_value,float last_value);
+extern float slide_filter(float cur_value,float last_value,int flag);
 extern int mems_fusion(float gx, float gy, float gz, float ax, float ay, float az,
 posture_info* p_info);
 
@@ -280,6 +280,11 @@ while(1)
     temp_node.accel_info.zl_accel=
     range_limit((get_real_value(zl_read(fd),sensor_off.zl_accel_offset)
     -sensor_off.gra_cpt_info.gra_z),ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
+#if 0
+   printf("sensor_xl:%7.5f    ",temp_node.accel_info.xl_accel);
+   printf("sensor_yl:%7.5f    ",temp_node.accel_info.yl_accel);
+   printf("sensor_zl:%7.5f\n  ",temp_node.accel_info.zl_accel);
+#endif
 
 /*
     temp_node.accel_info.xl_accel=
@@ -402,18 +407,19 @@ while(1)
         last_temper=mp->temper;
         last_dist=mp->dist;
 
+
        //use slide filter to deal with oringinal sensor data
-        xl_accel=slide_filter(xl_accel,last_xl_accel);
-        yl_accel=slide_filter(yl_accel,last_yl_accel);
-        zl_accel=slide_filter(zl_accel,last_zl_accel);
+        xl_accel=slide_filter(xl_accel,last_xl_accel,0);
+        yl_accel=slide_filter(yl_accel,last_yl_accel,0);
+        zl_accel=slide_filter(zl_accel,last_zl_accel,0);
 
 
-        xa_vel=slide_filter(xa_vel,last_xa_vel);
-        ya_vel=slide_filter(ya_vel,last_ya_vel);
-        za_vel=slide_filter(za_vel,last_za_vel);
+        xa_vel=slide_filter(xa_vel,last_xa_vel,1);
+        ya_vel=slide_filter(ya_vel,last_ya_vel,1);
+        za_vel=slide_filter(za_vel,last_za_vel,1);
 
-        temper=slide_filter(temper,last_temper);
-        dist=slide_filter(dist,last_dist);
+        temper=slide_filter(temper,last_temper,0);
+        dist=slide_filter(dist,last_dist,0);
 
 //    mems_fusion(0,0,9.8,0,0,0,
 //    &m_node.pos_info);
@@ -424,11 +430,17 @@ while(1)
         m_node.vel_info.za_vel=za_vel;
 
      //posture info fusion
-
+/*
         mems_fusion(xa_vel,ya_vel,za_vel,
         xl_accel+sensor_off.gra_cpt_info.gra_x,
         yl_accel+sensor_off.gra_cpt_info.gra_y,
         zl_accel+sensor_off.gra_cpt_info.gra_z,
+        &m_node.pos_info);
+*/
+        mems_fusion(xa_vel,ya_vel,za_vel,
+        sensor_off.gra_cpt_info.gra_x,
+        sensor_off.gra_cpt_info.gra_y,
+        sensor_off.gra_cpt_info.gra_z,
         &m_node.pos_info);
 
 /*
@@ -473,6 +485,7 @@ while(1)
  //      printf("the stop time is %6.5f\n",stop);
 
 //       printf("the time is %6.5f\n",dt);
+
      //caculate three axis vel info by accel info
 
         m_node.vel_info.xl_vel=last_xl_vel+m_node.accel_info.xl_accel*ST;
@@ -498,6 +511,7 @@ while(1)
     mlist_add_node(&m_node,ml_p);
 
     store_moveinfo_to_shm(&m_node);
+
 #if SHOW_VALID_MOVE_INFO
     if(ml_p->count%10==1)
       print_move_info(ml_p->tail_ptr,0);

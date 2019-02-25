@@ -74,12 +74,17 @@
 #define  ACCEL_MAX_LIMITS 2.0f
 #define  ACCEL_MIN_LIMITS 0.001f
 
-#define  ANGLE_MAX_LIMITS 45.0f
+#define  ANGLE_MAX_LIMITS 90.0f
 #define  ANGLE_MIN_LIMITS 0.1f
 
 #define XL_ACCEL_FACTOR 1.0f
-#define YL_ACCEL_FACTOR 1.43f
+#define YL_ACCEL_FACTOR 1.23f
 #define ZL_ACCEL_FACTOR 1.0f
+
+#define XA_VEL_FACTOR 1.0f
+#define YA_VEL_FACTOR 1.0f
+#define ZA_VEL_FACTOR 1.0f
+
 
 #define SHOW_XL_ACCEL 0
 #define SHOW_YL_ACCEL 0
@@ -89,13 +94,16 @@
 #define SHOW_YA_VEL 0
 #define SHOW_ZA_VEL 0
 
-#define SHOW_VALID_XL_ACCEL 1
-#define SHOW_VALID_YL_ACCEL 1
-#define SHOW_VALID_ZL_ACCEL 1
+#define SHOW_VALID_XL_ACCEL 0
+#define SHOW_VALID_YL_ACCEL 0
+#define SHOW_VALID_ZL_ACCEL 0
 
 #define SHOW_VALID_XA_VEL 0
 #define SHOW_VALID_YA_VEL 0
 #define SHOW_VALID_ZA_VEL 0
 
-#define SHOW_VALID_MOVE_INFO 0
+#define SHOW_VALID_MOVE_INFO 1
+
+#define ACCEL_WINDOW 0.5
+#define ANGLE_WINDOW 25
 

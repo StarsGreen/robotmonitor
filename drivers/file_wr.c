@@ -67,6 +67,22 @@ int read_accel_to_file(mn_ptr ptr,char* filename)
         fprintf(fp,"zl_accel: %7.5f\n ",ptr->accel_info.zl_accel);
 return 0;
 }
+
+///////////////////////////////////////////////////////////
+int read_jour_to_file(mn_ptr ptr,char* filename)
+{
+      FILE* fp;
+        fp=fopen(filename,"ab+");
+        if(fp==NULL)
+        {
+        printf("file is not exist and can not be created");
+        exit(1);
+        }
+        fprintf(fp,"xl_jour: %7.5f   ",ptr->jour_info.xl);
+        fprintf(fp,"yl_jour: %7.5f   ",ptr->jour_info.yl);
+        fprintf(fp,"zl_jour: %7.5f\n ",ptr->jour_info.zl);
+return 0;
+}
 /////////////////////////////////////////////////////
 int read_angle_vel_to_file(mn_ptr ptr,char* filename)
 {
@@ -122,8 +138,9 @@ int read_value_to_file(mn_ptr ptr,char* filename)
 
        read_angle_vel_to_file(ptr,"angle_vel_data");
 
+       read_jour_to_file(ptr,"jour_data");
+
         stat(filename,&file_info);
         int file_size=file_info.st_size;
 	return file_size;
 }
-

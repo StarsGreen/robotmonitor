@@ -34,12 +34,21 @@ return result;
 }
 */
 ///////////////////////////////////////////////
-float slide_filter(float cur_value,float last_value)
+float slide_filter(float cur_value,float last_value,int flag)
 {
-float rate=fabs((cur_value-last_value)/last_value);
-if(rate<0.3)
-	return cur_value;
-else return last_value;
+float rate=fabs(cur_value-last_value);
+if(flag==0)
+{
+  if(rate<ACCEL_WINDOW)
+	return 0.8*cur_value+last_value*0.2;
+  else return last_value;
+}
+else
+{
+  if(rate<ANGLE_WINDOW)
+        return 0.8*cur_value+last_value*0.2;
+  else return last_value;
+}
 }
 
 #define Kp 10.0f                // 比例增益支配率收敛到加速度计/磁强计
@@ -199,7 +208,7 @@ int kalman_filter(mn_ptr last_node_ptr,mn_ptr cur_node_ptr)
   last_value=last_node_ptr->accel_info.yl_accel;
   cur_value=cur_node_ptr->accel_info.yl_accel;
   last_vel=last_node_ptr->vel_info.yl_vel;
- 
+
   /*2.this step is used to get yl value by kalman filter*/
 
   //estimate value
@@ -384,9 +393,9 @@ int sensor_check(motion_node* mn,sensor_offset* so)
   so->gra_cpt_info.gra_y=gra_y;
   so->gra_cpt_info.gra_z=gra_z;
 
-  so->xa_vel_offset=mn->vel_info.xa_vel;
-  so->ya_vel_offset=mn->vel_info.ya_vel;
-  so->za_vel_offset=mn->vel_info.za_vel;
+  so->xa_vel_offset=mn->vel_info.xa_vel*XA_VEL_FACTOR;
+  so->ya_vel_offset=mn->vel_info.ya_vel*YA_VEL_FACTOR;
+  so->za_vel_offset=mn->vel_info.za_vel*ZA_VEL_FACTOR;
 
   so->xl_accel_offset=zero_offset*XL_ACCEL_FACTOR;
   so->yl_accel_offset=zero_offset*YL_ACCEL_FACTOR;
