@@ -378,9 +378,15 @@ float solve_noliner_equation(float ma,float mb,float mc)
   printf("the sovelution is %6.5f\n",c_result);
   return c_result;
 }
+///////////////////////////////////////
+#define JUDGE_WITH_ZERO(x) (x>0?1:-1)
 ////////////////////////////////////////
 int sensor_check(motion_node* mn,sensor_offset* so)
 {
+  float ma0=JUDGE_WITH_ZERO(mn->accel_info.xl_accel);
+  float mb0=JUDGE_WITH_ZERO(mn->accel_info.yl_accel);
+  float mc0=JUDGE_WITH_ZERO(mn->accel_info.zl_accel);
+
   float ma=fabs(mn->accel_info.xl_accel);
   float mb=fabs(mn->accel_info.yl_accel);
   float mc=fabs(mn->accel_info.zl_accel);
@@ -389,9 +395,9 @@ int sensor_check(motion_node* mn,sensor_offset* so)
   float gra_z=gra_y+mc-mb;
   float zero_offset=mb-gra_y;
 
-  so->gra_cpt_info.gra_x=gra_x;
-  so->gra_cpt_info.gra_y=gra_y;
-  so->gra_cpt_info.gra_z=gra_z;
+  so->gra_cpt_info.gra_x=gra_x*ma0;
+  so->gra_cpt_info.gra_y=gra_y*mb0;
+  so->gra_cpt_info.gra_z=gra_z*mc0;
 
   so->xa_vel_offset=mn->vel_info.xa_vel*XA_VEL_FACTOR;
   so->ya_vel_offset=mn->vel_info.ya_vel*YA_VEL_FACTOR;
@@ -412,9 +418,11 @@ float get_real_value(float value,float offset)
 {
   float zero_offset=fabs(offset);
   float rtn_value;
+/*
   if(value<0)
     rtn_value=value+zero_offset;
   else
+*/
     rtn_value=value-zero_offset;
   return rtn_value;
 }

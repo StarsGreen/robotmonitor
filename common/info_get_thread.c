@@ -191,6 +191,15 @@ void* accel_get_thread(void)
 	float xl_accel_offset=0;
 	float yl_accel_offset=0;
 	float zl_accel_offset=0;
+
+/*
+	float xa_vel=0;
+        float ya_vel=0;
+        float za_vel=0;
+	float xl_accel=0;
+	float yl_accel=0;
+	float zl_accel=0;
+*/
        //used in loss test
         motion_node t_node;
 //        extern ml_ptr ml_p;
@@ -212,6 +221,7 @@ void* accel_get_thread(void)
         yl_accel_offset+=yl_read(fd);
         zl_accel_offset+=zl_read(fd);
        }
+
        t_node.accel_info.xl_accel=xl_accel_offset/sample_freq;
        t_node.accel_info.yl_accel=yl_accel_offset/sample_freq;
        t_node.accel_info.zl_accel=zl_accel_offset/sample_freq;
@@ -249,26 +259,18 @@ while(1)
     temp_node.vel_info.za_vel=za_read(fd);
 */
 #if 1
-   #if SHOW_XL_ACCEL
+   #if SHOW_LINEAR_ACCEL
    printf("sensor_xl:%7.5f    ",xl_read(fd));
-   #endif
-   #if SHOW_YL_ACCEL
    printf("sensor_yl:%7.5f    ",yl_read(fd));
-   #endif
-   #if SHOW_ZL_ACCEL
    printf("sensor_zl:%7.5f\n  ",zl_read(fd));
    #endif
-   #if SHOW_XA_VEL
+   #if SHOW_ANGLE_VEL
    printf("sensor_xa:%7.5f    ",xa_read(fd));
-   #endif
-   #if SHOW_YA_VEL
    printf("sensor_ya:%7.5f    ",ya_read(fd));
-   #endif
-   #if SHOW_ZA_VEL
    printf("sensor_za:%7.5f\n  ",za_read(fd));
    #endif
 #endif
-
+/*
     temp_node.accel_info.xl_accel=
    range_limit((get_real_value(xl_read(fd),sensor_off.xl_accel_offset)
     -sensor_off.gra_cpt_info.gra_x),ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
@@ -280,13 +282,8 @@ while(1)
     temp_node.accel_info.zl_accel=
     range_limit((get_real_value(zl_read(fd),sensor_off.zl_accel_offset)
     -sensor_off.gra_cpt_info.gra_z),ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
-#if 0
-   printf("sensor_xl:%7.5f    ",temp_node.accel_info.xl_accel);
-   printf("sensor_yl:%7.5f    ",temp_node.accel_info.yl_accel);
-   printf("sensor_zl:%7.5f\n  ",temp_node.accel_info.zl_accel);
-#endif
+*/
 
-/*
     temp_node.accel_info.xl_accel=
    range_limit(xl_read(fd)-temp_node.gra_cpt.gra_x,
    ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
@@ -298,7 +295,7 @@ while(1)
     temp_node.accel_info.zl_accel=
    range_limit(zl_read(fd)-temp_node.gra_cpt.gra_z,
    ACCEL_MIN_LIMITS,ACCEL_MAX_LIMITS);
-*/
+
     temp_node.vel_info.xa_vel=range_limit(
     xa_read(fd)-sensor_off.xa_vel_offset,ANGLE_MIN_LIMITS,ANGLE_MAX_LIMITS);
 
@@ -430,19 +427,20 @@ while(1)
         m_node.vel_info.za_vel=za_vel;
 
      //posture info fusion
-/*
+
         mems_fusion(xa_vel,ya_vel,za_vel,
         xl_accel+sensor_off.gra_cpt_info.gra_x,
         yl_accel+sensor_off.gra_cpt_info.gra_y,
         zl_accel+sensor_off.gra_cpt_info.gra_z,
         &m_node.pos_info);
-*/
+
+/*
         mems_fusion(xa_vel,ya_vel,za_vel,
         sensor_off.gra_cpt_info.gra_x,
         sensor_off.gra_cpt_info.gra_y,
         sensor_off.gra_cpt_info.gra_z,
         &m_node.pos_info);
-
+*/
 /*
         mems_fusion(xa_vel,ya_vel,za_vel,xl_accel,yl_accel,zl_accel,
         &m_node.pos_info);
@@ -453,22 +451,14 @@ while(1)
         m_node.accel_info.zl_accel=zl_accel;
 
 #if 1
-   #if SHOW_VALID_XL_ACCEL
+   #if SHOW_VALID_LINEAR_ACCEL
    printf("sensor_xl:%7.5f    ",m_node.accel_info.xl_accel);
-   #endif
-   #if SHOW_VALID_YL_ACCEL
    printf("sensor_yl:%7.5f    ",m_node.accel_info.yl_accel);
-   #endif
-   #if SHOW_VALID_ZL_ACCEL
    printf("sensor_zl:%7.5f\n  ",m_node.accel_info.zl_accel);
    #endif
-   #if SHOW_VALID_XA_VEL
+   #if SHOW_VALID_ANGLE_VEL
    printf("sensor_xa:%7.5f    ",m_node.vel_info.xa_vel);
-   #endif
-   #if SHOW_VALID_YA_VEL
    printf("sensor_ya:%7.5f    ",m_node.vel_info.ya_vel);
-   #endif
-   #if SHOW_VALID_ZA_VEL
    printf("sensor_za:%7.5f\n  ",m_node.vel_info.za_vel);
    #endif
 #endif
