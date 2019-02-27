@@ -31,7 +31,11 @@ extern int init_mpu6050();
 extern int kalman_filter(mn_ptr last_node_ptr,mn_ptr cur_node_ptr);
 extern int init_kalman_params();
 extern float slide_filter(float cur_value,float last_value,int flag);
-extern int mems_fusion(float gx, float gy, float gz, float ax, float ay, float az,
+
+extern int init_mems_quaternion(float gx, float gy, float gz, 
+float ax, float ay, float az,posture_info* p_info);
+
+extern int fresh_mems_quaternion(float gx, float gy, float gz,
 posture_info* p_info);
 
 extern float get_real_value(float value,float offset);
@@ -346,13 +350,21 @@ void* collect_info_thread(void)
 //       printf("the last temper is %6.3f\n",temp_node.temper);
         memcpy(&m_node,&temp_node,sizeof(motion_node));
 
+//      mp=ml_p->tail_ptr
+        init_kalman_params();
+
+        init_mems_quaternion(
+        m_node.vel_info.xa_vel,
+        m_node.vel_info.ya_vel,
+        m_node.vel_info.za_vel,
+        sensor_off.gra_cpt_info.gra_x,
+        sensor_off.gra_cpt_info.gra_y,
+        sensor_off.gra_cpt_info.gra_z,
+        &m_node.pos_info);
 
        //add the first node as a base to caculate
         mlist_add_node(&m_node,ml_p);
         print_move_info(ml_p->tail_ptr,0);
-//      mp=ml_p->tail_ptr
-        init_kalman_params();
-
 while(1)
   {
 	pthread_testcancel();
@@ -427,20 +439,17 @@ while(1)
         m_node.vel_info.za_vel=za_vel;
 
      //posture info fusion
-
+/*
         mems_fusion(xa_vel,ya_vel,za_vel,
         xl_accel+sensor_off.gra_cpt_info.gra_x,
         yl_accel+sensor_off.gra_cpt_info.gra_y,
         zl_accel+sensor_off.gra_cpt_info.gra_z,
         &m_node.pos_info);
-
-/*
-        mems_fusion(xa_vel,ya_vel,za_vel,
-        sensor_off.gra_cpt_info.gra_x,
-        sensor_off.gra_cpt_info.gra_y,
-        sensor_off.gra_cpt_info.gra_z,
-        &m_node.pos_info);
 */
+
+        fresh_mems_quaternion(xa_vel,ya_vel,za_vel,
+        &m_node.pos_info);
+
 /*
         mems_fusion(xa_vel,ya_vel,za_vel,xl_accel,yl_accel,zl_accel,
         &m_node.pos_info);

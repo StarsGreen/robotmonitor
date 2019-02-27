@@ -51,7 +51,7 @@ else
 }
 }
 
-#define Kp 10.0f                // 比例增益支配率收敛到加速度计/磁强计
+#define Kp 1.0f                // 比例增益支配率收敛到加速度计/磁强计
 #define Ki 0.002f                // 积分增益支配率的陀螺仪偏见的衔接
 #define halfT (0.5*ST)             // 采样周期的一半
 
@@ -60,7 +60,7 @@ float exInt = 0, eyInt = 0, ezInt = 0;     // 按比例缩小积分误差
 
 //float Yaw,Pitch,Roll;  //偏航角，俯仰角，翻滚角
 
-int mems_fusion(float gx, float gy, float gz, float ax, float ay, float az,
+int init_mems_quaternion(float gx, float gy, float gz, float ax, float ay, float az,
 posture_info* p_info)
 {
         float norm;
@@ -95,6 +95,35 @@ posture_info* p_info)
         gx = gx + Kp*ex + exInt;
         gy = gy + Kp*ey + eyInt;
         gz = gz + Kp*ez + ezInt;
+
+        // 整合四元数率和正常化
+        q0 = q0 + (-q1*gx - q2*gy - q3*gz)*halfT;
+        q1 = q1 + (q0*gx + q2*gz - q3*gy)*halfT;
+        q2 = q2 + (q0*gy - q1*gz + q3*gx)*halfT;
+        q3 = q3 + (q0*gz + q1*gy - q2*gx)*halfT;
+
+        // 正常化四元
+        norm = sqrt(q0*q0 + q1*q1 + q2*q2 + q3*q3);
+        q0 = q0 / norm;
+        q1 = q1 / norm;
+        q2 = q2 / norm;
+        q3 = q3 / norm;
+
+        pitch  = asin(-2 * q1 * q3 + 2 * q0* q2)* 57.3; // pitch
+        roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 57.3; // rollv
+        yaw = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.3;
+
+        p_info->pitch=pitch;
+        p_info->roll=roll;
+        p_info->yaw=yaw;
+
+  return 0;
+}
+//////////////////////////////////////////////////
+int fresh_mems_quaternion(float gx, float gy, float gz, posture_info* p_info)
+{
+        float pitch=0,roll=0,yaw=0;
+        float norm=0;
 
         // 整合四元数率和正常化
         q0 = q0 + (-q1*gx - q2*gy - q3*gz)*halfT;
