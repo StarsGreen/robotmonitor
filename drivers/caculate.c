@@ -67,7 +67,7 @@ posture_info* p_info)
         float vx, vy, vz;
         float ex, ey, ez;
         float pitch=0,roll=0,yaw=0;
-
+        float T[3][3];
         // 测量正常化
         norm = sqrt(ax*ax + ay*ay + az*az);
 
@@ -109,9 +109,42 @@ posture_info* p_info)
         q2 = q2 / norm;
         q3 = q3 / norm;
 
-        pitch  = asin(-2 * q1 * q3 + 2 * q0* q2)* 57.3; // pitch
-        roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 57.3; // rollv
-        yaw = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.3;
+        T[0][0]=q1*q1+q0*q0-q3*q3-q2*q2;
+        T[0][1]=2*(q1*q2 - q0*q3);
+        T[0][2]=2*(q1*q3 + q0*q2);
+        T[1][0]=2*(q1*q2 + q0*q3);
+        T[1][1]=-q1*q1+q0*q0-q3*q3+q2*q2;
+        T[1][2]=2*(q3*q2 - q0*q1);
+        T[2][0]=2*(q1*q3 - q0*q2);
+        T[2][1]=2*(q2*q3 + q0*q1);
+        T[2][2]=-q1*q1+q0*q0+q3*q3-q2*q2;
+
+        pitch  = asin(T[2][1])* 57.3; // pitch
+        roll = atan2(-T[2][0],T[2][2])* 57.3; // rollv
+        yaw = atan2(T[0][1],T[1][1]) * 57.3;
+//航向角真值表
+  if(T[1][1]<0.0001 && T[1][1]>-0.0001)
+  {
+    if(T[0][1]>0)
+      yaw=90;
+    else
+      yaw=-90;
+  }
+  else if(T[1][1]<-0.0001)
+  {
+    if(T[0][1]>0)
+      yaw+=180;
+    else
+      yaw-=180;
+  }
+//横滚角真值表
+  if(T[2][2]<0)
+  {
+    if(roll>0)
+     roll-=180;
+    else
+     roll+=180;
+  }
 
         p_info->pitch=pitch;
         p_info->roll=roll;
@@ -124,7 +157,7 @@ int fresh_mems_quaternion(float gx, float gy, float gz, posture_info* p_info)
 {
         float pitch=0,roll=0,yaw=0;
         float norm=0;
-
+        float T[3][3];
         // 整合四元数率和正常化
         q0 = q0 + (-q1*gx - q2*gy - q3*gz)*halfT;
         q1 = q1 + (q0*gx + q2*gz - q3*gy)*halfT;
@@ -138,10 +171,42 @@ int fresh_mems_quaternion(float gx, float gy, float gz, posture_info* p_info)
         q2 = q2 / norm;
         q3 = q3 / norm;
 
-        pitch  = asin(-2 * q1 * q3 + 2 * q0* q2)* 57.3; // pitch
-        roll = atan2(2 * q2 * q3 + 2 * q0 * q1, -2 * q1 * q1 - 2 * q2* q2 + 1)* 57.3; // rollv
-        yaw = atan2(2*(q1*q2 + q0*q3),q0*q0+q1*q1-q2*q2-q3*q3) * 57.3;
+        T[0][0]=q1*q1+q0*q0-q3*q3-q2*q2;
+        T[0][1]=2*(q1*q2 - q0*q3);
+        T[0][2]=2*(q1*q3 + q0*q2);
+        T[1][0]=2*(q1*q2 + q0*q3);
+        T[1][1]=-q1*q1+q0*q0-q3*q3+q2*q2;
+        T[1][2]=2*(q3*q2 - q0*q1);
+        T[2][0]=2*(q1*q3 - q0*q2);
+        T[2][1]=2*(q2*q3 + q0*q1);
+        T[2][2]=-q1*q1+q0*q0+q3*q3-q2*q2;
 
+        pitch  = asin(T[2][1])* 57.3; // pitch
+        roll = atan2(-T[2][0],T[2][2])* 57.3; // roll
+        yaw = atan2(T[0][1],T[1][1]) * 57.3;
+//航向角真值表
+  if(T[1][1]<0.0001 && T[1][1]>-0.0001)
+  {
+    if(T[0][1]>0)
+      yaw=90;
+    else
+      yaw=-90;
+  }
+  else if(T[1][1]<-0.0001)
+  {
+    if(T[0][1]>0)
+      yaw+=180;
+    else
+      yaw-=180;
+  }
+//横滚角真值表
+  if(T[2][2]<0)
+  {
+    if(roll>0)
+     roll-=180;
+    else
+     roll+=180;
+  }
         p_info->pitch=pitch;
         p_info->roll=roll;
         p_info->yaw=yaw;
