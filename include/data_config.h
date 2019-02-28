@@ -96,6 +96,9 @@
 
 #define SHOW_VALID_MOVE_INFO 1
 
+#define SHOW_QUATERNION 0
+
 #define ACCEL_WINDOW 0.5
 #define ANGLE_WINDOW 35
+
 

@@ -126,29 +126,29 @@ posture_info* p_info)
   if(T[1][1]<0.0001 && T[1][1]>-0.0001)
   {
     if(T[0][1]>0)
-      yaw=90;
-    else
       yaw=-90;
+    else
+      yaw=90;
   }
   else if(T[1][1]<-0.0001)
   {
     if(T[0][1]>0)
-      yaw+=180;
+      yaw=-yaw-180;
     else
-      yaw-=180;
+      yaw=180-yaw;
   }
 //横滚角真值表
   if(T[2][2]<0)
   {
     if(roll>0)
-     roll-=180;
+     roll=180-roll;
     else
-     roll+=180;
+     roll=-roll-180;
   }
 
-        p_info->pitch=pitch;
-        p_info->roll=roll;
-        p_info->yaw=yaw;
+        p_info->pitch=-pitch;
+        p_info->roll=-roll;
+        p_info->yaw=-yaw;
 
   return 0;
 }
@@ -158,6 +158,11 @@ int fresh_mems_quaternion(float gx, float gy, float gz, posture_info* p_info)
         float pitch=0,roll=0,yaw=0;
         float norm=0;
         float T[3][3];
+
+        gx/=57.3;
+        gy/=57.3;
+        gz/=57.3;
+
         // 整合四元数率和正常化
         q0 = q0 + (-q1*gx - q2*gy - q3*gz)*halfT;
         q1 = q1 + (q0*gx + q2*gz - q3*gy)*halfT;
@@ -170,7 +175,9 @@ int fresh_mems_quaternion(float gx, float gy, float gz, posture_info* p_info)
         q1 = q1 / norm;
         q2 = q2 / norm;
         q3 = q3 / norm;
-
+#if SHOW_QUATERNION
+  printf("q0=%f,q1=%f,q2=%f,q3=%f\n",q0,q1,q2,q3);
+#endif
         T[0][0]=q1*q1+q0*q0-q3*q3-q2*q2;
         T[0][1]=2*(q1*q2 - q0*q3);
         T[0][2]=2*(q1*q3 + q0*q2);
@@ -188,28 +195,28 @@ int fresh_mems_quaternion(float gx, float gy, float gz, posture_info* p_info)
   if(T[1][1]<0.0001 && T[1][1]>-0.0001)
   {
     if(T[0][1]>0)
-      yaw=90;
-    else
       yaw=-90;
+    else
+      yaw=90;
   }
   else if(T[1][1]<-0.0001)
   {
     if(T[0][1]>0)
-      yaw+=180;
+      yaw=-yaw-180;
     else
-      yaw-=180;
+      yaw=180-yaw;
   }
 //横滚角真值表
   if(T[2][2]<0)
   {
     if(roll>0)
-     roll-=180;
+     roll=180-roll;
     else
-     roll+=180;
+     roll=-roll-180;
   }
-        p_info->pitch=pitch;
-        p_info->roll=roll;
-        p_info->yaw=yaw;
+        p_info->pitch=-pitch;
+        p_info->roll=-roll;
+        p_info->yaw=-yaw;
 
   return 0;
 }
